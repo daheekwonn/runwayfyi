@@ -56,7 +56,6 @@ export default defineType({
     defineField({
       name: 'showScore',
       title: 'Show Score',
-      description: 'Composite trend score out of 100',
       type: 'number',
     }),
     defineField({
@@ -77,7 +76,6 @@ export default defineType({
     defineField({
       name: 'notes',
       title: 'Editorial Notes',
-      description: 'Short editorial take on the show',
       type: 'text',
       rows: 4,
     }),
@@ -104,8 +102,8 @@ export default defineType({
           ],
           preview: {
             select: { title: 'lookNumber', media: 'image' },
-            prepare({ title, media }: { title: number; media: unknown }) {
-              return { title: `Look ${title}`, media }
+            prepare(value: Record<string, any>) {
+              return { title: `Look ${value.title}`, media: value.media }
             },
           },
         },
