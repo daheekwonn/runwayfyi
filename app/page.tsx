@@ -130,18 +130,21 @@ export default function HomePage() {
 
   useEffect(() => {
     lastScrollY.current = window.scrollY;
+    let ticking = false;
     const onScroll = () => {
-      const y = window.scrollY;
-      const diff = y - lastScrollY.current;
-      if (y <= 10) {
-        setNavVisible(true);
-      } else if (diff > 8) {
-        setNavVisible(false);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        // Only show nav links when back near the very top
+        if (y <= 80) {
+          setNavVisible(true);
+        } else {
+          setNavVisible(false);
+        }
         lastScrollY.current = y;
-      } else if (diff < -8) {
-        setNavVisible(true);
-        lastScrollY.current = y;
-      }
+        ticking = false;
+      });
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -243,8 +246,8 @@ export default function HomePage() {
         /* season pill right */
         .nav-pill { position:absolute; right:52px; top:50%; transform:translateY(-50%); font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; border:1px solid var(--bd); color:var(--light); padding:5px 13px; }
 
-        /* spacer matches fixed header height: ticker≈24 + logo-row=56 + links-row=38 */
-        .header-spacer { height:118px; transition:height .3s cubic-bezier(.4,0,.2,1); }
+        /* spacer matches fixed header: ticker≈24 + logo-row=56 + links-row=38 */
+        .header-spacer { height:118px; }
         .header-spacer.collapsed { height:80px; }
 
         /* ── Slide-out mobile/dropdown menu ── */
@@ -306,7 +309,7 @@ export default function HomePage() {
         .sbtn.active::after,.sbtn:hover::after { transform:scaleX(1); }
 
         /* ── Leaderboard + Analysis two-col layout ── */
-        .board-analysis-wrap { display:grid; grid-template-columns:52% 48%; border-bottom:1px solid var(--bd); background:#fff; align-items:start; }
+        .board-analysis-wrap { display:grid; grid-template-columns:44% 56%; border-bottom:1px solid var(--bd); background:#fff; align-items:start; }
 
         /* ── Leaderboard (left, compact) ── */
         .board { padding:32px 32px 32px 52px; border-right:1px solid var(--bd); }
