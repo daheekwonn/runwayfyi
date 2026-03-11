@@ -129,11 +129,19 @@ export default function HomePage() {
   const lastScrollY = useRef(0);
 
   useEffect(() => {
+    lastScrollY.current = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
-      // Hide nav header (ticker + title + links) once scrolled past ~80px
-      setNavVisible(y < 80);
-      lastScrollY.current = y;
+      const diff = y - lastScrollY.current;
+      if (y <= 10) {
+        setNavVisible(true);
+      } else if (diff > 8) {
+        setNavVisible(false);
+        lastScrollY.current = y;
+      } else if (diff < -8) {
+        setNavVisible(true);
+        lastScrollY.current = y;
+      }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -206,9 +214,14 @@ export default function HomePage() {
 
         body { background:#fff; color:var(--ink); -webkit-font-smoothing:antialiased; }
 
-        /* ── Site header (ticker + title + nav links) — sticky, hides on scroll ── */
-        .site-header { position:sticky; top:0; z-index:100; background:#fff; transition:transform .35s cubic-bezier(.4,0,.2,1); }
-        .site-header.hidden { transform:translateY(-100%); }
+        /* ── Site header — fixed, always visible ── */
+        .site-header { position:fixed; top:0; left:0; right:0; z-index:100; background:#fff; }
+
+        /* nav links row slides up/out on scroll down */
+        .nav-links-row { height:38px; display:flex; align-items:center; justify-content:center; gap:44px; background:#fff; border-bottom:1px solid var(--bd); list-style:none; padding:0; overflow:hidden; transition:height .3s cubic-bezier(.4,0,.2,1), opacity .3s ease, border-color .3s ease; }
+        .nav-links-row.hidden { height:0; opacity:0; pointer-events:none; border-color:transparent; }
+        .nav-links-row a { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); text-decoration:none; transition:color .15s; }
+        .nav-links-row a:hover { color:var(--ink); }
 
         /* ── Ticker ── */
         .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:7px 0; }
@@ -230,10 +243,9 @@ export default function HomePage() {
         /* season pill right */
         .nav-pill { position:absolute; right:52px; top:50%; transform:translateY(-50%); font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; border:1px solid var(--bd); color:var(--light); padding:5px 13px; }
 
-        /* ── Nav links row (below logo) ── */
-        .nav-links-row { height:38px; display:flex; align-items:center; justify-content:center; gap:44px; background:#fff; border-bottom:1px solid var(--bd); list-style:none; padding:0; }
-        .nav-links-row a { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); text-decoration:none; transition:color .15s; }
-        .nav-links-row a:hover { color:var(--ink); }
+        /* spacer matches fixed header height: ticker≈24 + logo-row=56 + links-row=38 */
+        .header-spacer { height:118px; transition:height .3s cubic-bezier(.4,0,.2,1); }
+        .header-spacer.collapsed { height:80px; }
 
         /* ── Slide-out mobile/dropdown menu ── */
         .nav-drawer { position:fixed; top:0; left:0; bottom:0; width:260px; background:#fff; z-index:200; transform:translateX(-100%); transition:transform .3s cubic-bezier(.4,0,.2,1); border-right:1px solid var(--bd); padding:72px 36px 40px; display:flex; flex-direction:column; gap:8px; }
@@ -301,15 +313,15 @@ export default function HomePage() {
         .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
         .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
         .section-note { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); }
-        .t-row { display:flex; align-items:center; padding:9px 0; border-bottom:1px solid var(--bd); cursor:pointer; gap:12px; transition:opacity .15s; overflow:visible; }
+        .t-row { display:flex; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--bd); cursor:pointer; gap:0; transition:opacity .15s; overflow:visible; }
         .t-row:last-child { border-bottom:none; }
         .t-row:hover { opacity:.4; }
-        .t-rank { font-family:var(--f-mono); font-size:9px; font-weight:300; color:rgba(12,11,9,0.18); width:18px; flex-shrink:0; }
-        .t-name { flex:1; min-width:0; overflow:hidden; }
-        .t-name-main { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-0.01em; display:block; line-height:1.1; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .t-sub { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); display:inline; white-space:nowrap; }
-        .t-right { display:flex; align-items:center; gap:14px; flex-shrink:0; }
-        .t-score-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; min-width:52px; }
+        .t-rank { font-family:var(--f-mono); font-size:9px; font-weight:300; color:rgba(12,11,9,0.18); width:28px; flex-shrink:0; }
+        .t-name { display:flex; align-items:baseline; gap:8px; flex:1; min-width:0; overflow:hidden; }
+        .t-name-main { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-0.01em; line-height:1.1; color:var(--ink); white-space:nowrap; flex-shrink:0; }
+        .t-sub { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:1; }
+        .t-right { display:flex; align-items:center; gap:10px; flex-shrink:0; margin-left:16px; }
+        .t-score-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
         .t-num-row { display:flex; align-items:baseline; gap:5px; }
 
         /* score with R/S/V hover */
@@ -350,7 +362,7 @@ export default function HomePage() {
         .a-img { width:90px; height:110px; object-fit:cover; object-position:top center; display:block; filter:grayscale(10%) brightness(0.9); flex-shrink:0; }
 
         /* ── Feature — portrait split ── */
-        .feature { display:grid; grid-template-columns:45% 55%; border-bottom:1px solid var(--bd); min-height:560px; max-height:640px; }
+        .feature { display:grid; grid-template-columns:45% 55%; border-bottom:1px solid var(--bd); min-height:560px; max-height:640px; overflow:hidden; position:relative; z-index:0; }
         .feature-img { position:relative; overflow:hidden; background:var(--warm); }
         .feature-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.72) contrast(1.06); display:block; transition:filter .4s ease; }
         .feature:hover .feature-img img { filter:grayscale(10%) brightness(0.6) contrast(1.06); }
@@ -399,7 +411,7 @@ export default function HomePage() {
         .arc-card:hover .arc-arrow { gap:10px; }
 
         /* ── FYI strip ── */
-        .fyi-strip { background:var(--cream); border-bottom:1px solid var(--bd); padding:56px 52px; }
+        .fyi-strip { background:var(--cream); border-bottom:1px solid var(--bd); padding:56px 52px; position:relative; z-index:1; }
         .fyi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:32px; }
         .fyi-card { padding:0 32px 0 0; border-right:1px solid var(--bd); cursor:pointer; transition:opacity .15s; text-decoration:none; color:inherit; }
         .fyi-card:last-child { padding:0 0 0 32px; border-right:none; }
@@ -433,7 +445,7 @@ export default function HomePage() {
       <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
 
       {/* ── Sticky site header (ticker + logo row + nav links) ── */}
-      <header className={`site-header${navVisible ? '' : ' hidden'}`}>
+      <header className="site-header">
         {/* Ticker */}
         <div className="ticker">
           <div className="ticker-inner">
@@ -454,16 +466,15 @@ export default function HomePage() {
           <a href="/" className="nav-logo">runway fyi</a>
           <span className="nav-pill">FW26</span>
         </div>
-        {/* Links row */}
-        <ul className="nav-links-row">
+        {/* Links row — collapses on scroll down */}
+        <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
           <li><a href="/trends">Trends</a></li>
           <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis">Analysis</a></li>
           <li><a href="/archive">Archive</a></li>
         </ul>
       </header>
-
-      {/* ── Hero — 3 panels ── */}
+      <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
       <div className="hero">
         {[0, 1, 2].map(panelIdx => (
           <div key={panelIdx} className={`img-panel${panelsLoaded[panelIdx] ? ' loaded' : ''}`}>
@@ -559,10 +570,8 @@ export default function HomePage() {
               <div key={t.id} className="t-row">
                 <span className="t-rank">{String(t.rank).padStart(2, '0')}</span>
                 <div className="t-name">
-                  <div style={{display:'flex', alignItems:'baseline', gap:'10px', minWidth:0}}>
-                    <span className="t-name-main">{t.name}</span>
-                    <span className="t-sub" style={{flexShrink:0}}>{t.sub}</span>
-                  </div>
+                  <span className="t-name-main">{t.name}</span>
+                  <span className="t-sub">{t.sub}</span>
                 </div>
                 <div className="t-right">
                   <div className="t-score-right">
