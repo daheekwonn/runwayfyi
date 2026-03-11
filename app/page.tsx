@@ -259,28 +259,28 @@ export default function HomePage() {
         .board-analysis-wrap { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--bd); background:#fff; align-items:start; }
 
         /* ── Leaderboard (left, compact) ── */
-        .board { padding:40px 40px 40px 52px; border-right:1px solid var(--bd); }
-        .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
+        .board { padding:32px 40px 32px 52px; border-right:1px solid var(--bd); }
+        .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
         .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
         .section-note { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); }
-        .t-row { display:flex; align-items:center; padding:7px 0; border-bottom:1px solid var(--bd); cursor:pointer; gap:10px; transition:opacity .15s; }
+        .t-row { display:flex; align-items:center; padding:9px 0; border-bottom:1px solid var(--bd); cursor:pointer; gap:12px; transition:opacity .15s; overflow:visible; }
         .t-row:last-child { border-bottom:none; }
         .t-row:hover { opacity:.4; }
         .t-rank { font-family:var(--f-mono); font-size:9px; font-weight:300; color:rgba(12,11,9,0.18); width:18px; flex-shrink:0; }
-        .t-score-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:36px; gap:3px; }
-        .t-num { font-family:var(--f-mono); font-size:15px; font-weight:500; letter-spacing:-0.02em; color:var(--ink); line-height:1; }
-        .t-track { width:28px; height:1.5px; background:rgba(12,11,9,0.08); }
+        .t-score-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:44px; gap:3px; }
+        .t-num { font-family:var(--f-mono); font-size:16px; font-weight:500; letter-spacing:-0.02em; color:var(--ink); line-height:1; }
+        .t-track { width:32px; height:1.5px; background:rgba(12,11,9,0.08); }
         .t-fill { height:100%; background:var(--ink); }
-        .t-name { flex:1; min-width:0; }
-        .t-name-main { font-family:var(--f-display); font-size:15px; font-weight:700; letter-spacing:-0.01em; display:block; line-height:1; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .t-sub { font-family:var(--f-mono); font-size:7px; letter-spacing:0.05em; text-transform:uppercase; color:var(--light); display:block; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .t-right { display:flex; flex-direction:column; align-items:flex-end; gap:1px; flex-shrink:0; }
-        .t-breakdown { display:flex; flex-direction:column; align-items:flex-end; gap:1px; }
-        .t-bd-item { font-family:var(--f-mono); font-size:7px; color:var(--light); letter-spacing:0.05em; }
-        .t-badge { font-family:var(--f-mono); font-size:7px; letter-spacing:0.05em; padding:2px 5px; margin-top:2px; }
+        .t-badge { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.05em; padding:2px 5px; margin-top:1px; }
         .badge-up  { background:rgba(30,107,60,0.09);  color:#1E6B3C; }
         .badge-new { background:rgba(12,11,9,0.05);    color:var(--ink); }
         .badge-dn  { background:rgba(160,50,40,0.07);  color:#9B3228; }
+        .t-name { flex:1; min-width:0; overflow:hidden; }
+        .t-name-main { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-0.01em; display:block; line-height:1.1; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .t-sub { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); display:block; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .t-right { display:flex; flex-direction:column; align-items:flex-end; gap:2px; flex-shrink:0; }
+        .t-breakdown { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+        .t-bd-item { font-family:var(--f-mono); font-size:9px; color:var(--light); letter-spacing:0.05em; }
 
         /* tooltip */
         .score-tooltip-wrap { position:relative; display:inline-flex; align-items:center; gap:4px; cursor:help; }
@@ -479,6 +479,7 @@ export default function HomePage() {
                 <div className="t-score-left">
                   <span className="t-num">{t.score.toFixed(1)}</span>
                   <div className="t-track"><div className="t-fill" style={{ width: `${t.score}%` }} /></div>
+                  <span className={`t-badge ${badgeClass(t.badgeType)}`}>{t.badge}</span>
                 </div>
                 <div className="t-name">
                   <span className="t-name-main">{t.name}</span>
@@ -488,7 +489,6 @@ export default function HomePage() {
                   <div className="t-breakdown">
                     {parts.map((p, i) => <span key={i} className="t-bd-item">{p}</span>)}
                   </div>
-                  <span className={`t-badge ${badgeClass(t.badgeType)}`}>{t.badge}</span>
                 </div>
               </div>
             );
