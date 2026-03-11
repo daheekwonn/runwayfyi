@@ -1,11 +1,16 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
+import Link from 'next/link'
 
-// ── placeholder data ──────────────────────────────────────────────────────────
 const CATEGORIES = ['All', 'Opinion', 'Data', 'Forecast', 'Cultural Context', 'Show Review']
 const SEASONS    = ['All Seasons', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26', 'Copenhagen FW26']
+
+const TICKER_ITEMS = [
+  'Shearling Coat  94.1', 'Chanel FW26  91.2', 'Leather Bomber  88.7',
+  'Dior FW26  87.4', 'Prairie Silhouette  78.6', 'Wide-Leg Trouser  74.3',
+  'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
+]
 
 type Article = {
   _id: string
@@ -23,7 +28,7 @@ type Article = {
 const ARTICLES: Article[] = [
   {
     _id: '1',
-    title: 'the leather jacket is not coming back. it never left.',
+    title: 'The leather jacket is not coming back. it never left.',
     slug: { current: 'leather-jacket-trend-fw26' },
     category: 'opinion',
     season: 'milan-fw26',
@@ -35,7 +40,7 @@ const ARTICLES: Article[] = [
   },
   {
     _id: '2',
-    title: 'what jonathan anderson did to dior in one season',
+    title: 'What jonathan anderson did to dior in one season',
     slug: { current: 'jonathan-anderson-dior-fw26' },
     category: 'show-review',
     season: 'paris-fw26',
@@ -46,7 +51,7 @@ const ARTICLES: Article[] = [
   },
   {
     _id: '3',
-    title: 'prairie dress search volume is up 280% and i have thoughts',
+    title: 'Prairie dress search volume is up 280% and i have thoughts',
     slug: { current: 'prairie-dress-search-trend' },
     category: 'data',
     season: 'paris-fw26',
@@ -57,7 +62,7 @@ const ARTICLES: Article[] = [
   },
   {
     _id: '4',
-    title: 'copenhagen is the most interesting fashion week and nobody is talking about it',
+    title: 'Copenhagen is the most interesting fashion week and nobody is talking about it',
     slug: { current: 'copenhagen-fw26-analysis' },
     category: 'cultural-context',
     season: 'copenhagen-fw26',
@@ -68,7 +73,7 @@ const ARTICLES: Article[] = [
   },
   {
     _id: '5',
-    title: 'matthieu blazy at chanel: the numbers behind the feeling',
+    title: 'Matthieu blazy at chanel: the numbers behind the feeling',
     slug: { current: 'blazy-chanel-fw26-data' },
     category: 'forecast',
     season: 'paris-fw26',
@@ -79,7 +84,7 @@ const ARTICLES: Article[] = [
   },
   {
     _id: '6',
-    title: 'the quiet coat: how outerwear became the most consistent fw26 signal',
+    title: 'The quiet coat: how outerwear became the most consistent fw26 signal',
     slug: { current: 'quiet-coat-outerwear-fw26' },
     category: 'forecast',
     season: 'fw26',
@@ -91,562 +96,259 @@ const ARTICLES: Article[] = [
 ]
 
 const CATEGORY_LABELS: Record<string, string> = {
-  opinion: 'Opinion',
-  data: 'Data',
-  forecast: 'Forecast',
-  'cultural-context': 'Cultural Context',
-  'show-review': 'Show Review',
+  opinion: 'Opinion', data: 'Data', forecast: 'Forecast',
+  'cultural-context': 'Cultural Context', 'show-review': 'Show Review',
 }
-
 const SEASON_LABELS: Record<string, string> = {
-  'paris-fw26': 'Paris FW26',
-  'milan-fw26': 'Milan FW26',
-  'london-fw26': 'London FW26',
-  'newyork-fw26': 'New York FW26',
-  'copenhagen-fw26': 'Copenhagen FW26',
-  'fw26': 'FW26 Season',
+  'paris-fw26': 'Paris FW26', 'milan-fw26': 'Milan FW26', 'london-fw26': 'London FW26',
+  'newyork-fw26': 'New York FW26', 'copenhagen-fw26': 'Copenhagen FW26', 'fw26': 'FW26 Season',
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 export default function AnalysisPage() {
   const [activeCategory, setActiveCategory] = useState('All')
-  const [activeSeason, setActiveSeason]     = useState('All Seasons')
+  const [activeSeason,   setActiveSeason]   = useState('All Seasons')
+  const [menuOpen,       setMenuOpen]       = useState(false)
+  const [navVisible]                        = useState(true)
 
   const filtered = ARTICLES.filter(a => {
     const catMatch = activeCategory === 'All' || CATEGORY_LABELS[a.category] === activeCategory
-    const seasonLabel = SEASON_LABELS[a.season] || ''
-    const seaMatch = activeSeason === 'All Seasons' || seasonLabel === activeSeason
+    const seaMatch = activeSeason === 'All Seasons' || (SEASON_LABELS[a.season] || '') === activeSeason
     return catMatch && seaMatch
   })
-
   const featured = filtered.find(a => a.featured) || filtered[0]
-  const rest = filtered.filter(a => a._id !== featured?._id)
+  const rest      = filtered.filter(a => a._id !== featured?._id)
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+        @import url('https://api.fontshare.com/v2/css?f[]=ranade@300,400,500,600,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Geist+Mono:wght@300;400;500&display=swap');
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        html { scroll-behavior:smooth; }
         :root {
-          --ink:   #0f0e0d;
-          --cream: #F5F2ED;
-          --warm:  #EDE8E1;
-          --muted: #8a8480;
-          --rule:  #d4cfc9;
-          --accent:#C8391A;
+          --ink:#0C0B09; --white:#FFFFFF; --cream:#F5F2ED; --warm:#EDE9E2;
+          --mid:#5A5550; --light:#A09A94; --bd:rgba(12,11,9,0.1);
+          --f-mono:'Geist Mono',monospace; --f-display:'Ranade',sans-serif; --f-body:'Lora',Georgia,serif;
         }
+        body { background:#fff; color:var(--ink); -webkit-font-smoothing:antialiased; }
 
-        .analysis-root {
-          font-family: 'DM Mono', monospace;
-          background: var(--cream);
-          color: var(--ink);
-          min-height: 100vh;
-        }
+        /* header */
+        .site-header { position:fixed; top:0; left:0; right:0; z-index:100; background:#fff; }
+        .nav-links-row { height:38px; display:flex; align-items:center; justify-content:center; gap:44px; background:#fff; border-bottom:1px solid var(--bd); list-style:none; padding:0; overflow:hidden; transition:height .3s cubic-bezier(.4,0,.2,1), opacity .3s ease; }
+        .nav-links-row.hidden { height:0; opacity:0; pointer-events:none; }
+        .nav-links-row a { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); text-decoration:none; transition:color .15s; }
+        .nav-links-row a:hover, .nav-links-row a.active-link { color:var(--ink); }
+        .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:7px 0; }
+        .ticker-inner { display:inline-flex; animation:tick 48s linear infinite; }
+        .ticker-inner span { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.13em; color:rgba(255,255,255,0.32); padding:0 42px; }
+        @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+        .nav-title-row { height:56px; display:flex; align-items:center; justify-content:center; padding:0 52px; background:#fff; border-bottom:1px solid var(--bd); position:relative; }
+        .nav-logo { font-family:var(--f-display); font-size:20px; font-weight:700; letter-spacing:0.08em; text-transform:lowercase; color:var(--ink); text-decoration:none; }
+        .nav-menu-btn { position:absolute; left:52px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; display:flex; flex-direction:column; gap:5px; padding:6px; }
+        .nav-menu-btn span { display:block; width:22px; height:1.5px; background:var(--ink); transition:transform .2s, opacity .2s; }
+        .nav-menu-btn.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
+        .nav-menu-btn.open span:nth-child(2) { opacity:0; }
+        .nav-menu-btn.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
+        .nav-pill { position:absolute; right:52px; top:50%; transform:translateY(-50%); font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; border:1px solid var(--bd); color:var(--light); padding:5px 13px; }
+        .header-spacer { height:118px; }
+        .header-spacer.collapsed { height:80px; }
+        .nav-drawer { position:fixed; top:0; left:0; bottom:0; width:260px; background:#fff; z-index:200; transform:translateX(-100%); transition:transform .3s cubic-bezier(.4,0,.2,1); border-right:1px solid var(--bd); padding:72px 36px 40px; display:flex; flex-direction:column; gap:8px; }
+        .nav-drawer.open { transform:translateX(0); }
+        .nav-drawer a { font-family:var(--f-display); font-size:28px; font-weight:700; letter-spacing:-0.02em; text-transform:lowercase; color:var(--ink); text-decoration:none; line-height:1.25; opacity:.85; transition:opacity .15s; }
+        .nav-drawer a:hover { opacity:1; }
+        .nav-drawer-close { position:absolute; top:22px; right:22px; background:none; border:none; cursor:pointer; font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
+        .nav-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.18); z-index:190; opacity:0; pointer-events:none; transition:opacity .3s; }
+        .nav-overlay.open { opacity:1; pointer-events:all; }
 
-        /* ── nav ──────────────────────────────────────────── */
-        .anav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 48px;
-          height: 56px;
-          border-bottom: 1px solid var(--rule);
-          background: var(--cream);
-          position: sticky;
-          top: 0;
-          z-index: 100;
-        }
-        .anav-logo {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 20px;
-          font-weight: 400;
-          letter-spacing: 0.02em;
-          color: var(--ink);
-          text-decoration: none;
-        }
-        .anav-links {
-          display: flex;
-          gap: 32px;
-          list-style: none;
-        }
-        .anav-links a {
-          font-size: 10px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: var(--muted);
-          text-decoration: none;
-          transition: color 0.15s;
-        }
-        .anav-links a:hover { color: var(--ink); }
-        .anav-links a.active { color: var(--ink); }
+        /* page header */
+        .analysis-header { padding:56px 52px 40px; border-bottom:1px solid var(--bd); background:#fff; display:flex; align-items:flex-end; justify-content:space-between; gap:48px; }
+        .analysis-header h1 { font-family:var(--f-display); font-size:clamp(48px,6vw,80px); font-weight:700; letter-spacing:-0.03em; line-height:0.92; text-transform:lowercase; color:var(--ink); }
+        .analysis-header h1 em { font-style:italic; font-family:var(--f-body); font-weight:500; }
+        .analysis-header-right { max-width:320px; font-family:var(--f-mono); font-size:11px; line-height:1.7; color:var(--light); letter-spacing:0.04em; padding-bottom:4px; }
+        .analysis-count { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); margin-top:16px; }
 
-        /* ── page header ──────────────────────────────────── */
-        .analysis-header {
-          padding: 56px 48px 40px;
-          border-bottom: 1px solid var(--rule);
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          gap: 48px;
-        }
-        .analysis-header-left h1 {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(48px, 6vw, 80px);
-          font-weight: 300;
-          line-height: 0.95;
-          letter-spacing: -0.02em;
-          color: var(--ink);
-        }
-        .analysis-header-left h1 em {
-          font-style: italic;
-          color: var(--accent);
-        }
-        .analysis-header-right {
-          max-width: 320px;
-          font-size: 11px;
-          line-height: 1.7;
-          color: var(--muted);
-          letter-spacing: 0.04em;
-          padding-bottom: 4px;
-        }
-        .analysis-count {
-          font-size: 10px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: var(--muted);
-          margin-top: 16px;
-        }
+        /* filters */
+        .filters-wrap { padding:0 52px; border-bottom:1px solid var(--bd); background:#fff; display:flex; align-items:stretch; overflow-x:auto; }
+        .filter-group { display:flex; align-items:center; gap:2px; padding:14px 0; border-right:1px solid var(--bd); padding-right:28px; margin-right:28px; flex-shrink:0; }
+        .filter-group:last-child { border-right:none; padding-right:0; margin-right:0; }
+        .filter-label { font-family:var(--f-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); margin-right:12px; white-space:nowrap; }
+        .filter-btn { background:none; border:1px solid transparent; padding:4px 12px; font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--light); cursor:pointer; transition:all .15s; white-space:nowrap; }
+        .filter-btn:hover { color:var(--ink); }
+        .filter-btn.active { color:var(--ink); border-color:var(--bd); }
 
-        /* ── filters ──────────────────────────────────────── */
-        .filters-wrap {
-          padding: 0 48px;
-          border-bottom: 1px solid var(--rule);
-          display: flex;
-          align-items: stretch;
-          gap: 0;
-        }
-        .filter-group {
-          display: flex;
-          align-items: center;
-          gap: 2px;
-          padding: 16px 0;
-          border-right: 1px solid var(--rule);
-          padding-right: 32px;
-          margin-right: 32px;
-        }
-        .filter-group:last-child {
-          border-right: none;
-          padding-right: 0;
-          margin-right: 0;
-        }
-        .filter-label {
-          font-size: 9px;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          color: var(--muted);
-          margin-right: 12px;
-          white-space: nowrap;
-        }
-        .filter-btn {
-          background: none;
-          border: 1px solid transparent;
-          padding: 4px 12px;
-          font-family: 'DM Mono', monospace;
-          font-size: 10px;
-          letter-spacing: 0.06em;
-          color: var(--muted);
-          cursor: pointer;
-          transition: all 0.15s;
-          white-space: nowrap;
-        }
-        .filter-btn:hover { color: var(--ink); }
-        .filter-btn.active {
-          color: var(--ink);
-          border-color: var(--ink);
-        }
+        /* featured */
+        .featured-wrap { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--bd); min-height:460px; overflow:hidden; }
+        .featured-image-col { position:relative; overflow:hidden; }
+        .featured-image-col img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.86) contrast(1.04); display:block; transition:transform .6s ease, filter .4s ease; }
+        .featured-wrap:hover .featured-image-col img { transform:scale(1.03); filter:grayscale(10%) brightness(0.72) contrast(1.06); }
+        .featured-score-badge { position:absolute; top:20px; right:20px; background:var(--ink); color:#fff; font-family:var(--f-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; padding:6px 12px; }
+        .featured-content-col { padding:48px 52px; display:flex; flex-direction:column; justify-content:space-between; background:var(--cream); }
+        .featured-meta { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+        .cat-pill { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; padding:3px 10px; border:1px solid var(--bd); color:var(--mid); display:inline-block; }
+        .season-tag { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
+        .featured-title { font-family:var(--f-display); font-size:clamp(26px,2.8vw,40px); font-weight:700; line-height:1.05; letter-spacing:-0.02em; text-transform:lowercase; color:var(--ink); margin-bottom:18px; }
+        .featured-excerpt { font-family:var(--f-body); font-size:13.5px; font-weight:500; line-height:1.7; color:var(--mid); margin-bottom:36px; }
+        .featured-footer { display:flex; align-items:center; justify-content:space-between; padding-top:24px; border-top:1px solid var(--bd); }
+        .featured-date { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
+        .read-link { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink); text-decoration:none; display:flex; align-items:center; gap:8px; transition:gap .15s; }
+        .read-link:hover { gap:14px; }
 
-        /* ── featured article ─────────────────────────────── */
-        .featured-wrap {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          border-bottom: 1px solid var(--rule);
-        }
-        .featured-image-col {
-          position: relative;
-          overflow: hidden;
-          aspect-ratio: 4/3;
-        }
-        .featured-image-col img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          transition: transform 0.6s ease;
-        }
-        .featured-wrap:hover .featured-image-col img {
-          transform: scale(1.03);
-        }
-        .featured-score-badge {
-          position: absolute;
-          top: 24px;
-          right: 24px;
-          background: var(--ink);
-          color: var(--cream);
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
-          letter-spacing: 0.06em;
-          padding: 6px 12px;
-        }
-        .featured-content-col {
-          padding: 48px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          background: var(--warm);
-        }
-        .featured-meta {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin-bottom: 24px;
-        }
-        .cat-pill {
-          font-size: 9px;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          padding: 3px 10px;
-          border: 1px solid var(--ink);
-          color: var(--ink);
-          display: inline-block;
-        }
-        .cat-pill.opinion  { border-color: #6B4F3A; color: #6B4F3A; }
-        .cat-pill.data     { border-color: #2A4A6B; color: #2A4A6B; }
-        .cat-pill.forecast { border-color: #3A6B4A; color: #3A6B4A; }
-        .cat-pill.cultural-context { border-color: #6B4A3A; color: #6B4A3A; }
-        .cat-pill.show-review { border-color: var(--accent); color: var(--accent); }
-        .season-tag {
-          font-size: 9px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: var(--muted);
-        }
-        .featured-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(28px, 3vw, 42px);
-          font-weight: 400;
-          line-height: 1.1;
-          letter-spacing: -0.01em;
-          color: var(--ink);
-          margin-bottom: 20px;
-        }
-        .featured-excerpt {
-          font-size: 12px;
-          line-height: 1.8;
-          color: var(--muted);
-          letter-spacing: 0.03em;
-          margin-bottom: 36px;
-        }
-        .featured-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .featured-date {
-          font-size: 10px;
-          letter-spacing: 0.08em;
-          color: var(--muted);
-          text-transform: uppercase;
-        }
-        .read-link {
-          font-size: 10px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: var(--ink);
-          text-decoration: none;
-          border-bottom: 1px solid var(--ink);
-          padding-bottom: 2px;
-          transition: color 0.15s, border-color 0.15s;
-        }
-        .read-link:hover {
-          color: var(--accent);
-          border-color: var(--accent);
-        }
+        /* grid */
+        .grid-wrap { padding:0 52px 80px; background:#fff; }
+        .grid-header { display:flex; align-items:center; justify-content:space-between; padding:28px 0 16px; border-bottom:1px solid var(--bd); }
+        .grid-header-label { font-family:var(--f-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); }
+        .grid-header-count { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; color:var(--light); }
+        .articles-grid { display:grid; grid-template-columns:repeat(3,1fr); border-left:1px solid var(--bd); }
+        .article-card { border-right:1px solid var(--bd); border-bottom:1px solid var(--bd); text-decoration:none; color:inherit; display:flex; flex-direction:column; transition:opacity .15s; }
+        .article-card:hover { opacity:.7; }
+        .card-image { aspect-ratio:16/10; overflow:hidden; position:relative; }
+        .card-image img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.88); display:block; transition:transform .5s ease; }
+        .article-card:hover .card-image img { transform:scale(1.04); }
+        .card-score { position:absolute; bottom:10px; left:12px; background:rgba(12,11,9,0.82); color:#fff; font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; padding:4px 10px; }
+        .card-body { padding:18px 24px 22px; flex:1; display:flex; flex-direction:column; }
+        .card-meta { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+        .card-title { font-family:var(--f-display); font-size:18px; font-weight:700; letter-spacing:-0.01em; line-height:1.1; text-transform:lowercase; color:var(--ink); margin-bottom:10px; flex:1; }
+        .card-excerpt { font-family:var(--f-body); font-size:12.5px; font-weight:500; line-height:1.6; color:var(--mid); margin-bottom:18px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:14px; border-top:1px solid var(--bd); }
+        .card-date { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.09em; text-transform:uppercase; color:var(--light); }
+        .card-arrow { font-family:var(--f-mono); font-size:11px; color:var(--light); transition:transform .2s, color .2s; }
+        .article-card:hover .card-arrow { transform:translateX(4px); color:var(--ink); }
+        .empty { padding:80px 0; text-align:center; color:var(--light); font-family:var(--f-mono); font-size:11px; letter-spacing:0.08em; grid-column:1/-1; }
 
-        /* ── grid ─────────────────────────────────────────── */
-        .grid-wrap {
-          padding: 0 48px 80px;
-        }
-        .grid-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 28px 0 24px;
-          border-bottom: 1px solid var(--rule);
-          margin-bottom: 0;
-        }
-        .grid-header-label {
-          font-size: 9px;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          color: var(--muted);
-        }
-        .grid-header-count {
-          font-size: 9px;
-          letter-spacing: 0.1em;
-          color: var(--muted);
-        }
-        .articles-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          border-left: 1px solid var(--rule);
-        }
-        .article-card {
-          border-right: 1px solid var(--rule);
-          border-bottom: 1px solid var(--rule);
-          text-decoration: none;
-          color: inherit;
-          display: flex;
-          flex-direction: column;
-          transition: background 0.2s;
-        }
-        .article-card:hover { background: var(--warm); }
-        .card-image {
-          aspect-ratio: 16/10;
-          overflow: hidden;
-          position: relative;
-        }
-        .card-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          transition: transform 0.5s ease;
-        }
-        .article-card:hover .card-image img {
-          transform: scale(1.04);
-        }
-        .card-score {
-          position: absolute;
-          bottom: 12px;
-          left: 12px;
-          background: rgba(15,14,13,0.85);
-          color: var(--cream);
-          font-size: 10px;
-          letter-spacing: 0.08em;
-          padding: 4px 10px;
-          backdrop-filter: blur(4px);
-        }
-        .card-body {
-          padding: 20px 24px 24px;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        .card-meta {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 12px;
-        }
-        .card-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 20px;
-          font-weight: 400;
-          line-height: 1.15;
-          letter-spacing: -0.01em;
-          color: var(--ink);
-          margin-bottom: 12px;
-          flex: 1;
-        }
-        .card-excerpt {
-          font-size: 10px;
-          line-height: 1.75;
-          color: var(--muted);
-          letter-spacing: 0.03em;
-          margin-bottom: 20px;
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .card-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-top: auto;
-          padding-top: 16px;
-          border-top: 1px solid var(--rule);
-        }
-        .card-date {
-          font-size: 9px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: var(--muted);
-        }
-        .card-arrow {
-          font-size: 12px;
-          color: var(--muted);
-          transition: transform 0.2s, color 0.2s;
-        }
-        .article-card:hover .card-arrow {
-          transform: translateX(4px);
-          color: var(--ink);
-        }
+        /* footer */
+        footer { background:var(--ink); padding:26px 52px; display:flex; align-items:center; justify-content:space-between; }
+        .f-logo { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:0.1em; text-transform:lowercase; color:#fff; }
+        .f-links { display:flex; gap:28px; list-style:none; }
+        .f-links a { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.3); text-decoration:none; transition:color .15s; }
+        .f-links a:hover { color:rgba(255,255,255,0.7); }
+        .f-copy { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
 
-        /* ── empty state ──────────────────────────────────── */
-        .empty {
-          padding: 80px 0;
-          text-align: center;
-          color: var(--muted);
-          font-size: 11px;
-          letter-spacing: 0.08em;
-          grid-column: 1 / -1;
+        @media (max-width:900px) {
+          .nav-menu-btn { left:24px; } .nav-pill { right:24px; }
+          .analysis-header { padding:40px 24px 32px; flex-direction:column; align-items:flex-start; }
+          .filters-wrap { padding:0 24px; }
+          .featured-wrap { grid-template-columns:1fr; }
+          .featured-image-col { aspect-ratio:16/9; }
+          .featured-content-col { padding:32px 24px; }
+          .grid-wrap { padding:0 24px 60px; }
+          .articles-grid { grid-template-columns:1fr 1fr; }
+          footer { padding:24px; flex-direction:column; gap:16px; text-align:center; }
         }
-
-        /* ── footer ───────────────────────────────────────── */
-        .analysis-footer {
-          padding: 24px 48px;
-          border-top: 1px solid var(--rule);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 9px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: var(--muted);
-        }
-
-        @media (max-width: 900px) {
-          .anav { padding: 0 24px; }
-          .analysis-header { padding: 40px 24px 32px; flex-direction: column; align-items: flex-start; }
-          .filters-wrap { padding: 0 24px; overflow-x: auto; }
-          .featured-wrap { grid-template-columns: 1fr; }
-          .featured-image-col { aspect-ratio: 16/9; }
-          .featured-content-col { padding: 32px 24px; }
-          .grid-wrap { padding: 0 24px 60px; }
-          .articles-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 600px) {
-          .articles-grid { grid-template-columns: 1fr; }
-          .analysis-header-left h1 { font-size: 40px; }
-        }
+        @media (max-width:600px) { .articles-grid { grid-template-columns:1fr; } }
       `}</style>
 
-      <div className="analysis-root">
-        {/* nav */}
-        <nav className="anav">
-          <Link href="/" className="anav-logo">runway fyi</Link>
-          <ul className="anav-links">
-            <li><Link href="/analysis" className="active">Analysis</Link></li>
-            <li><Link href="/trends">Trends</Link></li>
-            <li><Link href="/shows">Shows</Link></li>
-            <li><Link href="/archive">Archive</Link></li>
-            <li><Link href="/about">About</Link></li>
-          </ul>
-        </nav>
+      {/* Drawer */}
+      <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
+        <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>✕ close</button>
+        <Link href="/trends" onClick={() => setMenuOpen(false)}>Trends</Link>
+        <Link href="/shows" onClick={() => setMenuOpen(false)}>Shows</Link>
+        <Link href="/analysis" onClick={() => setMenuOpen(false)}>Analysis</Link>
+        <Link href="/archive" onClick={() => setMenuOpen(false)}>Archive</Link>
+        <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
+      </div>
+      <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
 
-        {/* header */}
-        <header className="analysis-header">
-          <div className="analysis-header-left">
-            <h1>data-backed<br/><em>opinion.</em></h1>
-            <p className="analysis-count">{ARTICLES.length} pieces published · FW26 season</p>
-          </div>
-          <p className="analysis-header-right">
-            runway trend analysis informed by search data, social velocity, and editorial frequency.
-            composite scores calculated across runway (50%), search (30%), and social signals (20%).
-          </p>
-        </header>
-
-        {/* filters */}
-        <div className="filters-wrap">
-          <div className="filter-group">
-            <span className="filter-label">Category</span>
-            {CATEGORIES.map(c => (
-              <button
-                key={c}
-                className={`filter-btn${activeCategory === c ? ' active' : ''}`}
-                onClick={() => setActiveCategory(c)}
-              >{c}</button>
-            ))}
-          </div>
-          <div className="filter-group">
-            <span className="filter-label">Season</span>
-            {SEASONS.map(s => (
-              <button
-                key={s}
-                className={`filter-btn${activeSeason === s ? ' active' : ''}`}
-                onClick={() => setActiveSeason(s)}
-              >{s}</button>
-            ))}
+      {/* Header — identical to homepage */}
+      <header className="site-header">
+        <div className="ticker">
+          <div className="ticker-inner">
+            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => <span key={i}>{item}</span>)}
           </div>
         </div>
+        <div className="nav-title-row">
+          <button className={`nav-menu-btn${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(v => !v)} aria-label="Menu">
+            <span /><span /><span />
+          </button>
+          <Link href="/" className="nav-logo">runway fyi</Link>
+          <span className="nav-pill">FW26</span>
+        </div>
+        <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
+          <li><Link href="/trends">Trends</Link></li>
+          <li><Link href="/shows">Shows</Link></li>
+          <li><Link href="/analysis" className="active-link">Analysis</Link></li>
+          <li><Link href="/archive">Archive</Link></li>
+        </ul>
+      </header>
+      <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
 
-        {/* featured */}
-        {featured && (
-          <Link href={`/analysis/${featured.slug.current}`} style={{ textDecoration: 'none' }}>
-            <div className="featured-wrap">
-              <div className="featured-image-col">
-                {featured.coverImage && (
-                  <img src={featured.coverImage} alt={featured.title} />
-                )}
-                {featured.trendScore && (
-                  <div className="featured-score-badge">
-                    trend score {featured.trendScore}
-                  </div>
-                )}
+      {/* Page header */}
+      <div className="analysis-header">
+        <div>
+          <h1>data-backed<br /><em>opinion.</em></h1>
+          <p className="analysis-count">{ARTICLES.length} pieces published · FW26 season</p>
+        </div>
+        <p className="analysis-header-right">
+          runway trend analysis informed by search data, social velocity, and editorial frequency.
+          composite scores: runway (50%) · search (30%) · social (20%).
+        </p>
+      </div>
+
+      {/* Filters */}
+      <div className="filters-wrap">
+        <div className="filter-group">
+          <span className="filter-label">Category</span>
+          {CATEGORIES.map(c => (
+            <button key={c} className={`filter-btn${activeCategory === c ? ' active' : ''}`} onClick={() => setActiveCategory(c)}>{c}</button>
+          ))}
+        </div>
+        <div className="filter-group">
+          <span className="filter-label">Season</span>
+          {SEASONS.map(s => (
+            <button key={s} className={`filter-btn${activeSeason === s ? ' active' : ''}`} onClick={() => setActiveSeason(s)}>{s}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured */}
+      {featured && (
+        <Link href={`/analysis/${featured.slug.current}`} style={{ textDecoration:'none', color:'inherit', display:'block' }}>
+          <div className="featured-wrap">
+            <div className="featured-image-col">
+              {featured.coverImage && <img src={featured.coverImage} alt={featured.title} />}
+              {featured.trendScore && <div className="featured-score-badge">trend score {featured.trendScore}</div>}
+            </div>
+            <div className="featured-content-col">
+              <div>
+                <div className="featured-meta">
+                  <span className={`cat-pill ${featured.category}`}>{CATEGORY_LABELS[featured.category]}</span>
+                  <span className="season-tag">{SEASON_LABELS[featured.season]}</span>
+                </div>
+                <h2 className="featured-title">{featured.title}</h2>
+                <p className="featured-excerpt">{featured.excerpt}</p>
               </div>
-              <div className="featured-content-col">
-                <div>
-                  <div className="featured-meta">
-                    <span className={`cat-pill ${featured.category}`}>
-                      {CATEGORY_LABELS[featured.category]}
-                    </span>
-                    <span className="season-tag">
-                      {SEASON_LABELS[featured.season]}
-                    </span>
-                  </div>
-                  <h2 className="featured-title">{featured.title}</h2>
-                  <p className="featured-excerpt">{featured.excerpt}</p>
-                </div>
-                <div className="featured-footer">
-                  <span className="featured-date">{formatDate(featured.publishedAt)}</span>
-                  <span className="read-link">Read analysis →</span>
-                </div>
+              <div className="featured-footer">
+                <span className="featured-date">{formatDate(featured.publishedAt)}</span>
+                <span className="read-link">Read analysis <span>→</span></span>
               </div>
             </div>
-          </Link>
-        )}
-
-        {/* grid */}
-        <div className="grid-wrap">
-          <div className="grid-header">
-            <span className="grid-header-label">All analysis</span>
-            <span className="grid-header-count">{rest.length} pieces</span>
           </div>
-          <div className="articles-grid">
-            {rest.length === 0 ? (
-              <div className="empty">no articles match these filters.</div>
-            ) : rest.map(article => (
+        </Link>
+      )}
+
+      {/* Grid */}
+      <div className="grid-wrap">
+        <div className="grid-header">
+          <span className="grid-header-label">All analysis</span>
+          <span className="grid-header-count">{rest.length} pieces</span>
+        </div>
+        <div className="articles-grid">
+          {rest.length === 0
+            ? <div className="empty">no articles match these filters.</div>
+            : rest.map(article => (
               <Link key={article._id} href={`/analysis/${article.slug.current}`} className="article-card">
                 <div className="card-image">
                   {article.coverImage
                     ? <img src={article.coverImage} alt={article.title} />
-                    : <div style={{ background: '#d4cfc9', height: '100%' }} />
-                  }
-                  {article.trendScore && (
-                    <div className="card-score">score {article.trendScore}</div>
-                  )}
+                    : <div style={{ background:'var(--warm)', height:'100%' }} />}
+                  {article.trendScore && <div className="card-score">score {article.trendScore}</div>}
                 </div>
                 <div className="card-body">
                   <div className="card-meta">
-                    <span className={`cat-pill ${article.category}`}>
-                      {CATEGORY_LABELS[article.category]}
-                    </span>
+                    <span className={`cat-pill ${article.category}`}>{CATEGORY_LABELS[article.category]}</span>
                     <span className="season-tag">{SEASON_LABELS[article.season]}</span>
                   </div>
                   <h3 className="card-title">{article.title}</h3>
@@ -658,15 +360,20 @@ export default function AnalysisPage() {
                 </div>
               </Link>
             ))}
-          </div>
         </div>
-
-        {/* footer */}
-        <footer className="analysis-footer">
-          <span>runway fyi · FW26</span>
-          <span>composite score = 0.5×runway + 0.3×search + 0.2×social</span>
-        </footer>
       </div>
+
+      {/* Footer */}
+      <footer>
+        <span className="f-logo">runway fyi</span>
+        <ul className="f-links">
+          <li><a href="https://instagram.com/databutmakeitfashion" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+          <li><a href="#">TikTok</a></li>
+          <li><a href="#">Newsletter</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+        <span className="f-copy">© 2026 runway.fyi</span>
+      </footer>
     </>
   )
 }
