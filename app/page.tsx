@@ -136,12 +136,7 @@ export default function HomePage() {
       ticking = true;
       requestAnimationFrame(() => {
         const y = window.scrollY;
-        // Only show nav links when back near the very top
-        if (y <= 80) {
-          setNavVisible(true);
-        } else {
-          setNavVisible(false);
-        }
+        setNavVisible(y < 20);
         lastScrollY.current = y;
         ticking = false;
       });
@@ -223,13 +218,13 @@ export default function HomePage() {
         /* nav links row slides up/out on scroll down */
         .nav-links-row { height:38px; display:flex; align-items:center; justify-content:center; gap:44px; background:#fff; border-bottom:1px solid var(--bd); list-style:none; padding:0; overflow:hidden; transition:height .3s cubic-bezier(.4,0,.2,1), opacity .3s ease, border-color .3s ease; }
         .nav-links-row.hidden { height:0; opacity:0; pointer-events:none; border-color:transparent; }
-        .nav-links-row a { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); text-decoration:none; transition:color .15s; }
-        .nav-links-row a:hover { color:var(--ink); }
+        .nav-links-row a { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink); text-decoration:none; transition:color .15s; }
+        .nav-links-row a:hover { color:var(--light); }
 
         /* ── Ticker ── */
         .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:7px 0; }
         .ticker-inner { display:inline-flex; animation:tick 48s linear infinite; }
-        .ticker-inner span { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.13em; color:rgba(255,255,255,0.32); padding:0 42px; }
+        .ticker-inner span { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.13em; color:rgba(255,255,255,0.9); padding:0 42px; }
         @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
         /* ── Nav title row (centered logo) ── */
@@ -289,12 +284,12 @@ export default function HomePage() {
         .rec-dot { width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.6; animation:blink 1.4s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:.6} 50%{opacity:.12} }
 
-        /* hero title — bottom center, compact */
-        .hero-title-wrap { position:absolute; inset:0; z-index:50; display:flex; align-items:flex-end; justify-content:center; pointer-events:none; padding-bottom:36px; }
+        /* hero title — bottom center, no box */
+        .hero-title-wrap { position:absolute; inset:0; z-index:50; display:flex; align-items:flex-end; justify-content:center; pointer-events:none; padding-bottom:40px; }
         .hero-title-inner { text-align:center; opacity:0; transform:translateY(10px); transition:opacity .65s ease, transform .65s ease; }
         .hero-title-inner.show { opacity:1; transform:translateY(0); pointer-events:all; }
-        .title-backdrop { display:inline-block; background:rgba(255,255,255,0.84); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:20px 36px 24px; border:1px solid rgba(12,11,9,0.07); }
-        .hero-title { font-family:var(--f-display); font-size:clamp(36px,5vw,64px); font-weight:700; line-height:0.92; letter-spacing:-0.03em; color:var(--ink); margin-bottom:28px; text-transform:lowercase; }
+        .title-backdrop { display:inline-block; padding:0; }
+        .hero-title { font-family:var(--f-display); font-size:clamp(36px,5vw,64px); font-weight:700; line-height:1; letter-spacing:-0.03em; color:#fff; margin-bottom:24px; text-transform:lowercase; text-shadow:0 2px 24px rgba(0,0,0,0.45); }
         .hero-cta { display:inline-flex; align-items:center; gap:10px; font-family:var(--f-mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#fff; background:var(--ink); padding:11px 24px; text-decoration:none; transition:opacity .2s; }
         .hero-cta:hover { opacity:.72; }
         .arr { display:inline-block; transition:transform .18s; }
@@ -316,15 +311,16 @@ export default function HomePage() {
         .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
         .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
         .section-note { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); }
-        .t-row { display:flex; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--bd); cursor:pointer; gap:0; transition:opacity .15s; overflow:visible; }
+        .t-row { display:flex; align-items:baseline; padding:11px 0 9px; border-bottom:1px solid var(--bd); cursor:pointer; gap:0; transition:opacity .15s; }
         .t-row:last-child { border-bottom:none; }
         .t-row:hover { opacity:.4; }
         .t-rank { font-family:var(--f-mono); font-size:9px; font-weight:300; color:rgba(12,11,9,0.18); width:28px; flex-shrink:0; }
-        .t-name { display:flex; align-items:baseline; gap:8px; flex:1; min-width:0; overflow:hidden; }
-        .t-name-main { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-0.01em; line-height:1.1; color:var(--ink); white-space:nowrap; flex-shrink:0; }
+        .t-name { display:flex; align-items:baseline; gap:8px; flex:1; min-width:0; }
+        .t-name-main { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-0.01em; line-height:1.2; color:var(--ink); white-space:nowrap; flex-shrink:0; }
         .t-sub { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:1; }
         .t-right { display:flex; align-items:center; gap:10px; flex-shrink:0; margin-left:16px; }
         .t-score-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+        .t-score-badge-row { display:flex; align-items:center; gap:6px; }
         .t-num-row { display:flex; align-items:baseline; gap:5px; }
 
         /* score with R/S/V hover */
@@ -337,20 +333,32 @@ export default function HomePage() {
         .t-track { width:40px; height:1.5px; background:rgba(12,11,9,0.08); }
         .t-fill { height:100%; background:var(--ink); }
         .t-badge { font-family:var(--f-mono); font-size:8px; letter-spacing:0.05em; padding:2px 6px; white-space:nowrap; }
-        .badge-up  { background:rgba(30,107,60,0.09);  color:#1E6B3C; }
-        .badge-new { background:rgba(12,11,9,0.05);    color:var(--ink); }
-        .badge-dn  { background:rgba(160,50,40,0.07);  color:#9B3228; }
+        /* ── Badge icons (right of score) ── */
+        .t-badge { font-family:var(--f-mono); font-size:9px; font-weight:500; letter-spacing:0.04em; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; flex-shrink:0; }
+        .badge-up  { background:rgba(30,107,60,0.12); color:#1E6B3C; }
+        .badge-dn  { background:rgba(160,50,40,0.09); color:#9B3228; }
+        .badge-new { background:rgba(12,11,9,0.06);   color:var(--ink); }
+        .badge-hi  { background:rgba(180,140,0,0.10); color:#8B6A00; }
 
-        /* breakdown inline right — no separate column */
-        .t-breakdown { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
-        .t-bd-item { font-family:var(--f-mono); font-size:9px; color:var(--light); letter-spacing:0.05em; }
-
-        /* tooltip */
-        .score-tooltip-wrap { position:relative; display:inline-flex; align-items:center; gap:4px; cursor:help; }
-        .score-tooltip-wrap:hover .score-tooltip { opacity:1; }
-        .score-tooltip { position:absolute; bottom:calc(100% + 8px); right:0; background:var(--ink); color:#fff; font-family:var(--f-mono); font-size:8px; letter-spacing:0.08em; line-height:2; padding:10px 14px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .15s; z-index:200; }
-        .score-tooltip::after { content:''; position:absolute; top:100%; right:10px; border:5px solid transparent; border-top-color:var(--ink); }
-        .tooltip-icon { font-size:8px; color:var(--light); border:1px solid var(--light); border-radius:50%; width:13px; height:13px; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+        /* ── Legend tooltip (replaces ?) ── */
+        .score-tooltip-wrap { position:relative; display:inline-flex; align-items:center; gap:6px; cursor:help; }
+        .score-tooltip-wrap:hover .score-tooltip { opacity:1; pointer-events:all; }
+        .score-tooltip { position:absolute; bottom:calc(100% + 10px); right:0; background:var(--ink); color:#fff; font-family:var(--f-mono); font-size:8px; letter-spacing:0.07em; line-height:1; padding:14px 16px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .18s; z-index:200; min-width:200px; }
+        .score-tooltip::after { content:''; position:absolute; top:100%; right:12px; border:5px solid transparent; border-top-color:var(--ink); }
+        .tooltip-legend-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+        .tooltip-legend-row:last-child { margin-bottom:0; }
+        .tooltip-legend-badge { font-family:var(--f-mono); font-size:9px; font-weight:500; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; flex-shrink:0; }
+        .tl-up  { background:rgba(30,107,60,0.25);  color:#4caf78; }
+        .tl-dn  { background:rgba(160,50,40,0.22);  color:#d4705f; }
+        .tl-n   { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
+        .tl-h   { background:rgba(180,140,0,0.22);  color:#d4aa40; }
+        .tooltip-legend-label { color:rgba(255,255,255,0.55); font-size:8px; letter-spacing:0.09em; }
+        .tooltip-divider { height:1px; background:rgba(255,255,255,0.08); margin:10px 0; }
+        .tooltip-score-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .tooltip-score-row:last-child { margin-bottom:0; }
+        .tooltip-score-key { color:rgba(255,255,255,0.8); font-size:9px; font-weight:500; min-width:14px; }
+        .tooltip-score-desc { color:rgba(255,255,255,0.38); font-size:8px; letter-spacing:0.07em; }
+        .tooltip-icon { font-family:var(--f-mono); font-size:8px; color:var(--light); border:1px solid rgba(12,11,9,0.15); width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
 
         /* ── Latest analysis (right, list style) ── */
         .analysis-col { padding:40px 52px 40px 40px; }
@@ -365,22 +373,23 @@ export default function HomePage() {
         .a-img { width:90px; height:110px; object-fit:cover; object-position:top center; display:block; filter:grayscale(10%) brightness(0.9); flex-shrink:0; }
 
         /* ── Feature — portrait split ── */
-        .feature { display:grid; grid-template-columns:45% 55%; border-bottom:1px solid var(--bd); min-height:560px; max-height:640px; overflow:hidden; position:relative; z-index:0; }
+        .feature { display:grid; grid-template-columns:45% 55%; border-bottom:1px solid var(--bd); position:relative; z-index:0; }
         .feature-img { position:relative; overflow:hidden; background:var(--warm); }
         .feature-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.72) contrast(1.06); display:block; transition:filter .4s ease; }
-        .feature:hover .feature-img img { filter:grayscale(10%) brightness(0.6) contrast(1.06); }
+        .feature:hover .feature-img img { filter:grayscale(10%) brightness(0.65) contrast(1.06); }
         .feature-img-caption { position:absolute; bottom:16px; left:16px; font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
 
-        /* title overlay on image */
-        .feature-img-title { position:absolute; bottom:0; left:0; right:0; padding:48px 28px 52px; background:linear-gradient(to top, rgba(12,11,9,0.82) 0%, transparent 100%); }
+        /* title + blurb as one sliding unit */
+        .feature-img-title { position:absolute; bottom:0; left:0; right:0; padding:28px 28px 28px; background:linear-gradient(to top, rgba(12,11,9,0.85) 0%, transparent 100%); transition:transform .38s cubic-bezier(.4,0,.2,1); }
         .feature-img-kicker { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:10px; display:flex; align-items:center; gap:9px; }
         .feature-img-kicker::before { content:''; width:16px; height:1px; background:rgba(255,255,255,0.4); }
         .feature-img-h { font-family:var(--f-display); font-size:clamp(22px,2.4vw,30px); font-weight:700; line-height:1.05; letter-spacing:-0.02em; color:#fff; }
 
-        /* blurb hover overlay */
-        .feature-img-blurb { position:absolute; inset:0; background:rgba(12,11,9,0.72); display:flex; align-items:center; justify-content:center; padding:40px 32px; opacity:0; transition:opacity .3s ease; }
-        .feature:hover .feature-img-blurb { opacity:1; }
-        .feature-img-blurb p { font-family:var(--f-body); font-size:15px; font-weight:500; line-height:1.75; color:rgba(255,255,255,0.88); text-align:center; }
+        /* blurb — slides up from below the title */
+        .feature-img-blurb { position:absolute; bottom:0; left:0; right:0; padding:100px 28px 28px; background:linear-gradient(to top, rgba(12,11,9,0.92) 20%, transparent 100%); transform:translateY(100%); transition:transform .38s cubic-bezier(.4,0,.2,1); }
+        .feature:hover .feature-img-blurb { transform:translateY(0); }
+        .feature:hover .feature-img-title { transform:translateY(-100%); }
+        .feature-img-blurb p { font-family:var(--f-body); font-size:14px; font-weight:500; line-height:1.75; color:rgba(255,255,255,0.82); }
 
         /* right side: stats 2-row grid + read link */
         .feature-right { background:var(--ink); display:flex; flex-direction:column; }
@@ -524,17 +533,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* title — bottom center, compact, lowercase */}
-        <div className="hero-title-wrap">
-          <div className={`hero-title-inner${titleVisible ? ' show' : ''}`}>
-            <div className="title-backdrop">
-              <div className="hero-title">runway fyi</div>
-              <a href="#trends" className="hero-cta">
-                See the data <span className="arr">→</span>
-              </a>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* ── Season bar ── */}
@@ -562,13 +560,41 @@ export default function HomePage() {
               <span className="section-note">FW26 · Composite Score</span>
               <span className="tooltip-icon">?</span>
               <div className="score-tooltip">
-                R — Runway frequency (50%)<br />
-                S — Search trend signal (30%)<br />
-                V — Social velocity (20%)
+                <div className="tooltip-legend-row">
+                  <span className="tooltip-legend-badge tl-up">↑</span>
+                  <span className="tooltip-legend-label">Score increase this week</span>
+                </div>
+                <div className="tooltip-legend-row">
+                  <span className="tooltip-legend-badge tl-dn">↓</span>
+                  <span className="tooltip-legend-label">Score decrease this week</span>
+                </div>
+                <div className="tooltip-legend-row">
+                  <span className="tooltip-legend-badge tl-n">N</span>
+                  <span className="tooltip-legend-label">New entry this season</span>
+                </div>
+                <div className="tooltip-legend-row">
+                  <span className="tooltip-legend-badge tl-h">H</span>
+                  <span className="tooltip-legend-label">Season high score</span>
+                </div>
+                <div className="tooltip-divider" />
+                <div className="tooltip-score-row">
+                  <span className="tooltip-score-key">R</span>
+                  <span className="tooltip-score-desc">Runway frequency · 50%</span>
+                </div>
+                <div className="tooltip-score-row">
+                  <span className="tooltip-score-key">S</span>
+                  <span className="tooltip-score-desc">Search trend signal · 30%</span>
+                </div>
+                <div className="tooltip-score-row">
+                  <span className="tooltip-score-key">V</span>
+                  <span className="tooltip-score-desc">Social velocity · 20%</span>
+                </div>
               </div>
             </span>
           </div>
           {TRENDS.slice(0, 10).map(t => {
+            const badgeIcon = t.badgeType === 'up' ? '↑' : t.badgeType === 'dn' ? '↓' : t.badge === 'Season high' ? 'H' : 'N';
+            const badgeCls  = t.badgeType === 'up' ? 'badge-up' : t.badgeType === 'dn' ? 'badge-dn' : t.badge === 'Season high' ? 'badge-hi' : 'badge-new';
             return (
               <div key={t.id} className="t-row">
                 <span className="t-rank">{String(t.rank).padStart(2, '0')}</span>
@@ -578,12 +604,14 @@ export default function HomePage() {
                 </div>
                 <div className="t-right">
                   <div className="t-score-right">
-                    <div className="t-score-hover-wrap">
-                      <span className="t-num">{t.score.toFixed(1)}</span>
-                      <div className="t-rsv-tooltip">{t.breakdown}</div>
+                    <div className="t-score-badge-row">
+                      <div className="t-score-hover-wrap">
+                        <span className="t-num">{t.score.toFixed(1)}</span>
+                        <div className="t-rsv-tooltip">{t.breakdown}</div>
+                      </div>
+                      <span className={`t-badge ${badgeCls}`}>{badgeIcon}</span>
                     </div>
                     <div className="t-track"><div className="t-fill" style={{ width: `${t.score}%` }} /></div>
-                    <span className={`t-badge ${badgeClass(t.badgeType)}`}>{t.badge}</span>
                   </div>
                 </div>
               </div>
@@ -633,7 +661,6 @@ export default function HomePage() {
             <div className="feature-img-kicker">Opinion · Paris FW26 · Dior</div>
             <div className="feature-img-h">Jonathan Anderson redefines what Dior means now</div>
           </div>
-          <div className="feature-img-caption">Dior FW26 · Paris · Placeholder</div>
         </div>
 
         {/* Right: 2×2 stats grid + read link */}
