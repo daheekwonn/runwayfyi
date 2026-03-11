@@ -122,8 +122,22 @@ export default function HomePage() {
   const [titleVisible, setTitleVisible] = useState(false);
   const [detCount,     setDetCount]     = useState(0);
   const [activeCity,   setActiveCity]   = useState('All');
+  const [navVisible,   setNavVisible]   = useState(true);
+  const [menuOpen,     setMenuOpen]     = useState(false);
   const imgRefs        = useRef<(HTMLImageElement | null)[]>([null, null, null]);
   const sequenceStarted = useRef(false);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      // Hide nav header (ticker + title + links) once scrolled past ~80px
+      setNavVisible(y < 80);
+      lastScrollY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   function countUp(index: number, target: number, duration: number) {
     const start = performance.now();
@@ -192,19 +206,43 @@ export default function HomePage() {
 
         body { background:#fff; color:var(--ink); -webkit-font-smoothing:antialiased; }
 
+        /* ── Site header (ticker + title + nav links) — sticky, hides on scroll ── */
+        .site-header { position:sticky; top:0; z-index:100; background:#fff; transition:transform .35s cubic-bezier(.4,0,.2,1); }
+        .site-header.hidden { transform:translateY(-100%); }
+
         /* ── Ticker ── */
-        .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:8px 0; }
+        .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:7px 0; }
         .ticker-inner { display:inline-flex; animation:tick 48s linear infinite; }
         .ticker-inner span { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.13em; color:rgba(255,255,255,0.32); padding:0 42px; }
         @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
-        /* ── Nav ── */
-        .nav { height:58px; display:flex; align-items:center; justify-content:space-between; padding:0 52px; background:#fff; border-bottom:1px solid var(--bd); position:sticky; top:0; z-index:100; }
-        .nav-logo { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:0.1em; text-transform:lowercase; color:var(--ink); text-decoration:none; }
-        .nav-links { display:flex; gap:36px; list-style:none; }
-        .nav-links a { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); text-decoration:none; transition:color .15s; }
-        .nav-links a:hover { color:var(--ink); }
-        .nav-pill { font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; border:1px solid var(--bd); color:var(--light); padding:5px 13px; }
+        /* ── Nav title row (centered logo) ── */
+        .nav-title-row { height:56px; display:flex; align-items:center; justify-content:center; padding:0 52px; background:#fff; border-bottom:1px solid var(--bd); position:relative; }
+        .nav-logo { font-family:var(--f-display); font-size:20px; font-weight:700; letter-spacing:0.08em; text-transform:lowercase; color:var(--ink); text-decoration:none; }
+
+        /* hamburger left */
+        .nav-menu-btn { position:absolute; left:52px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; display:flex; flex-direction:column; gap:5px; padding:6px; }
+        .nav-menu-btn span { display:block; width:22px; height:1.5px; background:var(--ink); transition:transform .2s, opacity .2s; }
+        .nav-menu-btn.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
+        .nav-menu-btn.open span:nth-child(2) { opacity:0; }
+        .nav-menu-btn.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
+
+        /* season pill right */
+        .nav-pill { position:absolute; right:52px; top:50%; transform:translateY(-50%); font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; border:1px solid var(--bd); color:var(--light); padding:5px 13px; }
+
+        /* ── Nav links row (below logo) ── */
+        .nav-links-row { height:38px; display:flex; align-items:center; justify-content:center; gap:44px; background:#fff; border-bottom:1px solid var(--bd); list-style:none; padding:0; }
+        .nav-links-row a { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); text-decoration:none; transition:color .15s; }
+        .nav-links-row a:hover { color:var(--ink); }
+
+        /* ── Slide-out mobile/dropdown menu ── */
+        .nav-drawer { position:fixed; top:0; left:0; bottom:0; width:260px; background:#fff; z-index:200; transform:translateX(-100%); transition:transform .3s cubic-bezier(.4,0,.2,1); border-right:1px solid var(--bd); padding:72px 36px 40px; display:flex; flex-direction:column; gap:8px; }
+        .nav-drawer.open { transform:translateX(0); }
+        .nav-drawer a { font-family:var(--f-display); font-size:28px; font-weight:700; letter-spacing:-0.02em; text-transform:lowercase; color:var(--ink); text-decoration:none; line-height:1.25; opacity:.85; transition:opacity .15s; }
+        .nav-drawer a:hover { opacity:1; }
+        .nav-drawer-close { position:absolute; top:22px; right:22px; background:none; border:none; cursor:pointer; font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
+        .nav-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.18); z-index:190; opacity:0; pointer-events:none; transition:opacity .3s; }
+        .nav-overlay.open { opacity:1; pointer-events:all; }
 
         /* ── Hero ── */
         .hero { position:relative; width:100%; height:calc(100vh - 84px); min-height:600px; background:#fff; overflow:hidden; display:grid; grid-template-columns:1fr 1fr 1fr; }
@@ -256,10 +294,10 @@ export default function HomePage() {
         .sbtn.active::after,.sbtn:hover::after { transform:scaleX(1); }
 
         /* ── Leaderboard + Analysis two-col layout ── */
-        .board-analysis-wrap { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--bd); background:#fff; align-items:start; }
+        .board-analysis-wrap { display:grid; grid-template-columns:52% 48%; border-bottom:1px solid var(--bd); background:#fff; align-items:start; }
 
         /* ── Leaderboard (left, compact) ── */
-        .board { padding:32px 40px 32px 52px; border-right:1px solid var(--bd); }
+        .board { padding:32px 32px 32px 52px; border-right:1px solid var(--bd); }
         .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
         .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
         .section-note { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); }
@@ -269,17 +307,26 @@ export default function HomePage() {
         .t-rank { font-family:var(--f-mono); font-size:9px; font-weight:300; color:rgba(12,11,9,0.18); width:18px; flex-shrink:0; }
         .t-name { flex:1; min-width:0; overflow:hidden; }
         .t-name-main { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-0.01em; display:block; line-height:1.1; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .t-sub { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); display:block; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .t-sub { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); display:inline; white-space:nowrap; }
         .t-right { display:flex; align-items:center; gap:14px; flex-shrink:0; }
         .t-score-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; min-width:52px; }
         .t-num-row { display:flex; align-items:baseline; gap:5px; }
-        .t-num { font-family:var(--f-mono); font-size:20px; font-weight:500; letter-spacing:-0.02em; color:var(--ink); line-height:1; }
+
+        /* score with R/S/V hover */
+        .t-score-hover-wrap { position:relative; display:inline-block; }
+        .t-num { font-family:var(--f-mono); font-size:20px; font-weight:500; letter-spacing:-0.02em; color:var(--ink); line-height:1; cursor:default; }
+        .t-rsv-tooltip { position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-family:var(--f-mono); font-size:8px; letter-spacing:0.08em; line-height:1.9; padding:7px 12px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .15s; z-index:200; }
+        .t-rsv-tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:4px solid transparent; border-top-color:var(--ink); }
+        .t-score-hover-wrap:hover .t-rsv-tooltip { opacity:1; }
+
         .t-track { width:40px; height:1.5px; background:rgba(12,11,9,0.08); }
         .t-fill { height:100%; background:var(--ink); }
         .t-badge { font-family:var(--f-mono); font-size:8px; letter-spacing:0.05em; padding:2px 6px; white-space:nowrap; }
         .badge-up  { background:rgba(30,107,60,0.09);  color:#1E6B3C; }
         .badge-new { background:rgba(12,11,9,0.05);    color:var(--ink); }
         .badge-dn  { background:rgba(160,50,40,0.07);  color:#9B3228; }
+
+        /* breakdown inline right — no separate column */
         .t-breakdown { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
         .t-bd-item { font-family:var(--f-mono); font-size:9px; color:var(--light); letter-spacing:0.05em; }
 
@@ -302,28 +349,42 @@ export default function HomePage() {
         .a-date { font-family:var(--f-mono); font-size:8px; letter-spacing:0.09em; text-transform:uppercase; color:var(--light); margin-top:6px; }
         .a-img { width:90px; height:110px; object-fit:cover; object-position:top center; display:block; filter:grayscale(10%) brightness(0.9); flex-shrink:0; }
 
-        /* ── Feature ── */
-        .feature { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--bd); max-height:340px; }
-        .feature-img { position:relative; overflow:hidden; background:var(--warm); max-height:340px; }
-        .feature-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.88) contrast(1.03); display:block; }
+        /* ── Feature — portrait split ── */
+        .feature { display:grid; grid-template-columns:45% 55%; border-bottom:1px solid var(--bd); min-height:560px; max-height:640px; }
+        .feature-img { position:relative; overflow:hidden; background:var(--warm); }
+        .feature-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.72) contrast(1.06); display:block; transition:filter .4s ease; }
+        .feature:hover .feature-img img { filter:grayscale(10%) brightness(0.6) contrast(1.06); }
         .feature-img-caption { position:absolute; bottom:16px; left:16px; font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
-        .feature-content { padding:32px 40px; background:#fff; display:flex; flex-direction:column; justify-content:center; border-left:1px solid var(--bd); overflow:hidden; }
-        .feature-kicker { font-family:var(--f-mono); font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--light); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
-        .feature-kicker::before { content:''; width:18px; height:1px; background:var(--light); }
-        .feature-title { font-family:var(--f-display); font-size:28px; font-weight:700; line-height:1.04; letter-spacing:-0.02em; color:var(--ink); margin-bottom:12px; }
-        .feature-body { font-family:var(--f-body); font-size:13.5px; font-weight:500; line-height:1.7; color:var(--ink); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-        .feature-read { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink); display:flex; align-items:center; gap:8px; text-decoration:none; margin-top:16px; transition:gap .15s; }
+
+        /* title overlay on image */
+        .feature-img-title { position:absolute; bottom:0; left:0; right:0; padding:48px 28px 52px; background:linear-gradient(to top, rgba(12,11,9,0.82) 0%, transparent 100%); }
+        .feature-img-kicker { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:10px; display:flex; align-items:center; gap:9px; }
+        .feature-img-kicker::before { content:''; width:16px; height:1px; background:rgba(255,255,255,0.4); }
+        .feature-img-h { font-family:var(--f-display); font-size:clamp(22px,2.4vw,30px); font-weight:700; line-height:1.05; letter-spacing:-0.02em; color:#fff; }
+
+        /* blurb hover overlay */
+        .feature-img-blurb { position:absolute; inset:0; background:rgba(12,11,9,0.72); display:flex; align-items:center; justify-content:center; padding:40px 32px; opacity:0; transition:opacity .3s ease; }
+        .feature:hover .feature-img-blurb { opacity:1; }
+        .feature-img-blurb p { font-family:var(--f-body); font-size:15px; font-weight:500; line-height:1.75; color:rgba(255,255,255,0.88); text-align:center; }
+
+        /* right side: stats 2-row grid + read link */
+        .feature-right { background:var(--ink); display:flex; flex-direction:column; }
+        .feature-stats-grid { display:grid; grid-template-columns:1fr 1fr; flex:1; }
+        .feature-stat { padding:44px 40px; border-bottom:1px solid rgba(255,255,255,0.07); border-right:1px solid rgba(255,255,255,0.07); display:flex; flex-direction:column; justify-content:flex-end; }
+        .feature-stat:nth-child(2),.feature-stat:nth-child(4) { border-right:none; }
+        .feature-stat:nth-child(3),.feature-stat:nth-child(4) { border-bottom:none; }
+        .feature-stat-num { font-family:var(--f-display); font-size:clamp(40px,4vw,58px); font-weight:700; color:#fff; line-height:1; margin-bottom:12px; letter-spacing:-0.03em; }
+        .feature-stat-num .prefix { font-size:0.58em; vertical-align:0.14em; letter-spacing:0; }
+        .feature-stat-num .suffix { font-size:0.72em; }
+        .feature-stat-label { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:12px; line-height:1.6; }
+        .feature-stat-body { font-family:var(--f-body); font-size:13px; font-weight:500; color:rgba(255,255,255,0.35); line-height:1.7; }
+        .feature-read-bar { padding:20px 40px; border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:space-between; }
+        .feature-read-kicker { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.28); }
+        .feature-read { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#fff; display:flex; align-items:center; gap:8px; text-decoration:none; transition:gap .15s; }
         .feature-read:hover { gap:14px; }
 
-        /* ── Stats strip ── */
-        .stats-strip { display:grid; grid-template-columns:repeat(4,1fr); background:var(--ink); }
-        .stat-cell { padding:52px 44px 56px; border-right:1px solid rgba(255,255,255,0.08); }
-        .stat-cell:last-child { border-right:none; }
-        .stat-num { font-family:var(--f-display); font-size:clamp(52px,5.5vw,72px); font-weight:700; color:#fff; line-height:1; margin-bottom:16px; letter-spacing:-0.03em; }
-        .stat-num .prefix { font-size:0.6em; font-weight:700; vertical-align:0.12em; letter-spacing:0; }
-        .stat-num .suffix { font-size:0.75em; font-weight:700; }
-        .stat-label { font-family:var(--f-mono); font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:20px; line-height:1.6; }
-        .stat-body { font-family:var(--f-body); font-size:14px; font-weight:500; color:rgba(255,255,255,0.38); line-height:1.75; }
+        /* ── Stats strip (standalone, below feature) ── */
+        .stats-strip { display:none; }
 
         /* ── Archive ── */
         .archive { padding:56px 52px; border-bottom:1px solid var(--bd); background:#fff; }
@@ -360,26 +421,47 @@ export default function HomePage() {
         .f-copy { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
       `}</style>
 
-      {/* ── Ticker ── */}
-      <div className="ticker">
-        <div className="ticker-inner">
-          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
-            <span key={i}>{item}</span>
-          ))}
-        </div>
+      {/* ── Slide-out drawer ── */}
+      <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
+        <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>✕ close</button>
+        <a href="/trends" onClick={() => setMenuOpen(false)}>Trends</a>
+        <a href="/shows" onClick={() => setMenuOpen(false)}>Shows</a>
+        <a href="/analysis" onClick={() => setMenuOpen(false)}>Analysis</a>
+        <a href="/archive" onClick={() => setMenuOpen(false)}>Archive</a>
+        <a href="/about" onClick={() => setMenuOpen(false)}>About</a>
       </div>
+      <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
 
-      {/* ── Nav ── */}
-      <nav className="nav">
-        <a href="/" className="nav-logo">runway fyi</a>
-        <ul className="nav-links">
+      {/* ── Sticky site header (ticker + logo row + nav links) ── */}
+      <header className={`site-header${navVisible ? '' : ' hidden'}`}>
+        {/* Ticker */}
+        <div className="ticker">
+          <div className="ticker-inner">
+            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+              <span key={i}>{item}</span>
+            ))}
+          </div>
+        </div>
+        {/* Logo row */}
+        <div className="nav-title-row">
+          <button
+            className={`nav-menu-btn${menuOpen ? ' open' : ''}`}
+            onClick={() => setMenuOpen(v => !v)}
+            aria-label="Menu"
+          >
+            <span /><span /><span />
+          </button>
+          <a href="/" className="nav-logo">runway fyi</a>
+          <span className="nav-pill">FW26</span>
+        </div>
+        {/* Links row */}
+        <ul className="nav-links-row">
           <li><a href="/trends">Trends</a></li>
           <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis">Analysis</a></li>
           <li><a href="/archive">Archive</a></li>
         </ul>
-        <span className="nav-pill">FW26</span>
-      </nav>
+      </header>
 
       {/* ── Hero — 3 panels ── */}
       <div className="hero">
@@ -473,22 +555,23 @@ export default function HomePage() {
             </span>
           </div>
           {TRENDS.slice(0, 10).map(t => {
-            const parts = t.breakdown.split(' · ');
             return (
               <div key={t.id} className="t-row">
                 <span className="t-rank">{String(t.rank).padStart(2, '0')}</span>
                 <div className="t-name">
-                  <span className="t-name-main">{t.name}</span>
-                  <span className="t-sub">{t.sub}</span>
+                  <div style={{display:'flex', alignItems:'baseline', gap:'10px', minWidth:0}}>
+                    <span className="t-name-main">{t.name}</span>
+                    <span className="t-sub" style={{flexShrink:0}}>{t.sub}</span>
+                  </div>
                 </div>
                 <div className="t-right">
                   <div className="t-score-right">
-                    <span className="t-num">{t.score.toFixed(1)}</span>
+                    <div className="t-score-hover-wrap">
+                      <span className="t-num">{t.score.toFixed(1)}</span>
+                      <div className="t-rsv-tooltip">{t.breakdown}</div>
+                    </div>
                     <div className="t-track"><div className="t-fill" style={{ width: `${t.score}%` }} /></div>
                     <span className={`t-badge ${badgeClass(t.badgeType)}`}>{t.badge}</span>
-                  </div>
-                  <div className="t-breakdown">
-                    {parts.map((p, i) => <span key={i} className="t-bd-item">{p}</span>)}
                   </div>
                 </div>
               </div>
@@ -519,46 +602,56 @@ export default function HomePage() {
 
       </div>
 
-      {/* ── Feature article ── */}
+      {/* ── Feature article — portrait split ── */}
       <div className="feature">
+        {/* Left: portrait image with title overlay + blurb on hover */}
         <div className="feature-img">
           <img
             src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80"
             alt="Dior FW26"
           />
+          {/* blurb — appears on hover */}
+          <div className="feature-img-blurb">
+            <p>
+              The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show — a signal we'd been tracking since Anderson's appointment was announced in late 2025.
+            </p>
+          </div>
+          {/* title always visible at bottom */}
+          <div className="feature-img-title">
+            <div className="feature-img-kicker">Opinion · Paris FW26 · Dior</div>
+            <div className="feature-img-h">Jonathan Anderson redefines what Dior means now</div>
+          </div>
           <div className="feature-img-caption">Dior FW26 · Paris · Placeholder</div>
         </div>
-        <div className="feature-content">
-          <div className="feature-kicker">Opinion · Paris FW26 · Dior</div>
-          <h2 className="feature-title">Jonathan Anderson redefines what Dior means now</h2>
-          <p className="feature-body">
-            The data agreed before the critics did. Searches for &ldquo;Dior aesthetic&rdquo; climbed 140% in the 48 hours after the show — a signal we&rsquo;d been tracking since Anderson&rsquo;s appointment was announced in late 2025. The score of 87.4 is the highest individual show score of the season so far, driven by an unusually high runway component of 48 points out of 50. Every look was referenced somewhere within 24 hours of the final bow.
-          </p>
-          <a href="#" className="feature-read">Read full analysis <span className="arr">→</span></a>
-        </div>
-      </div>
 
-      {/* ── Stats strip ── */}
-      <div className="stats-strip">
-        <div className="stat-cell">
-          <div className="stat-num"><span className="prefix">+</span>200<span className="suffix">%</span></div>
-          <div className="stat-label">Leather Bomber<br />Searches</div>
-          <p className="stat-body">Following Gucci&rsquo;s FW26 Milan show. Peak search volume recorded 48hrs post-show.</p>
-        </div>
-        <div className="stat-cell">
-          <div className="stat-num">34</div>
-          <div className="stat-label">Collections<br />with Burgundy</div>
-          <p className="stat-body">Across NYFW, LFW, MFW, and PFW. Up from 12 collections in SS26.</p>
-        </div>
-        <div className="stat-cell">
-          <div className="stat-num">89<span className="suffix">%</span></div>
-          <div className="stat-label">Prairie Trend<br />Growth</div>
-          <p className="stat-body">YoY increase in search interest for prairie and romantic silhouettes.</p>
-        </div>
-        <div className="stat-cell">
-          <div className="stat-num"><span className="prefix">#</span>1</div>
-          <div className="stat-label">Most Searched<br />Show</div>
-          <p className="stat-body">Chanel FW26 Paris led search volume for 11 consecutive days post-show.</p>
+        {/* Right: 2×2 stats grid + read link */}
+        <div className="feature-right">
+          <div className="feature-stats-grid">
+            <div className="feature-stat">
+              <div className="feature-stat-num"><span className="prefix">+</span>200<span className="suffix">%</span></div>
+              <div className="feature-stat-label">Leather Bomber<br />Searches</div>
+              <p className="feature-stat-body">Following Gucci's FW26 Milan show. Peak search volume recorded 48hrs post-show.</p>
+            </div>
+            <div className="feature-stat">
+              <div className="feature-stat-num">34</div>
+              <div className="feature-stat-label">Collections<br />with Burgundy</div>
+              <p className="feature-stat-body">Across NYFW, LFW, MFW, and PFW. Up from 12 collections in SS26.</p>
+            </div>
+            <div className="feature-stat">
+              <div className="feature-stat-num">89<span className="suffix">%</span></div>
+              <div className="feature-stat-label">Prairie Trend<br />Growth</div>
+              <p className="feature-stat-body">YoY increase in search interest for prairie and romantic silhouettes.</p>
+            </div>
+            <div className="feature-stat">
+              <div className="feature-stat-num"><span className="prefix">#</span>1</div>
+              <div className="feature-stat-label">Most Searched<br />Show</div>
+              <p className="feature-stat-body">Chanel FW26 Paris led search volume for 11 consecutive days post-show.</p>
+            </div>
+          </div>
+          <div className="feature-read-bar">
+            <span className="feature-read-kicker">Featured Analysis</span>
+            <a href="#" className="feature-read">Read full analysis <span className="arr">→</span></a>
+          </div>
         </div>
       </div>
 
