@@ -19,6 +19,7 @@ interface Post {
   title: string;
   excerpt: string;
   date: string;
+  img: string;
 }
 
 interface ArchiveCard {
@@ -31,25 +32,60 @@ interface ArchiveCard {
 
 // ─── Static data (swap these with fetch() calls to Railway once live) ─────────
 const TRENDS: TrendItem[] = [
-  { id: 1, rank: 1, name: 'Shearling Coat',    sub: 'Outerwear · Gucci, Bottega, Loewe',        score: 94.1, breakdown: 'R:47 · S:28 · V:19', badge: '+12.4 ↑',   badgeType: 'up'  },
-  { id: 2, rank: 2, name: 'Chanel FW26',        sub: 'Show · Matthieu Blazy debut',              score: 91.2, breakdown: 'R:50 · S:27 · V:14', badge: 'Season high',badgeType: 'new' },
-  { id: 3, rank: 3, name: 'Leather Bomber',     sub: 'Outerwear · +200% search post-Gucci',      score: 88.7, breakdown: 'R:44 · S:30 · V:15', badge: '+8.2 ↑',    badgeType: 'up'  },
-  { id: 4, rank: 4, name: 'Dior FW26',          sub: 'Show · Jonathan Anderson era begins',      score: 87.4, breakdown: 'R:48 · S:25 · V:14', badge: 'New entry',  badgeType: 'new' },
-  { id: 5, rank: 5, name: 'Prairie Silhouette', sub: 'Dress · Chloé, Zimmermann',                score: 78.6, breakdown: 'R:41 · S:22 · V:16', badge: 'New entry',  badgeType: 'new' },
-  { id: 6, rank: 6, name: 'Wide-Leg Trouser',   sub: 'Trousers · Consistent across all cities', score: 74.3, breakdown: 'R:38 · S:21 · V:15', badge: '−2.1 ↓',    badgeType: 'dn'  },
+  { id: 1,  rank: 1,  name: 'Shearling Coat',       sub: 'Outerwear · Gucci, Bottega, Loewe',        score: 94.1, breakdown: 'R:47 · S:28 · V:19', badge: '+12.4 ↑',    badgeType: 'up'  },
+  { id: 2,  rank: 2,  name: 'Chanel FW26',           sub: 'Show · Matthieu Blazy debut',              score: 91.2, breakdown: 'R:50 · S:27 · V:14', badge: 'Season high', badgeType: 'new' },
+  { id: 3,  rank: 3,  name: 'Leather Bomber',        sub: 'Outerwear · +200% search post-Gucci',      score: 88.7, breakdown: 'R:44 · S:30 · V:15', badge: '+8.2 ↑',     badgeType: 'up'  },
+  { id: 4,  rank: 4,  name: 'Dior FW26',             sub: 'Show · Jonathan Anderson era begins',      score: 87.4, breakdown: 'R:48 · S:25 · V:14', badge: 'New entry',   badgeType: 'new' },
+  { id: 5,  rank: 5,  name: 'Prairie Silhouette',    sub: 'Dress · Chloé, Zimmermann',                score: 78.6, breakdown: 'R:41 · S:22 · V:16', badge: 'New entry',   badgeType: 'new' },
+  { id: 6,  rank: 6,  name: 'Wide-Leg Trouser',      sub: 'Trousers · Consistent across all cities',  score: 74.3, breakdown: 'R:38 · S:21 · V:15', badge: '−2.1 ↓',     badgeType: 'dn'  },
+  { id: 7,  rank: 7,  name: 'Burgundy',              sub: 'Colour · +180% search, 34 collections',    score: 71.8, breakdown: 'R:36 · S:24 · V:12', badge: '+5.3 ↑',     badgeType: 'up'  },
+  { id: 8,  rank: 8,  name: 'Oversized Blazer',      sub: 'Tailoring · Saint Laurent, Gucci',         score: 68.4, breakdown: 'R:35 · S:20 · V:13', badge: '+1.9 ↑',     badgeType: 'up'  },
+  { id: 9,  rank: 9,  name: 'Ballet Flat',           sub: 'Footwear · Miu Miu, Prada, Chloé',         score: 65.2, breakdown: 'R:33 · S:19 · V:13', badge: '−0.8 ↓',     badgeType: 'dn'  },
+  { id: 10, rank: 10, name: 'Column Dress',          sub: 'Dress · Bottega, Jil Sander',              score: 61.7, breakdown: 'R:31 · S:18 · V:13', badge: 'New entry',   badgeType: 'new' },
 ];
 
 const POSTS: Post[] = [
-  { kicker: 'Data · Milan FW26',       title: 'The leather bomber is a macro trend',           excerpt: '200% search spike, 7 major shows, 3 cities. A data-driven case for the jacket of the season.',                                 date: 'Mar 6, 2026' },
-  { kicker: 'Forecast · FW26',         title: 'Prairie or bust: the silhouette taking over',   excerpt: 'Chloé made it obvious but the signal started in Copenhagen. A data-driven case for the maxi dress revival.',                   date: 'Mar 4, 2026' },
-  { kicker: 'Opinion · Paris FW26',    title: "Why Chanel's mushroom set was the moment",      excerpt: "The SS26 couture set predicted everything Blazy would do next. Here's what the data says.",                                    date: 'Mar 8, 2026' },
-  { kicker: 'Cultural Context · FW26', title: 'Why recession dressing always brings the coat', excerpt: "Shearling at #1 isn't a coincidence. A historical pattern analysis of outerwear trends and economic anxiety.",                 date: 'Mar 2, 2026' },
+  {
+    kicker: 'Data · Milan FW26',
+    title: 'The leather bomber is a macro trend',
+    excerpt: '200% search spike, 7 major shows, 3 cities. A data-driven case for the jacket of the season.',
+    date: 'Mar 6, 2026',
+    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+  },
+  {
+    kicker: 'Forecast · FW26',
+    title: 'Prairie or bust: the silhouette taking over',
+    excerpt: 'Chloé made it obvious but the signal started in Copenhagen. A data-driven case for the maxi dress revival.',
+    date: 'Mar 4, 2026',
+    img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80',
+  },
+  {
+    kicker: 'Opinion · Paris FW26',
+    title: "Why Chanel's mushroom set was the moment",
+    excerpt: "The SS26 couture set predicted everything Blazy would do next. Here's what the data says.",
+    date: 'Mar 8, 2026',
+    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80',
+  },
+  {
+    kicker: 'Cultural Context · FW26',
+    title: 'Why recession dressing always brings the coat',
+    excerpt: "Shearling at #1 isn't a coincidence. A historical pattern analysis of outerwear trends and economic anxiety.",
+    date: 'Mar 2, 2026',
+    img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80',
+  },
+  {
+    kicker: 'Analysis · London FW26',
+    title: 'The quiet return of maximalism',
+    excerpt: 'After three years of quiet luxury, the data shows decoration is back. Which shows led the shift.',
+    date: 'Feb 28, 2026',
+    img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80',
+  },
 ];
 
 const ARCHIVE: ArchiveCard[] = [
-  { color: '#A47764', pantoneLabel: 'Mocha Mousse', pantoneTextColor: '#fff',    season: 'FW25 · Paris',    title: 'The quiet luxury correction'         },
-  { color: '#FFBE98', pantoneLabel: 'Peach Fuzz',   pantoneTextColor: '#6B5040', season: 'FW24 · London',   title: 'Softening of power dressing'         },
-  { color: '#BE3455', pantoneLabel: 'Viva Magenta', pantoneTextColor: '#fff',    season: 'FW23 · Milan',    title: 'Viva Magenta was never just a color' },
+  { color: '#A47764', pantoneLabel: 'Mocha Mousse', pantoneTextColor: '#fff',    season: 'FW25 · Paris',    title: 'The quiet luxury correction'           },
+  { color: '#FFBE98', pantoneLabel: 'Peach Fuzz',   pantoneTextColor: '#6B5040', season: 'FW24 · London',   title: 'Softening of power dressing'           },
+  { color: '#BE3455', pantoneLabel: 'Viva Magenta', pantoneTextColor: '#fff',    season: 'FW23 · Milan',    title: 'Viva Magenta was never just a color'   },
   { color: '#6667AB', pantoneLabel: 'Very Peri',    pantoneTextColor: '#fff',    season: 'FW22 · New York', title: 'The periwinkle moment nobody predicted' },
 ];
 
@@ -61,23 +97,23 @@ const TICKER_ITEMS = [
 
 const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen'];
 
-// ─── Detection boxes ──────────────────────────────────────────────────────────
+// ─── Detection boxes (3 panels now) ──────────────────────────────────────────
 const DETECTIONS = [
   { id: 0, panel: 0, style: { top: '18%', left: '22%', width: '52%', height: '54%' }, label: 'Silhouette',    val: 94.1, delay: 500  },
   { id: 1, panel: 0, style: { top: '62%', left: '8%',  width: '30%', height: '26%' }, label: 'Material',      val: 74.3, delay: 1200 },
   { id: 2, panel: 1, style: { top: '14%', left: '18%', width: '56%', height: '52%' }, label: 'Outerwear',     val: 88.7, delay: 1900 },
-  { id: 3, panel: 1, style: { top: '58%', left: '55%', width: '34%', height: '30%' }, label: 'Colour Signal', val: 78.6, delay: 2550 },
+  { id: 3, panel: 2, style: { top: '58%', left: '15%', width: '34%', height: '30%' }, label: 'Colour Signal', val: 78.6, delay: 2550 },
 ];
 
 // ─── Page component ───────────────────────────────────────────────────────────
 export default function HomePage() {
-  const [panelsLoaded, setPanelsLoaded] = useState([false, false]);
+  const [panelsLoaded, setPanelsLoaded] = useState([false, false, false]);
   const [detVisible,   setDetVisible]   = useState([false, false, false, false]);
   const [detScores,    setDetScores]    = useState([0, 0, 0, 0]);
   const [titleVisible, setTitleVisible] = useState(false);
   const [detCount,     setDetCount]     = useState(0);
   const [activeCity,   setActiveCity]   = useState('All');
-  const imgRefs        = useRef<(HTMLImageElement | null)[]>([null, null]);
+  const imgRefs        = useRef<(HTMLImageElement | null)[]>([null, null, null]);
   const sequenceStarted = useRef(false);
 
   function countUp(index: number, target: number, duration: number) {
@@ -155,14 +191,14 @@ export default function HomePage() {
 
         /* ── Nav ── */
         .nav { height:58px; display:flex; align-items:center; justify-content:space-between; padding:0 52px; background:#fff; border-bottom:1px solid var(--bd); position:sticky; top:0; z-index:100; }
-        .nav-logo { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink); text-decoration:none; }
+        .nav-logo { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:0.1em; text-transform:lowercase; color:var(--ink); text-decoration:none; }
         .nav-links { display:flex; gap:36px; list-style:none; }
         .nav-links a { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); text-decoration:none; transition:color .15s; }
         .nav-links a:hover { color:var(--ink); }
         .nav-pill { font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; border:1px solid var(--bd); color:var(--light); padding:5px 13px; }
 
         /* ── Hero ── */
-        .hero { position:relative; width:100%; height:calc(100vh - 84px); min-height:600px; background:#fff; overflow:hidden; display:grid; grid-template-columns:1fr 1fr; }
+        .hero { position:relative; width:100%; height:calc(100vh - 84px); min-height:600px; background:#fff; overflow:hidden; display:grid; grid-template-columns:1fr 1fr 1fr; }
         .img-panel { position:relative; overflow:hidden; opacity:0; transition:opacity 1s ease; border-right:1px solid var(--bd); }
         .img-panel:last-of-type { border-right:none; }
         .img-panel.loaded { opacity:1; }
@@ -191,16 +227,13 @@ export default function HomePage() {
         .rec-dot { width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.6; animation:blink 1.4s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:.6} 50%{opacity:.12} }
 
-        /* hero title */
-        .hero-title-wrap { position:absolute; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+        /* hero title — bottom center, compact */
+        .hero-title-wrap { position:absolute; inset:0; z-index:50; display:flex; align-items:flex-end; justify-content:center; pointer-events:none; padding-bottom:36px; }
         .hero-title-inner { text-align:center; opacity:0; transform:translateY(10px); transition:opacity .65s ease, transform .65s ease; }
         .hero-title-inner.show { opacity:1; transform:translateY(0); pointer-events:all; }
-        .title-backdrop { display:inline-block; background:rgba(255,255,255,0.84); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:36px 52px 40px; border:1px solid rgba(12,11,9,0.07); }
-        .hero-eyebrow { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.26em; text-transform:uppercase; color:var(--light); margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:12px; }
-        .hero-eyebrow::before,.hero-eyebrow::after { content:''; width:18px; height:1px; background:var(--light); }
-        .hero-title { font-family:var(--f-display); font-size:clamp(72px,10vw,130px); font-weight:700; line-height:0.88; letter-spacing:-0.03em; color:var(--ink); margin-bottom:14px; }
-        .hero-desc { font-family:var(--f-body); font-size:15px; font-style:italic; font-weight:500; color:var(--mid); margin-bottom:26px; }
-        .hero-cta { display:inline-flex; align-items:center; gap:10px; font-family:var(--f-mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#fff; background:var(--ink); padding:13px 28px; text-decoration:none; transition:opacity .2s; }
+        .title-backdrop { display:inline-block; background:rgba(255,255,255,0.84); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:20px 36px 24px; border:1px solid rgba(12,11,9,0.07); }
+        .hero-title { font-family:var(--f-display); font-size:clamp(36px,5vw,64px); font-weight:700; line-height:0.92; letter-spacing:-0.03em; color:var(--ink); margin-bottom:14px; text-transform:lowercase; }
+        .hero-cta { display:inline-flex; align-items:center; gap:10px; font-family:var(--f-mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:#fff; background:var(--ink); padding:11px 24px; text-decoration:none; transition:opacity .2s; }
         .hero-cta:hover { opacity:.72; }
         .arr { display:inline-block; transition:transform .18s; }
         .hero-cta:hover .arr { transform:translateX(5px); }
@@ -213,27 +246,42 @@ export default function HomePage() {
         .sbtn:hover,.sbtn.active { color:var(--ink); }
         .sbtn.active::after,.sbtn:hover::after { transform:scaleX(1); }
 
-        /* ── Leaderboard ── */
-        .board { padding:56px 52px; border-bottom:1px solid var(--bd); background:#fff; }
-        .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:32px; padding-bottom:18px; border-bottom:1px solid var(--bd); }
-        .section-title { font-family:var(--f-display); font-size:46px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
+        /* ── Leaderboard + Analysis two-col layout ── */
+        .board-analysis-wrap { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--bd); background:#fff; align-items:start; }
+
+        /* ── Leaderboard (left, compact) ── */
+        .board { padding:40px 40px 40px 52px; border-right:1px solid var(--bd); }
+        .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
+        .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
         .section-note { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); }
-        .t-row { display:flex; align-items:center; padding:20px 0; border-bottom:1px solid var(--bd); cursor:pointer; gap:18px; transition:opacity .15s; }
+        .t-row { display:flex; align-items:center; padding:12px 0; border-bottom:1px solid var(--bd); cursor:pointer; gap:12px; transition:opacity .15s; }
         .t-row:last-child { border-bottom:none; }
         .t-row:hover { opacity:.4; }
-        .t-rank { font-family:var(--f-mono); font-size:10px; font-weight:300; color:rgba(12,11,9,0.18); width:24px; flex-shrink:0; }
-        .t-name { flex:1; }
-        .t-name-main { font-family:var(--f-display); font-size:28px; font-weight:700; letter-spacing:-0.02em; display:block; line-height:1; color:var(--ink); }
-        .t-sub { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--light); display:block; margin-top:4px; }
-        .t-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
-        .t-num { font-family:var(--f-mono); font-size:26px; font-weight:500; letter-spacing:-0.02em; color:var(--ink); line-height:1; }
-        .t-track { width:72px; height:1.5px; background:rgba(12,11,9,0.08); }
+        .t-rank { font-family:var(--f-mono); font-size:9px; font-weight:300; color:rgba(12,11,9,0.18); width:20px; flex-shrink:0; }
+        .t-name { flex:1; min-width:0; }
+        .t-name-main { font-family:var(--f-display); font-size:18px; font-weight:700; letter-spacing:-0.01em; display:block; line-height:1; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .t-sub { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); display:block; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .t-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; }
+        .t-num { font-family:var(--f-mono); font-size:18px; font-weight:500; letter-spacing:-0.02em; color:var(--ink); line-height:1; }
+        .t-track { width:52px; height:1.5px; background:rgba(12,11,9,0.08); }
         .t-fill { height:100%; background:var(--ink); }
-        .t-bd { font-family:var(--f-mono); font-size:8px; color:var(--light); letter-spacing:0.06em; }
-        .t-badge { font-family:var(--f-mono); font-size:8px; letter-spacing:0.06em; padding:2px 7px; }
+        .t-bd { font-family:var(--f-mono); font-size:7px; color:var(--light); letter-spacing:0.05em; }
+        .t-badge { font-family:var(--f-mono); font-size:7.5px; letter-spacing:0.05em; padding:2px 6px; }
         .badge-up  { background:rgba(30,107,60,0.09);  color:#1E6B3C; }
         .badge-new { background:rgba(12,11,9,0.05);    color:var(--ink); }
         .badge-dn  { background:rgba(160,50,40,0.07);  color:#9B3228; }
+
+        /* ── Latest analysis (right, list style) ── */
+        .analysis-col { padding:40px 52px 40px 40px; }
+        .analysis-list { margin-top:24px; display:flex; flex-direction:column; gap:0; }
+        .a-item { display:grid; grid-template-columns:1fr 100px; gap:16px; align-items:start; padding:16px 0; border-bottom:1px solid var(--bd); cursor:pointer; transition:opacity .15s; text-decoration:none; color:inherit; }
+        .a-item:last-child { border-bottom:none; }
+        .a-item:hover { opacity:.45; }
+        .a-kicker { font-family:var(--f-mono); font-size:8px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); margin-bottom:6px; }
+        .a-title { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-0.01em; line-height:1.15; color:var(--ink); margin-bottom:6px; }
+        .a-excerpt { font-family:var(--f-body); font-size:13px; font-weight:500; line-height:1.65; color:var(--mid); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .a-date { font-family:var(--f-mono); font-size:8px; letter-spacing:0.09em; text-transform:uppercase; color:var(--light); margin-top:8px; }
+        .a-img { width:100px; height:72px; object-fit:cover; object-position:top center; display:block; filter:grayscale(10%) brightness(0.9); flex-shrink:0; }
 
         /* ── Feature ── */
         .feature { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--bd); }
@@ -258,29 +306,12 @@ export default function HomePage() {
         .stat-label { font-family:var(--f-mono); font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:20px; line-height:1.6; }
         .stat-body { font-family:var(--f-body); font-size:14px; font-weight:500; color:rgba(255,255,255,0.38); line-height:1.75; }
 
-        /* ── Latest analysis ── */
-        .posts-section { padding:56px 52px; border-bottom:1px solid var(--bd); }
-        .posts-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:0; margin-top:32px; }
-        .p-card { padding:28px 40px 28px 0; border-bottom:1px solid var(--bd); cursor:pointer; transition:opacity .15s; }
-        .p-card:nth-child(even) { padding:28px 0 28px 40px; border-left:1px solid var(--bd); }
-        .p-card:hover { opacity:.45; }
-        .p-card:nth-last-child(-n+2) { border-bottom:none; }
-        .p-kicker { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); margin-bottom:10px; }
-        .p-title { font-family:var(--f-display); font-size:22px; font-weight:700; letter-spacing:-0.01em; line-height:1.1; color:var(--ink); margin-bottom:9px; }
-        .p-excerpt { font-family:var(--f-body); font-size:14px; font-weight:500; line-height:1.7; color:var(--ink); }
-        .p-foot { display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
-        .p-date { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
-        .p-arr { color:var(--light); font-size:14px; display:inline-block; transition:transform .15s; }
-        .p-card:hover .p-arr { transform:translateX(4px); }
-
         /* ── Archive ── */
         .archive { padding:56px 52px; border-bottom:1px solid var(--bd); background:#fff; }
-        .archive-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:32px; }
-        .arc-card { padding:0 28px 0 0; border-right:1px solid var(--bd); cursor:pointer; transition:opacity .15s; }
-        .arc-card:last-child { padding:0 0 0 28px; border-right:none; }
-        .arc-card:nth-child(2),.arc-card:nth-child(3) { padding:0 28px; }
+        .archive-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; margin-top:32px; }
+        .arc-card { cursor:pointer; transition:opacity .15s; }
         .arc-card:hover { opacity:.6; }
-        .arc-swatch { width:100%; height:64px; margin-bottom:14px; display:flex; align-items:flex-end; padding:8px 10px; }
+        .arc-swatch { width:100%; aspect-ratio:4/3; margin-bottom:14px; display:flex; align-items:flex-end; padding:12px 14px; }
         .arc-pantone { font-family:var(--f-mono); font-size:8px; letter-spacing:0.12em; text-transform:uppercase; opacity:.6; }
         .arc-season { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); margin-bottom:7px; display:block; }
         .arc-title { font-family:var(--f-display); font-size:18px; font-weight:700; letter-spacing:-0.01em; line-height:1.15; color:var(--ink); }
@@ -289,7 +320,7 @@ export default function HomePage() {
 
         /* ── Footer ── */
         footer { background:var(--ink); padding:26px 52px; display:flex; align-items:center; justify-content:space-between; }
-        .f-logo { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#fff; }
+        .f-logo { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:0.1em; text-transform:lowercase; color:#fff; }
         .f-links { display:flex; gap:28px; list-style:none; }
         .f-links a { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.3); text-decoration:none; transition:color .15s; }
         .f-links a:hover { color:rgba(255,255,255,0.7); }
@@ -307,7 +338,7 @@ export default function HomePage() {
 
       {/* ── Nav ── */}
       <nav className="nav">
-        <a href="/" className="nav-logo">Runway FYI</a>
+        <a href="/" className="nav-logo">runway fyi</a>
         <ul className="nav-links">
           <li><a href="/trends">Trends</a></li>
           <li><a href="/shows">Shows</a></li>
@@ -317,20 +348,23 @@ export default function HomePage() {
         <span className="nav-pill">FW26</span>
       </nav>
 
-      {/* ── Hero ── */}
+      {/* ── Hero — 3 panels ── */}
       <div className="hero">
-        {[0, 1].map(panelIdx => (
+        {[0, 1, 2].map(panelIdx => (
           <div key={panelIdx} className={`img-panel${panelsLoaded[panelIdx] ? ' loaded' : ''}`}>
             <span className="cell-cam">
-              {panelIdx === 0 ? 'CAM-01 · PARIS FW26' : 'CAM-02 · MILAN FW26'}
+              {panelIdx === 0 ? 'CAM-01 · PARIS FW26' : panelIdx === 1 ? 'CAM-02 · MILAN FW26' : 'CAM-03 · LONDON FW26'}
             </span>
             <img
               ref={el => { imgRefs.current[panelIdx] = el; }}
-              src={panelIdx === 0
-                ? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80'
-                : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80'
+              src={
+                panelIdx === 0
+                  ? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80'
+                  : panelIdx === 1
+                  ? 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80'
+                  : 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=900&q=80'
               }
-              alt={panelIdx === 0 ? 'Paris FW26' : 'Milan FW26'}
+              alt={panelIdx === 0 ? 'Paris FW26' : panelIdx === 1 ? 'Milan FW26' : 'London FW26'}
               onLoad={() => handleImgLoad(panelIdx)}
             />
             {DETECTIONS.filter(d => d.panel === panelIdx).map(det => (
@@ -361,12 +395,11 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* title — bottom center, compact, lowercase */}
         <div className="hero-title-wrap">
           <div className={`hero-title-inner${titleVisible ? ' show' : ''}`}>
             <div className="title-backdrop">
-              <div className="hero-eyebrow">Fashion Trend Intelligence</div>
-              <div className="hero-title">RUNWAY<br />FYI</div>
-              <p className="hero-desc">Data-driven analysis of what the season means</p>
+              <div className="hero-title">runway fyi</div>
               <a href="#trends" className="hero-cta">
                 See the data <span className="arr">→</span>
               </a>
@@ -389,28 +422,54 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* ── Leaderboard ── */}
-      <section className="board" id="trends">
-        <div className="section-head">
-          <h2 className="section-title">Trend Leaderboard</h2>
-          <span className="section-note">FW26 Season · Composite Score</span>
-        </div>
-        {TRENDS.map(t => (
-          <div key={t.id} className="t-row">
-            <span className="t-rank">{String(t.rank).padStart(2, '0')}</span>
-            <div className="t-name">
-              <span className="t-name-main">{t.name}</span>
-              <span className="t-sub">{t.sub}</span>
-            </div>
-            <div className="t-right">
-              <span className="t-num">{t.score.toFixed(1)}</span>
-              <div className="t-track"><div className="t-fill" style={{ width: `${t.score}%` }} /></div>
-              <span className="t-bd">{t.breakdown}</span>
-              <span className={`t-badge ${badgeClass(t.badgeType)}`}>{t.badge}</span>
-            </div>
+      {/* ── Leaderboard (left) + Analysis (right) ── */}
+      <div className="board-analysis-wrap">
+
+        {/* Leaderboard — compact, top 10 */}
+        <section className="board" id="trends">
+          <div className="section-head">
+            <h2 className="section-title">Trend Leaderboard</h2>
+            <span className="section-note">FW26 · Composite Score</span>
           </div>
-        ))}
-      </section>
+          {TRENDS.slice(0, 8).map(t => (
+            <div key={t.id} className="t-row">
+              <span className="t-rank">{String(t.rank).padStart(2, '0')}</span>
+              <div className="t-name">
+                <span className="t-name-main">{t.name}</span>
+                <span className="t-sub">{t.sub}</span>
+              </div>
+              <div className="t-right">
+                <span className="t-num">{t.score.toFixed(1)}</span>
+                <div className="t-track"><div className="t-fill" style={{ width: `${t.score}%` }} /></div>
+                <span className="t-bd">{t.breakdown}</span>
+                <span className={`t-badge ${badgeClass(t.badgeType)}`}>{t.badge}</span>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {/* Latest analysis — right column, list with images */}
+        <section className="analysis-col">
+          <div className="section-head">
+            <h2 className="section-title">Latest Analysis</h2>
+            <span className="section-note">Opinion · Data · Forecasts</span>
+          </div>
+          <div className="analysis-list">
+            {POSTS.map((post, i) => (
+              <a key={i} href="#" className="a-item">
+                <div>
+                  <div className="a-kicker">{post.kicker}</div>
+                  <div className="a-title">{post.title}</div>
+                  <p className="a-excerpt">{post.excerpt}</p>
+                  <div className="a-date">{post.date}</div>
+                </div>
+                <img src={post.img} alt={post.title} className="a-img" />
+              </a>
+            ))}
+          </div>
+        </section>
+
+      </div>
 
       {/* ── Feature article ── */}
       <div className="feature">
@@ -455,27 +514,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Latest analysis ── */}
-      <section className="posts-section">
-        <div className="section-head">
-          <h2 className="section-title">Latest Analysis</h2>
-          <span className="section-note">Opinion · Data · Forecasts</span>
-        </div>
-        <div className="posts-grid">
-          {POSTS.map((post, i) => (
-            <article key={i} className="p-card">
-              <div className="p-kicker">{post.kicker}</div>
-              <h3 className="p-title">{post.title}</h3>
-              <p className="p-excerpt">{post.excerpt}</p>
-              <div className="p-foot">
-                <span className="p-date">{post.date}</span>
-                <span className="p-arr">→</span>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
       {/* ── Archive ── */}
       <section className="archive">
         <div className="section-head">
@@ -500,12 +538,12 @@ export default function HomePage() {
 
       {/* ── Footer ── */}
       <footer>
-        <span className="f-logo">Runway FYI</span>
+        <span className="f-logo">runway fyi</span>
         <ul className="f-links">
           <li><a href="https://instagram.com/databutmakeitfashion" target="_blank" rel="noopener noreferrer">Instagram</a></li>
           <li><a href="#">TikTok</a></li>
           <li><a href="#">Newsletter</a></li>
-          <li><a href="#">About</a></li>
+          <li><a href="/about">About</a></li>
         </ul>
         <span className="f-copy">© 2026 runway.fyi</span>
       </footer>
