@@ -255,7 +255,7 @@ export default function HomePage() {
         .cell-cam { position:absolute; top:14px; left:16px; font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.38); z-index:5; }
 
         /* hero explanation panel */
-        .hero-explain { background:#fff; border-left:1px solid var(--bd); display:flex; flex-direction:column; justify-content:space-between; padding:32px 36px; }
+        .hero-explain { background:#fff; border-left:1px solid var(--bd); display:flex; flex-direction:column; justify-content:space-between; padding:32px 36px; overflow:hidden; min-width:0; }
         .hero-explain-top { display:flex; flex-direction:column; gap:20px; }
         .hero-explain-kicker { font-family:var(--f-mono); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:var(--light); }
         .hero-explain-title { font-family:var(--f-display); font-size:22px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; color:var(--ink); }
@@ -269,13 +269,13 @@ export default function HomePage() {
         .det-box { position:absolute; z-index:30; opacity:0; transform:scale(1.04); transition:opacity .1s ease, transform .15s cubic-bezier(.22,1,.36,1); pointer-events:none; }
         .det-box.show { opacity:1; transform:scale(1); }
         .c { position:absolute; }
-        .c-tl { top:0;left:0;  border-top:2px solid var(--ink); border-left:2px solid var(--ink);   width:16px;height:16px; }
-        .c-tr { top:0;right:0; border-top:2px solid var(--ink); border-right:2px solid var(--ink);  width:16px;height:16px; }
-        .c-bl { bottom:0;left:0;  border-bottom:2px solid var(--ink); border-left:2px solid var(--ink);  width:16px;height:16px; }
-        .c-br { bottom:0;right:0; border-bottom:2px solid var(--ink); border-right:2px solid var(--ink); width:16px;height:16px; }
-        .det-label { position:absolute; top:-28px; left:-1px; background:var(--ink); padding:4px 10px; display:flex; align-items:center; gap:10px; white-space:nowrap; }
+        .c-tl { top:0;left:0;  border-top:2px solid #fff; border-left:2px solid #fff;   width:16px;height:16px; }
+        .c-tr { top:0;right:0; border-top:2px solid #fff; border-right:2px solid #fff;  width:16px;height:16px; }
+        .c-bl { bottom:0;left:0;  border-bottom:2px solid #fff; border-left:2px solid #fff;  width:16px;height:16px; }
+        .c-br { bottom:0;right:0; border-bottom:2px solid #fff; border-right:2px solid #fff; width:16px;height:16px; }
+        .det-label { position:absolute; top:-28px; left:-1px; background:rgba(12,11,9,0.82); backdrop-filter:blur(4px); padding:4px 10px; display:flex; align-items:center; gap:10px; white-space:nowrap; }
         .det-label-text { font-family:var(--f-mono); font-size:9px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:#fff; }
-        .det-score { font-family:var(--f-mono); font-size:11px; font-weight:500; color:rgba(255,255,255,0.55); min-width:28px; }
+        .det-score { font-family:var(--f-mono); font-size:11px; font-weight:500; color:rgba(255,255,255,0.7); min-width:28px; }
 
         /* HUD */
         .hud { position:absolute; z-index:40; pointer-events:none; }
@@ -311,9 +311,9 @@ export default function HomePage() {
 
         /* ── Leaderboard (left, compact) ── */
         .board { padding:32px 32px 32px 52px; border-right:1px solid var(--bd); }
-        .section-head { display:flex; align-items:stretch; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
-        .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
-        .section-note { font-family:var(--f-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); align-self:baseline; }
+        .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); overflow:hidden; }
+        .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); white-space:nowrap; }
+        .section-note { font-family:var(--f-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); align-self:baseline; white-space:nowrap; margin-left:16px; }
 
         /* two-line board title */
         .board-title-block { display:flex; flex-direction:column; gap:2px; width:100%; }
