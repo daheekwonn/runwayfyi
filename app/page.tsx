@@ -367,16 +367,16 @@ export default function HomePage() {
         .a-img { width:110px; height:88px; object-fit:cover; object-position:top center; display:block; filter:grayscale(10%) brightness(0.9); flex-shrink:0; }
 
         /* ── Feature — two articles left, compact white stats right ── */
-        .feature { display:grid; grid-template-columns:1fr 280px; border-bottom:1px solid var(--bd); position:relative; z-index:0; height:calc(100vh - 80px); min-height:520px; }
+        .feature { display:grid; grid-template-columns:1fr 360px; border-bottom:1px solid var(--bd); position:relative; z-index:0; height:65vh; min-height:460px; }
 
         /* left: two article cards stacked — divider aligns with stats midpoint */
         /* stats-grid takes flex:1, read-bar is ~41px, so top half = (100% - 41px) / 2 */
         .feature-articles { display:flex; flex-direction:column; height:100%; background:#fff; border-right:1px solid var(--bd); }
-        .feature-article { display:grid; grid-template-columns:140px 1fr; text-decoration:none; color:inherit; cursor:pointer; transition:opacity .15s; overflow:hidden; border-bottom:1px solid var(--bd); }
+        .feature-article { display:grid; grid-template-columns:100px 1fr; text-decoration:none; color:inherit; cursor:pointer; transition:opacity .15s; overflow:hidden; border-bottom:1px solid var(--bd); }
         .feature-article:first-child { height:calc((100% - 41px) / 2); flex-shrink:0; }
         .feature-article:last-child  { flex:1; border-bottom:none; }
         .feature-article:hover { opacity:.65; }
-        .feature-article-img { width:140px; height:100%; object-fit:cover; object-position:top center; display:block; filter:grayscale(8%) brightness(0.93); }
+        .feature-article-img { width:100px; height:100%; object-fit:cover; object-position:top center; display:block; filter:grayscale(8%) brightness(0.93); }
         .feature-article-body { padding:32px 32px; display:flex; flex-direction:column; justify-content:center; gap:10px; }
         .feature-article-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); }
         .feature-article-title { font-family:var(--f-display); font-size:clamp(17px,1.6vw,22px); font-weight:700; letter-spacing:-0.02em; line-height:1.1; color:var(--ink); }
@@ -386,10 +386,10 @@ export default function HomePage() {
         /* right: compact WHITE stats column */
         .feature-right { background:#fff; display:flex; flex-direction:column; height:100%; border-left:1px solid var(--bd); }
         .feature-stats-grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; flex:1; min-height:0; }
-        .feature-stat { padding:22px 22px; border-bottom:1px solid var(--bd); border-right:1px solid var(--bd); display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; overflow:hidden; }
+        .feature-stat { padding:28px 24px; border-bottom:1px solid var(--bd); border-right:1px solid var(--bd); display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; overflow:hidden; }
         .feature-stat:nth-child(2),.feature-stat:nth-child(4) { border-right:none; }
         .feature-stat:nth-child(3),.feature-stat:nth-child(4) { border-bottom:none; }
-        .feature-stat-num { font-family:var(--f-display); font-size:clamp(36px,3.6vw,54px); font-weight:700; color:var(--ink); line-height:1; margin-bottom:8px; letter-spacing:-0.03em; }
+        .feature-stat-num { font-family:var(--f-display); font-size:clamp(38px,3.8vw,58px); font-weight:700; color:var(--ink); line-height:1; margin-bottom:8px; letter-spacing:-0.03em; }
         .feature-stat-num .prefix { font-size:0.55em; vertical-align:0.16em; letter-spacing:0; }
         .feature-stat-num .suffix { font-size:0.65em; }
         .feature-stat-label { font-family:var(--f-mono); font-size:8px; letter-spacing:0.16em; text-transform:uppercase; color:var(--light); margin-bottom:8px; line-height:1.5; }
@@ -416,6 +416,7 @@ export default function HomePage() {
 
         /* ── FYI strip — trending style with images ── */
         .fyi-strip { background:#fff; border-bottom:1px solid var(--bd); padding:48px 52px; }
+        .fyi-strip .section-head { justify-content:center; }
         .fyi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:28px; margin-top:32px; }
         .fyi-card { text-decoration:none; color:inherit; cursor:pointer; transition:opacity .15s; }
         .fyi-card:hover { opacity:.65; }
@@ -693,7 +694,6 @@ export default function HomePage() {
       <section className="fyi-strip">
         <div className="section-head">
           <h2 className="section-title">FYI</h2>
-          <span className="section-note">Data-backed takes on the season</span>
         </div>
         <div className="fyi-grid">
           {FYIS.map((fyi, i) => (
