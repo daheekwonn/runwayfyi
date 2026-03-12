@@ -240,14 +240,38 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
 
       {/* Page header */}
-      <div className="page-header">
-        <h1 className="page-title">Analysis</h1>
-        <div className="page-meta">
-          {filtered.length} pieces published<br />
-          FW26 season · composite scoring<br />
-          runway · search · social
-        </div>
-      </div>
+<div style={{ padding: '48px 48px 32px 48px', borderBottom: '1px solid var(--bd)' }}>
+  <p style={{
+    fontFamily: 'var(--f-mono)',
+    fontSize: '11px',
+    letterSpacing: '0.08em',
+    color: 'var(--light)',
+    textTransform: 'uppercase',
+    margin: '0 0 12px 0'
+  }}>Season · FW26</p>
+  <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', marginBottom: '12px' }}>
+    <h1 style={{
+      fontFamily: 'var(--f-display)',
+      fontSize: 'clamp(56px, 8vw, 96px)',
+      fontWeight: 700,
+      lineHeight: 1,
+      color: 'var(--ink)',
+      margin: 0
+    }}>Analysis</h1>
+    <span style={{
+      fontFamily: 'var(--f-mono)',
+      fontSize: '13px',
+      color: 'var(--light)'
+    }}>{articles.length} pieces</span>
+  </div>
+  <p style={{
+    fontFamily: 'var(--f-body)',
+    fontSize: '15px',
+    color: 'var(--mid)',
+    margin: 0,
+    maxWidth: '480px'
+  }}>Editorial takes on runway data — opinion, forecasts, and cultural context.</p>
+</div>
 
       {/* Filter bar */}
       <div className="filter-bar">
