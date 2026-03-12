@@ -376,7 +376,7 @@ export default function TrendsClient({ leaderboard, all }: Props) {
           <span className="nav-pill">FW26</span>
         </div>
         <ul className={`nav-links-row${navVisible?'':' hidden'}`}>
-          {[['/', 'Home'],['/trends','Trends'],['/shows','Shows'],['/analysis','Analysis'],['/archive','Archive']].map(([href,label]) => (
+          {[['/trends','Trends'],['/analysis','Analysis'],['/fyi','FYI'],['/shows','Shows'],['/archive','Archive']].map(([href,label]) => (
             <li key={href}><a href={href} style={href==='/trends' ? {borderBottom:'1px solid var(--ink)',paddingBottom:'2px'} : {}}>{label}</a></li>
           ))}
         </ul>
@@ -384,7 +384,7 @@ export default function TrendsClient({ leaderboard, all }: Props) {
       <div className={`nav-overlay${menuOpen?' open':''}`} onClick={() => setMenuOpen(false)} />
       <nav className={`nav-drawer${menuOpen?' open':''}`}>
         <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>close ✕</button>
-        {[['/', 'home'],['/trends','trends'],['/shows','shows'],['/analysis','analysis'],['/archive','archive'],['/about','about']].map(([href,label]) => (
+        {[['/trends','trends'],['/analysis','analysis'],['/fyi','fyi'],['/shows','shows'],['/archive','archive'],['/about','about']].map(([href,label]) => (
           <a key={href} href={href}>{label}</a>
         ))}
       </nav>
