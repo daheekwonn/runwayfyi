@@ -98,12 +98,12 @@ const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen'];
 
 
 
-// ─── Detection boxes (3 panels now) ──────────────────────────────────────────
+// ─── Detection boxes (2 image panels) ────────────────────────────────────────
 const DETECTIONS = [
   { id: 0, panel: 0, style: { top: '18%', left: '22%', width: '52%', height: '54%' }, label: 'Silhouette',    val: 94.1, delay: 200  },
-  { id: 1, panel: 0, style: { top: '62%', left: '8%',  width: '30%', height: '26%' }, label: 'Material',      val: 74.3, delay: 500 },
-  { id: 2, panel: 1, style: { top: '14%', left: '18%', width: '56%', height: '52%' }, label: 'Outerwear',     val: 88.7, delay: 800 },
-  { id: 3, panel: 2, style: { top: '58%', left: '15%', width: '34%', height: '30%' }, label: 'Colour Signal', val: 78.6, delay: 1100 },
+  { id: 1, panel: 0, style: { top: '62%', left: '8%',  width: '30%', height: '26%' }, label: 'Material',      val: 74.3, delay: 500  },
+  { id: 2, panel: 1, style: { top: '10%', left: '18%', width: '56%', height: '52%' }, label: 'Outerwear',     val: 88.7, delay: 800  },
+  { id: 3, panel: 1, style: { top: '64%', left: '20%', width: '38%', height: '28%' }, label: 'Colour Signal', val: 78.6, delay: 1100 },
 ];
 
 // ─── Page component ───────────────────────────────────────────────────────────
@@ -247,7 +247,7 @@ export default function HomePage() {
         .nav-overlay.open { opacity:1; pointer-events:all; }
 
         /* ── Hero ── */
-        .hero { position:relative; width:100%; height:55vh; min-height:420px; background:#fff; overflow:hidden; display:grid; grid-template-columns:1fr 1fr 380px; z-index:0; isolation:isolate; }
+        .hero { position:relative; width:100%; height:calc(100vh - 118px); min-height:480px; background:#fff; overflow:hidden; display:grid; grid-template-columns:1fr 1fr 380px; z-index:0; isolation:isolate; }
         .img-panel { position:relative; overflow:hidden; opacity:0; transition:opacity 1s ease; border-right:1px solid var(--bd); }
         .img-panel:last-of-type { border-right:none; }
         .img-panel.loaded { opacity:1; }
@@ -311,9 +311,16 @@ export default function HomePage() {
 
         /* ── Leaderboard (left, compact) ── */
         .board { padding:32px 32px 32px 52px; border-right:1px solid var(--bd); }
-        .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
+        .section-head { display:flex; align-items:stretch; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); }
         .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
         .section-note { font-family:var(--f-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); align-self:baseline; }
+
+        /* two-line board title */
+        .board-title-block { display:flex; flex-direction:column; gap:2px; width:100%; }
+        .board-title-row { display:flex; align-items:baseline; justify-content:space-between; width:100%; }
+        .board-title-word { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1.05; color:var(--ink); }
+        .board-title-season { font-family:var(--f-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); align-self:baseline; }
+        .board-title-sub { font-family:var(--f-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); align-self:baseline; }
         .t-row { display:flex; align-items:baseline; padding:11px 0 9px; border-bottom:1px solid var(--bd); cursor:pointer; gap:0; transition:opacity .15s; }
         .t-row:last-child { border-bottom:none; }
         .t-row:hover { opacity:.4; }
@@ -329,8 +336,8 @@ export default function HomePage() {
         /* score with R/S/V hover */
         .t-score-hover-wrap { position:relative; display:inline-block; }
         .t-num { font-family:var(--f-mono); font-size:20px; font-weight:500; letter-spacing:-0.02em; color:var(--ink); line-height:1; cursor:default; }
-        .t-rsv-tooltip { position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-family:var(--f-mono); font-size:8px; letter-spacing:0.08em; line-height:1.9; padding:7px 12px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .15s; z-index:200; }
-        .t-rsv-tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:4px solid transparent; border-top-color:var(--ink); }
+        .t-rsv-tooltip { position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:#1a1916; color:#fff; font-family:var(--f-mono); font-size:8px; letter-spacing:0.08em; line-height:1.9; padding:7px 12px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .15s; z-index:200; }
+        .t-rsv-tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:4px solid transparent; border-top-color:#1a1916; }
         .t-score-hover-wrap:hover .t-rsv-tooltip { opacity:1; }
 
         .t-track { display:none; }
@@ -402,10 +409,10 @@ export default function HomePage() {
         .feature-stat-num { font-family:var(--f-display); font-size:clamp(38px,3.8vw,58px); font-weight:700; color:#fff; line-height:1; margin-bottom:8px; letter-spacing:-0.03em; }
         .feature-stat-num .prefix { font-size:0.55em; vertical-align:0.16em; letter-spacing:0; }
         .feature-stat-num .suffix { font-size:0.65em; }
-        .feature-stat-label { font-family:var(--f-mono); font-size:8px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:8px; line-height:1.5; }
-        .feature-stat-body { font-family:var(--f-body); font-size:11px; font-weight:500; color:rgba(255,255,255,0.45); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .feature-stat-label { font-family:var(--f-mono); font-size:8px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.65); margin-bottom:8px; line-height:1.5; }
+        .feature-stat-body { font-family:var(--f-body); font-size:11px; font-weight:500; color:rgba(255,255,255,0.78); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .feature-read-bar { height:41px; padding:0 18px; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-        .feature-read-kicker { font-family:var(--f-mono); font-size:8px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.28); }
+        .feature-read-kicker { font-family:var(--f-mono); font-size:8px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.55); }
         .feature-read { font-family:var(--f-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#fff; display:flex; align-items:center; gap:8px; text-decoration:none; transition:gap .15s; }
         .feature-read:hover { gap:14px; }
 
@@ -580,11 +587,17 @@ export default function HomePage() {
         {/* Leaderboard — compact, top 10 */}
         <section className="board" id="trends">
           <div className="section-head">
-            <h2 className="section-title">Trend Leaderboard</h2>
-            <span className="score-tooltip-wrap">
-              <span className="section-note">FW26 · Composite Score</span>
-              <span className="tooltip-icon">?</span>
-              <div className="score-tooltip">
+            <div className="board-title-block">
+              <div className="board-title-row">
+                <span className="board-title-word">Trend</span>
+                <span className="board-title-season">FW26</span>
+              </div>
+              <div className="board-title-row">
+                <span className="board-title-word">Leaderboard</span>
+                <span className="score-tooltip-wrap">
+                  <span className="board-title-sub">Composite Score</span>
+                  <span className="tooltip-icon">?</span>
+                  <div className="score-tooltip">
                 <div className="tooltip-legend-row">
                   <span className="tooltip-legend-badge tl-up">↑</span>
                   <span className="tooltip-legend-label">Score increase this week</span>
@@ -615,7 +628,9 @@ export default function HomePage() {
                   <span className="tooltip-score-desc">Social velocity · 20%</span>
                 </div>
               </div>
-            </span>
+                </span>
+              </div>
+            </div>
           </div>
           {TRENDS.slice(0, 10).map(t => {
             const badgeIcon = t.badgeType === 'up' ? '↑' : t.badgeType === 'dn' ? '↓' : t.badge === 'Season high' ? 'H' : 'N';
