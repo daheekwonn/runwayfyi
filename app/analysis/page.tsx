@@ -191,7 +191,7 @@ export default function AnalysisPage() {
            PAGE HEADER
         ------------------------------------------------------ */
         .page-header { padding:48px 52px 32px; border-bottom:2px solid var(--ink); display:flex; align-items:flex-end; justify-content:space-between; }
-        .page-title { font-family:var(--f-display); font-size:clamp(52px,7vw,88px); font-weight:700; letter-spacing:-0.04em; line-height:0.9; text-transform:lowercase; }
+        .page-title { font-family:var(--f-display); font-size:clamp(36px,5vw,64px); font-weight:700; letter-spacing:-0.03em; line-height:1.1; text-transform:lowercase; }
         .page-title em { font-style:normal; font-weight:700; }
         .page-meta { font-family:var(--f-mono); font-size:10px; letter-spacing:0.11em; text-transform:uppercase; color:var(--light); text-align:right; line-height:2; padding-bottom:4px; }
 
