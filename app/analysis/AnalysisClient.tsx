@@ -114,11 +114,11 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         .fbtn.active::after { transform:scaleX(1); }
 
         /* Lead — fixed heights, consistent proportions */
-        .lead { display:grid; grid-template-columns:2fr 1fr; border-bottom:1px solid var(--bd); }
+        .lead { display:grid; grid-template-columns:3fr 1fr; border-bottom:1px solid var(--bd); }
         .lead-main { border-right:1px solid var(--bd); }
         .lead-main-a { display:block; text-decoration:none; color:inherit; transition:opacity .18s; }
         .lead-main-a:hover { opacity:.84; }
-        .lead-img { overflow:hidden; height:420px; }
+        .lead-img { overflow:hidden; height:520px; }
         .lead-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .55s ease; }
         .lead-main-a:hover .lead-img img { transform:scale(1.025); }
         .lead-body { padding:14px 28px 22px; }
@@ -132,7 +132,7 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         .side-a { flex:1; text-decoration:none; color:inherit; display:flex; flex-direction:column; border-bottom:1px solid var(--bd); transition:opacity .18s; overflow:hidden; }
         .side-a:last-child { border-bottom:none; }
         .side-a:hover { opacity:.78; }
-        .side-img { overflow:hidden; height:210px; flex-shrink:0; }
+        .side-img { overflow:hidden; height:260px; flex-shrink:0; }
         .side-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
         .side-a:hover .side-img img { transform:scale(1.04); }
         .side-body { padding:10px 18px 14px; display:flex; flex-direction:column; flex:1; }
@@ -160,7 +160,7 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         .a-row-score-tag { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; background:var(--warm); color:var(--mid); padding:3px 9px; }
         .a-row-cta { font-family:var(--f-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink); margin-left:auto; display:flex; align-items:center; gap:6px; transition:gap .15s; }
         .a-row-link:hover .a-row-cta { gap:11px; }
-        .a-row-img-wrap { overflow:hidden; }
+        .a-row-img-wrap { overflow:hidden; aspect-ratio:3/2; width:400px; flex-shrink:0; }
         .a-row-img-wrap img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
         .a-row-link:hover .a-row-img-wrap img { transform:scale(1.03); }
 
@@ -205,10 +205,10 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
       {/* Drawer */}
       <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
         <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>close ×</button>
-        <a href="/">home</a>
         <a href="/trends">trends</a>
-        <a href="/shows">shows</a>
         <a href="/analysis">analysis</a>
+        <a href="/fyi">fyi</a>
+        <a href="/shows">shows</a>
         <a href="/archive">archive</a>
         <a href="/about">about</a>
       </div>
@@ -230,30 +230,32 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         </div>
         <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
           <li><a href="/trends">Trends</a></li>
-          <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis" className="curr">Analysis</a></li>
+          <li><a href="/fyi">FYI</a></li>
+          <li><a href="/shows">Shows</a></li>
           <li><a href="/archive">Archive</a></li>
         </ul>
       </header>
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
 
       {/* Page header */}
-      <div style={{ padding: '48px 52px 32px', borderBottom: '1px solid var(--bd)' }}>
+      <div style={{ padding: '28px 48px 0', borderBottom: 'none' }}>
         <p style={{
           fontFamily: 'var(--f-mono)',
-          fontSize: '11px',
-          letterSpacing: '0.08em',
+          fontSize: '9px',
+          letterSpacing: '0.16em',
           color: 'var(--light)',
           textTransform: 'uppercase',
-          margin: '0 0 12px 0'
+          margin: '0 0 8px 0'
         }}>Season · FW26</p>
         <h1 style={{
           fontFamily: 'var(--f-display)',
-          fontSize: 'clamp(56px, 8vw, 96px)',
+          fontSize: 'clamp(52px, 8vw, 96px)',
           fontWeight: 700,
-          lineHeight: 1,
+          letterSpacing: '-0.03em',
+          lineHeight: 0.9,
           color: 'var(--ink)',
-          margin: 0
+          margin: '0 0 28px'
         }}>Analysis</h1>
       </div>
 
