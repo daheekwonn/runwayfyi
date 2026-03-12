@@ -90,9 +90,9 @@ const FALLBACK_POSTS = [
 ];
 
 const FALLBACK_FYIS = [
-  { id: 'blazy-chanel-fw26', tag: 'Paris FW26', stat: '91.2 composite score', text: "chanel is back and better than it's been in years", img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80' },
-  { id: 'leather-bomber-macro-trend', tag: 'Milan FW26', stat: '+200% search post-show', text: 'the leather bomber won this season. full stop.', img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80' },
-  { id: 'prairie-silhouette-fw26', tag: 'FW26 Forecast', stat: '89% YoY growth', text: "prairie is not a micro trend. it's the silhouette.", img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80' },
+  { id: 'blazy-chanel-fw26',           tag: 'Opinion · Paris FW26',   stat: '91.2 composite score',  text: "matthieu blazy at chanel fw26 was the most anticipated collection of the season — but i think karl lagerfeld's tenure will never be lived up to",   img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80' },
+  { id: 'jonathan-anderson-dior-fw26', tag: 'Opinion · Paris FW26',   stat: '87.4 composite score',  text: 'jonathan anderson at dior is the most exciting appointment in fashion right now and the data already agrees',                                       img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'    },
+  { id: 'prairie-silhouette-fw26',     tag: 'Forecast · FW26',        stat: '+312% search velocity', text: "prairie is not a micro trend. chloe fw26 confirmed what copenhagen started — this is the silhouette of the season",                               img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80' },
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────

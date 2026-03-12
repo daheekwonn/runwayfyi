@@ -63,6 +63,21 @@ const ARCHIVE: ArchiveCard[] = [
   { color: '#6667AB', pantoneLabel: 'Very Peri',    pantoneTextColor: '#fff',    season: 'FW22 · New York', title: 'The periwinkle moment nobody predicted' },
 ];
 
+// Client-side fallback — always shown if Sanity returns < 4 posts
+const CLIENT_FALLBACK_POSTS: Post[] = [
+  { id: 'leather-bomber-macro-trend',  kicker: 'Data · Milan FW26',        title: 'The leather bomber is a macro trend',                                    excerpt: '+200% search spike, 7 major shows, 3 cities. A data-driven case for the jacket of the season.',                          date: 'Mar 6, 2026',  img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
+  { id: 'prairie-silhouette-fw26',     kicker: 'Forecast · FW26',          title: 'Prairie or bust: the silhouette taking over',                            excerpt: 'Chloé made it obvious but the signal started in Copenhagen. A data-driven case for the maxi dress revival.',              date: 'Mar 4, 2026',  img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80' },
+  { id: 'blazy-chanel-fw26',           kicker: 'Opinion · Paris FW26',     title: "Why Chanel's mushroom set was the moment",                               excerpt: "The SS26 couture set predicted everything Blazy would do next. Here's what the data says.",                                date: 'Mar 8, 2026',  img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80' },
+  { id: 'recession-dressing-outerwear',kicker: 'Cultural Context · FW26',  title: 'Why recession dressing always brings the coat',                          excerpt: "Shearling at #1 isn't a coincidence. A historical pattern analysis of outerwear trends and economic anxiety.",            date: 'Mar 2, 2026',  img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80' },
+];
+
+// Client-side FYI fallback — opinion-style takes, 3 cards
+const CLIENT_FALLBACK_FYIS: FyiItem[] = [
+  { id: 'blazy-chanel-fw26',           tag: 'Opinion · Paris FW26',        stat: '91.2 composite score',   text: "matthieu blazy at chanel fw26 was the most anticipated collection of the season — but i think karl lagerfeld's tenure will never be lived up to",   img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80' },
+  { id: 'jonathan-anderson-dior-fw26', tag: 'Opinion · Paris FW26',        stat: '87.4 composite score',   text: 'jonathan anderson at dior is the most exciting appointment in fashion right now and the data already agrees',                                       img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'    },
+  { id: 'prairie-silhouette-fw26',     tag: 'Forecast · FW26',             stat: '+312% search velocity',  text: "prairie is not a micro trend. chloe fw26 confirmed what copenhagen started — this is the silhouette of the season",                               img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80' },
+];
+
 const TICKER_ITEMS = [
   'Shearling Coat  94.1', 'Chanel FW26  91.2', 'Leather Bomber  88.7',
   'Dior FW26  87.4', 'Prairie Silhouette  78.6', 'Wide-Leg Trouser  74.3',
@@ -82,7 +97,16 @@ const DETECTIONS = [
 ];
 
 // ─── Page component ───────────────────────────────────────────────────────────
-export default function HomeClient({ posts, fyis }: { posts: Post[]; fyis: FyiItem[] }) {
+export default function HomeClient({ posts: rawPosts, fyis: rawFyis }: { posts: Post[]; fyis: FyiItem[] }) {
+  // Always show 4 analysis posts and 3 FYI cards — fill gaps with client fallbacks
+  const posts = rawPosts.length >= 4 ? rawPosts.slice(0, 4) : [
+    ...rawPosts,
+    ...CLIENT_FALLBACK_POSTS.filter(f => !rawPosts.find(p => p.id === f.id)).slice(0, 4 - rawPosts.length),
+  ];
+  const fyis = rawFyis.length >= 3 ? rawFyis.slice(0, 3) : [
+    ...rawFyis,
+    ...CLIENT_FALLBACK_FYIS.filter(f => !rawFyis.find(p => p.id === f.id)).slice(0, 3 - rawFyis.length),
+  ];
   const [panelsLoaded, setPanelsLoaded] = useState([false, false]);
   const [detVisible,   setDetVisible]   = useState([false, false, false, false]);
   const [detScores,    setDetScores]    = useState([0, 0, 0, 0]);
@@ -288,8 +312,8 @@ export default function HomeClient({ posts, fyis }: { posts: Post[]; fyis: FyiIt
         .board-analysis-wrap { display:grid; grid-template-columns:44% 56%; border-bottom:1px solid var(--bd); background:#fff; align-items:stretch; position:relative; z-index:0; }
 
         /* ── Leaderboard (left, compact) ── */
-        .board { padding:32px 32px 32px 52px; border-right:1px solid var(--bd); }
-        .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); overflow:hidden; }
+        .board { padding:32px 32px 32px 52px; border-right:1px solid var(--bd); position:relative; overflow:visible; }
+        .section-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; padding-bottom:14px; border-bottom:1px solid var(--bd); position:relative; }
         .section-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); white-space:nowrap; }
         .section-note { font-family:var(--f-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); align-self:baseline; white-space:nowrap; margin-left:16px; }
 
@@ -435,8 +459,9 @@ export default function HomeClient({ posts, fyis }: { posts: Post[]; fyis: FyiIt
       <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
         <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>✕ close</button>
         <a href="/trends" onClick={() => setMenuOpen(false)}>Trends</a>
-        <a href="/shows" onClick={() => setMenuOpen(false)}>Shows</a>
         <a href="/analysis" onClick={() => setMenuOpen(false)}>Analysis</a>
+        <a href="/fyi" onClick={() => setMenuOpen(false)}>FYI</a>
+        <a href="/shows" onClick={() => setMenuOpen(false)}>Shows</a>
         <a href="/archive" onClick={() => setMenuOpen(false)}>Archive</a>
         <a href="/about" onClick={() => setMenuOpen(false)}>About</a>
       </div>
@@ -467,10 +492,10 @@ export default function HomeClient({ posts, fyis }: { posts: Post[]; fyis: FyiIt
         {/* Links row — collapses on scroll down */}
         <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
           <li><a href="/trends">Trends</a></li>
-          <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis">Analysis</a></li>
-          <li><a href="/archive">Archive</a></li>
           <li><a href="/fyi">FYI</a></li>
+          <li><a href="/shows">Shows</a></li>
+          <li><a href="/archive">Archive</a></li>
         </ul>
       </header>
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
@@ -530,7 +555,7 @@ export default function HomeClient({ posts, fyis }: { posts: Post[]; fyis: FyiIt
               </div>
             </div>
           </div>
-          <a href="/methodology" className="hero-explain-link">Read the full methodology <span>→</span></a>
+          <a href="/trends#methodology" className="hero-explain-link">Read the full methodology <span>→</span></a>
         </div>
 
         <div className="hud hud-bl">
@@ -721,10 +746,11 @@ export default function HomeClient({ posts, fyis }: { posts: Post[]; fyis: FyiIt
       <section className="fyi-strip">
         <div className="section-head">
           <h2 className="section-title">FYI</h2>
+          <a href="/fyi" className="section-note" style={{ textDecoration: 'none', color: 'var(--light)', cursor: 'pointer', transition: 'color .15s' }}>All takes →</a>
         </div>
         <div className="fyi-grid">
-          {fyis.map((fyi, i) => (
-            <a key={i} href={`/analysis/${fyi.id}`} className="fyi-card">
+          {fyis.slice(0, 3).map((fyi, i) => (
+            <a key={i} href={`/fyi/${fyi.id}`} className="fyi-card">
               <img src={fyi.img} alt={fyi.text} className="fyi-card-img" />
               <div className="fyi-tag">{fyi.tag}</div>
               <div className="fyi-text">{fyi.text}</div>
