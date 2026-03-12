@@ -61,7 +61,8 @@ export default async function AnalysisPage() {
   ]);
 
   // Use fallback if Sanity returns nothing
-  const source: SanityArticle[] = (articles && articles.length > 0) ? articles : FALLBACK;
+  const sanity = (articles && articles.length > 0) ? articles : [];
+const source: SanityArticle[] = sanity.length >= 6 ? sanity : [...sanity, ...FALLBACK.slice(0, 6 - sanity.length)];
 
   // If Sanity returned a featured article, make sure it's first
   let normalised = source.map((a, i) => normalise(a, i));
