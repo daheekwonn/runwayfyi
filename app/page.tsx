@@ -89,10 +89,10 @@ const TICKER_ITEMS = [
 ];
 
 const FYIS = [
-  { tag: 'Paris FW26',   stat: '91.2 composite score',      text: 'chanel is back and better than it\'s been in years' },
-  { tag: 'Milan FW26',   stat: '+200% search post-show',    text: 'the leather bomber won this season. full stop.'      },
-  { tag: 'FW26 Forecast',stat: '89% YoY growth',            text: 'prairie is not a micro trend. it\'s the silhouette.' },
-  { tag: 'Paris FW26',   stat: '87.4 · highest show score', text: 'jonathan anderson just redefined what dior means'    },
+  { tag: 'Paris FW26',    stat: '91.2 composite score',      text: "chanel is back and better than it's been in years",     img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80' },
+  { tag: 'Milan FW26',    stat: '+200% search post-show',    text: 'the leather bomber won this season. full stop.',          img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80' },
+  { tag: 'FW26 Forecast', stat: '89% YoY growth',            text: "prairie is not a micro trend. it's the silhouette.",     img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80' },
+  { tag: 'Paris FW26',    stat: '87.4 · highest show score', text: 'jonathan anderson just redefined what dior means',       img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80' },
 ];
 
 const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen'];
@@ -366,41 +366,37 @@ export default function HomePage() {
         .a-date { font-family:var(--f-mono); font-size:10px; letter-spacing:0.09em; text-transform:uppercase; color:var(--light); margin-top:5px; }
         .a-img { width:110px; height:88px; object-fit:cover; object-position:top center; display:block; filter:grayscale(10%) brightness(0.9); flex-shrink:0; }
 
-        /* ── Feature — portrait split, full viewport height ── */
-        .feature { display:grid; grid-template-columns:45% 55%; border-bottom:1px solid var(--bd); position:relative; z-index:0; height:calc(100vh - 80px); min-height:520px; }
-        .feature-img { position:relative; overflow:hidden; background:var(--warm); height:100%; }
-        .feature-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.72) contrast(1.06); display:block; transition:filter .4s ease; }
-        .feature:hover .feature-img img { filter:grayscale(10%) brightness(0.65) contrast(1.06); }
+        /* ── Feature — two articles left, compact white stats right ── */
+        .feature { display:grid; grid-template-columns:1fr 280px; border-bottom:1px solid var(--bd); position:relative; z-index:0; height:calc(100vh - 80px); min-height:520px; }
 
-        /* title always visible, slides out on hover */
-        .feature-img-title { position:absolute; bottom:0; left:0; right:0; padding:80px 36px 36px; background:linear-gradient(to top, rgba(12,11,9,0.92) 0%, rgba(12,11,9,0.4) 55%, transparent 100%); transition:transform .38s cubic-bezier(.4,0,.2,1); will-change:transform; }
-        .feature:hover .feature-img-title { transform:translateY(110%); }
-        .feature-img-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-bottom:12px; display:flex; align-items:center; gap:9px; }
-        .feature-img-kicker::before { content:''; width:16px; height:1px; background:rgba(255,255,255,0.4); }
-        .feature-img-h { font-family:var(--f-display); font-size:clamp(24px,2.6vw,36px); font-weight:700; line-height:1.05; letter-spacing:-0.02em; color:#fff; }
+        /* left: two article cards stacked — divider aligns with stats midpoint */
+        /* stats-grid takes flex:1, read-bar is ~41px, so top half = (100% - 41px) / 2 */
+        .feature-articles { display:flex; flex-direction:column; height:100%; background:#fff; border-right:1px solid var(--bd); }
+        .feature-article { display:grid; grid-template-columns:140px 1fr; text-decoration:none; color:inherit; cursor:pointer; transition:opacity .15s; overflow:hidden; border-bottom:1px solid var(--bd); }
+        .feature-article:first-child { height:calc((100% - 41px) / 2); flex-shrink:0; }
+        .feature-article:last-child  { flex:1; border-bottom:none; }
+        .feature-article:hover { opacity:.65; }
+        .feature-article-img { width:140px; height:100%; object-fit:cover; object-position:top center; display:block; filter:grayscale(8%) brightness(0.93); }
+        .feature-article-body { padding:32px 32px; display:flex; flex-direction:column; justify-content:center; gap:10px; }
+        .feature-article-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); }
+        .feature-article-title { font-family:var(--f-display); font-size:clamp(17px,1.6vw,22px); font-weight:700; letter-spacing:-0.02em; line-height:1.1; color:var(--ink); }
+        .feature-article-excerpt { font-family:var(--f-body); font-size:13px; font-weight:500; line-height:1.65; color:var(--mid); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+        .feature-article-meta { font-family:var(--f-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
 
-        /* blurb slides up from bottom, clipped so it never shows until hover */
-        .feature-img-blurb { position:absolute; bottom:0; left:0; right:0; padding:80px 36px 36px; background:linear-gradient(to top, rgba(12,11,9,0.94) 50%, transparent 100%); transform:translateY(100%); transition:transform .38s cubic-bezier(.4,0,.2,1); will-change:transform; }
-        .feature:hover .feature-img-blurb { transform:translateY(0); }
-        .feature-img-blurb-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:12px; display:flex; align-items:center; gap:9px; }
-        .feature-img-blurb-kicker::before { content:''; width:16px; height:1px; background:rgba(255,255,255,0.35); }
-        .feature-img-blurb-h { font-family:var(--f-display); font-size:clamp(22px,2.4vw,32px); font-weight:700; line-height:1.05; letter-spacing:-0.02em; color:#fff; margin-bottom:16px; }
-        .feature-img-blurb p { font-family:var(--f-body); font-size:14px; font-weight:500; line-height:1.75; color:rgba(255,255,255,0.82); margin:0; }
-
-        /* right side: stats 2-row grid + read link */
-        .feature-right { background:var(--ink); display:flex; flex-direction:column; height:100%; overflow:hidden; }
-        .feature-stats-grid { display:grid; grid-template-columns:1fr 1fr; flex:1; min-height:0; }
-        .feature-stat { padding:20px 28px; border-bottom:1px solid rgba(255,255,255,0.07); border-right:1px solid rgba(255,255,255,0.07); display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden; }
+        /* right: compact WHITE stats column */
+        .feature-right { background:#fff; display:flex; flex-direction:column; height:100%; border-left:1px solid var(--bd); }
+        .feature-stats-grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; flex:1; min-height:0; }
+        .feature-stat { padding:22px 22px; border-bottom:1px solid var(--bd); border-right:1px solid var(--bd); display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; overflow:hidden; }
         .feature-stat:nth-child(2),.feature-stat:nth-child(4) { border-right:none; }
         .feature-stat:nth-child(3),.feature-stat:nth-child(4) { border-bottom:none; }
-        .feature-stat-num { font-family:var(--f-display); font-size:clamp(26px,2.6vw,38px); font-weight:700; color:#fff; line-height:1; margin-bottom:6px; letter-spacing:-0.03em; }
-        .feature-stat-num .prefix { font-size:0.58em; vertical-align:0.14em; letter-spacing:0; }
-        .feature-stat-num .suffix { font-size:0.72em; }
-        .feature-stat-label { font-family:var(--f-mono); font-size:9px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:6px; line-height:1.5; }
-        .feature-stat-body { font-family:var(--f-body); font-size:12px; font-weight:500; color:rgba(255,255,255,0.32); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-        .feature-read-bar { padding:14px 28px; border-top:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-        .feature-read-kicker { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.28); }
-        .feature-read { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#fff; display:flex; align-items:center; gap:8px; text-decoration:none; transition:gap .15s; }
+        .feature-stat-num { font-family:var(--f-display); font-size:clamp(36px,3.6vw,54px); font-weight:700; color:var(--ink); line-height:1; margin-bottom:8px; letter-spacing:-0.03em; }
+        .feature-stat-num .prefix { font-size:0.55em; vertical-align:0.16em; letter-spacing:0; }
+        .feature-stat-num .suffix { font-size:0.65em; }
+        .feature-stat-label { font-family:var(--f-mono); font-size:8px; letter-spacing:0.16em; text-transform:uppercase; color:var(--light); margin-bottom:8px; line-height:1.5; }
+        .feature-stat-body { font-family:var(--f-body); font-size:11px; font-weight:500; color:var(--mid); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .feature-read-bar { height:41px; padding:0 18px; border-top:1px solid var(--bd); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+        .feature-read-kicker { font-family:var(--f-mono); font-size:8px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); }
+        .feature-read { font-family:var(--f-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink); display:flex; align-items:center; gap:8px; text-decoration:none; transition:gap .15s; }
         .feature-read:hover { gap:14px; }
 
         /* ── Stats strip (standalone, below feature) ── */
@@ -418,18 +414,16 @@ export default function HomePage() {
         .arc-arrow { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); margin-top:10px; display:flex; align-items:center; gap:6px; transition:gap .15s; }
         .arc-card:hover .arc-arrow { gap:10px; }
 
-        /* ── FYI strip ── */
-        .fyi-strip { background:#fff; border-bottom:1px solid var(--bd); padding:56px 52px; }
-        .fyi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:32px; }
-        .fyi-card { padding:0 32px 0 0; border-right:1px solid var(--bd); cursor:pointer; transition:opacity .15s; text-decoration:none; color:inherit; }
-        .fyi-card:last-child { padding:0 0 0 32px; border-right:none; }
-        .fyi-card:nth-child(2),.fyi-card:nth-child(3) { padding:0 32px; }
-        .fyi-card:hover { opacity:.6; }
-        .fyi-tag { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-        .fyi-tag::before { content:''; width:14px; height:1px; background:var(--light); }
-        .fyi-text { font-family:var(--f-display); font-size:22px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; color:var(--ink); margin-bottom:16px; text-transform:lowercase; }
-        .fyi-stat { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid); }
-        .fyi-read { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); margin-top:14px; display:flex; align-items:center; gap:6px; transition:gap .15s; }
+        /* ── FYI strip — trending style with images ── */
+        .fyi-strip { background:#fff; border-bottom:1px solid var(--bd); padding:48px 52px; }
+        .fyi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:28px; margin-top:32px; }
+        .fyi-card { text-decoration:none; color:inherit; cursor:pointer; transition:opacity .15s; }
+        .fyi-card:hover { opacity:.65; }
+        .fyi-card-img { width:100%; aspect-ratio:3/2; object-fit:cover; object-position:top center; display:block; filter:grayscale(8%) brightness(0.92); margin-bottom:16px; }
+        .fyi-tag { font-family:var(--f-mono); font-size:10px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); margin-bottom:8px; }
+        .fyi-text { font-family:var(--f-display); font-size:17px; font-weight:700; letter-spacing:-0.01em; line-height:1.2; color:var(--ink); margin-bottom:8px; text-transform:lowercase; }
+        .fyi-stat { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid); }
+        .fyi-read { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); margin-top:10px; display:flex; align-items:center; gap:6px; transition:gap .15s; }
         .fyi-card:hover .fyi-read { gap:10px; color:var(--ink); }
 
         /* ── Footer ── */
@@ -638,58 +632,61 @@ export default function HomePage() {
 
       </div>
 
-      {/* ── Feature article — portrait split ── */}
+      {/* ── Feature — two articles left, compact white stats right ── */}
       <div className="feature">
-        {/* Left: portrait image with title overlay + blurb on hover */}
-        <div className="feature-img">
-          <img
-            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80"
-            alt="Dior FW26"
-          />
-          {/* blurb slides up carrying kicker + title + excerpt */}
-          <div className="feature-img-blurb">
-            <div className="feature-img-blurb-kicker">Opinion · Paris FW26 · Dior</div>
-            <div className="feature-img-blurb-h">Jonathan Anderson redefines what Dior means now</div>
-            <p>
-              The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show — a signal we'd been tracking since Anderson's appointment was announced in late 2025.
-            </p>
-          </div>
-          {/* title always visible at bottom */}
-          <div className="feature-img-title">
-            <div className="feature-img-kicker">Opinion · Paris FW26 · Dior</div>
-            <div className="feature-img-h">Jonathan Anderson redefines what Dior means now</div>
-          </div>
+
+        {/* Left: two article cards stacked */}
+        <div className="feature-articles">
+          <a href="#" className="feature-article">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Leather Bomber" className="feature-article-img" />
+            <div className="feature-article-body">
+              <div className="feature-article-kicker">Data · Milan FW26</div>
+              <div className="feature-article-title">The leather bomber is a macro trend</div>
+              <div className="feature-article-excerpt">200% search spike, 7 major shows, 3 cities. A data-driven case for the jacket of the season.</div>
+              <div className="feature-article-meta">Mar 6, 2026</div>
+            </div>
+          </a>
+          <a href="#" className="feature-article">
+            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80" alt="Prairie" className="feature-article-img" />
+            <div className="feature-article-body">
+              <div className="feature-article-kicker">Forecast · FW26</div>
+              <div className="feature-article-title">Prairie or bust: the silhouette taking over</div>
+              <div className="feature-article-excerpt">Chloé made it obvious but the signal started in Copenhagen. A data-driven case for the maxi dress revival.</div>
+              <div className="feature-article-meta">Mar 4, 2026</div>
+            </div>
+          </a>
         </div>
 
-        {/* Right: 2×2 stats grid + read link */}
+        {/* Right: compact white stats panel */}
         <div className="feature-right">
           <div className="feature-stats-grid">
             <div className="feature-stat">
+              <div className="feature-stat-label">Search spike</div>
               <div className="feature-stat-num"><span className="prefix">+</span>200<span className="suffix">%</span></div>
-              <div className="feature-stat-label">Leather Bomber<br />Searches</div>
-              <p className="feature-stat-body">Following Gucci's FW26 Milan show. Peak search volume recorded 48hrs post-show.</p>
+              <div className="feature-stat-body">Leather bomber searches after Gucci Milan FW26</div>
             </div>
             <div className="feature-stat">
-              <div className="feature-stat-num">34</div>
-              <div className="feature-stat-label">Collections<br />with Burgundy</div>
-              <p className="feature-stat-body">Across NYFW, LFW, MFW, and PFW. Up from 12 collections in SS26.</p>
+              <div className="feature-stat-label">Shows</div>
+              <div className="feature-stat-num">7<span className="suffix">/12</span></div>
+              <div className="feature-stat-body">Major FW26 shows featured the silhouette</div>
             </div>
             <div className="feature-stat">
-              <div className="feature-stat-num">89<span className="suffix">%</span></div>
-              <div className="feature-stat-label">Prairie Trend<br />Growth</div>
-              <p className="feature-stat-body">YoY increase in search interest for prairie and romantic silhouettes.</p>
+              <div className="feature-stat-label">Trend score</div>
+              <div className="feature-stat-num">94<span className="suffix">/100</span></div>
+              <div className="feature-stat-body">Composite runway + search + social signal</div>
             </div>
             <div className="feature-stat">
-              <div className="feature-stat-num"><span className="prefix">#</span>1</div>
-              <div className="feature-stat-label">Most Searched<br />Show</div>
-              <p className="feature-stat-body">Chanel FW26 Paris led search volume for 11 consecutive days post-show.</p>
+              <div className="feature-stat-label">Cities</div>
+              <div className="feature-stat-num">3<span className="suffix">/4</span></div>
+              <div className="feature-stat-body">Milan, Paris, London all confirmed the signal</div>
             </div>
           </div>
           <div className="feature-read-bar">
-            <span className="feature-read-kicker">Featured Analysis</span>
-            <a href="#" className="feature-read">Read full analysis <span className="arr">→</span></a>
+            <span className="feature-read-kicker">Milan FW26 · Data</span>
+            <a href="#" className="feature-read">Read analysis <span>→</span></a>
           </div>
         </div>
+
       </div>
 
       {/* ── FYI strip ── */}
@@ -701,6 +698,7 @@ export default function HomePage() {
         <div className="fyi-grid">
           {FYIS.map((fyi, i) => (
             <a key={i} href="#" className="fyi-card">
+              <img src={fyi.img} alt={fyi.text} className="fyi-card-img" />
               <div className="fyi-tag">{fyi.tag}</div>
               <div className="fyi-text">{fyi.text}</div>
               <div className="fyi-stat">{fyi.stat}</div>
