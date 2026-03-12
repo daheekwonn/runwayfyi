@@ -88,6 +88,12 @@ export default function ShowsClient({ shows }: { shows: any[] }) {
         .nav-overlay.open{opacity:1;pointer-events:all}
         .header-spacer{height:118px}
         .header-spacer.collapsed{height:80px}
+        footer{background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:24px 48px;border-top:1px solid var(--bd)}
+        .f-logo{font-family:var(--f-display);font-size:15px;font-weight:700;letter-spacing:0.08em;text-transform:lowercase}
+        .f-links{display:flex;gap:32px;list-style:none}
+        .f-links a{font-family:var(--f-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.55);text-decoration:none;transition:color .15s}
+        .f-links a:hover{color:#fff}
+        .f-copy{font-family:var(--f-mono);font-size:10px;letter-spacing:0.08em;color:rgba(255,255,255,0.3)}
       `}</style>
 
       {/* ── Nav ── */}
@@ -169,9 +175,14 @@ export default function ShowsClient({ shows }: { shows: any[] }) {
       </div>
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid var(--bd)', padding: '24px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: 'var(--f-mono)', fontSize: 11, color: 'var(--light)', letterSpacing: '0.1em' }}>runway.fyi</span>
-        <span style={{ fontFamily: 'var(--f-mono)', fontSize: 11, color: 'var(--light)', letterSpacing: '0.1em' }}>FW26 · @runwayfyi</span>
+      <footer>
+        <span className="f-logo">runway fyi</span>
+        <ul className="f-links">
+          <li><a href="https://instagram.com/runwayfyi" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+          <li><a href="https://tiktok.com/@runwayfyi" target="_blank" rel="noopener noreferrer">TikTok</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+        <span className="f-copy">© 2026 runway.fyi</span>
       </footer>
     </>
   )

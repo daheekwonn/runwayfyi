@@ -183,12 +183,12 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
 
         .empty { padding:80px 52px; font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); border-bottom:1px solid var(--bd); }
 
-        footer { background:var(--ink); padding:26px 52px; display:flex; align-items:center; justify-content:space-between; }
-        .f-logo { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:0.1em; text-transform:lowercase; color:#fff; }
-        .f-links { display:flex; gap:28px; list-style:none; }
-        .f-links a { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.3); text-decoration:none; transition:color .15s; }
-        .f-links a:hover { color:rgba(255,255,255,0.7); }
-        .f-copy { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
+        footer{background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:24px 48px;border-top:1px solid var(--bd)}
+        .f-logo{font-family:var(--f-display);font-size:15px;font-weight:700;letter-spacing:0.08em;text-transform:lowercase}
+        .f-links{display:flex;gap:32px;list-style:none}
+        .f-links a{font-family:var(--f-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.55);text-decoration:none;transition:color .15s}
+        .f-links a:hover{color:#fff}
+        .f-copy{font-family:var(--f-mono);font-size:10px;letter-spacing:0.08em;color:rgba(255,255,255,0.3)}
 
         @media (max-width:900px) {
           .lead { grid-template-columns:1fr; }
@@ -375,7 +375,7 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
           <li><a href="https://tiktok.com/@runwayfyi" target="_blank" rel="noopener noreferrer">TikTok</a></li>
           <li><a href="/about">About</a></li>
         </ul>
-        <span className="f-copy">© 2026 runwayfyi.com</span>
+        <span className="f-copy">© 2026 runway.fyi</span>
       </footer>
     </>
   );
