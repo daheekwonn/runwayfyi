@@ -73,13 +73,6 @@ const POSTS: Post[] = [
     date: 'Mar 2, 2026',
     img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80',
   },
-  {
-    kicker: 'Analysis · London FW26',
-    title: 'The quiet return of maximalism',
-    excerpt: 'After three years of quiet luxury, the data shows decoration is back. Which shows led the shift.',
-    date: 'Feb 28, 2026',
-    img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80',
-  },
 ];
 
 const ARCHIVE: ArchiveCard[] = [
@@ -362,9 +355,10 @@ export default function HomePage() {
 
         /* ── Latest analysis (right, list style) ── */
         .analysis-col { padding:32px 40px 32px 32px; display:flex; flex-direction:column; }
-        .analysis-list { margin-top:20px; display:flex; flex-direction:column; flex:1; }
-        .a-item { display:grid; grid-template-columns:1fr 110px; gap:14px; align-items:center; flex:1; padding:0 0; border-bottom:1px solid var(--bd); cursor:pointer; transition:opacity .15s; text-decoration:none; color:inherit; min-height:0; }
-        .a-item:last-child { border-bottom:none; }
+        .analysis-list { margin-top:20px; display:flex; flex-direction:column; justify-content:space-between; flex:1; }
+        .a-item { display:grid; grid-template-columns:1fr 110px; gap:14px; align-items:center; border-bottom:1px solid var(--bd); cursor:pointer; transition:opacity .15s; text-decoration:none; color:inherit; padding:16px 0; }
+        .a-item:last-child { border-bottom:none; padding-bottom:0; }
+        .a-item:first-child { padding-top:0; }
         .a-item:hover { opacity:.45; }
         .a-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); margin-bottom:4px; }
         .a-title { font-family:var(--f-display); font-size:15px; font-weight:700; letter-spacing:-0.01em; line-height:1.15; color:var(--ink); margin-bottom:4px; }
