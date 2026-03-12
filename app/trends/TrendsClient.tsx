@@ -663,7 +663,7 @@ export default function TrendsClient({ leaderboard, all }: Props) {
           <li><a href="https://tiktok.com/@runwayfyi" target="_blank" rel="noopener noreferrer">TikTok</a></li>
           <li><a href="/about">About</a></li>
         </ul>
-        <span className="f-copy">© 2026 runway.fyi</span>
+        <span className="f-copy">© 2026 runwayfyi.com</span>
       </footer>
     </>
   )
