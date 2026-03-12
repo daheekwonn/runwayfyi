@@ -27,15 +27,6 @@ const TICKER_ITEMS = [
 
 const CATEGORIES = ['All', 'Analysis', 'Opinion', 'Data', 'Forecast', 'Culture'];
 
-const FYI_ITEMS = [
-  { stat: '+312%', label: 'Chanel ballet flat searches post-show', tag: 'SEARCH' },
-  { stat: '38/52', label: 'Chanel looks featured tweed — highest in 6 seasons', tag: 'RUNWAY' },
-  { stat: '+245%', label: 'Dior bar jacket searches after Anderson\'s debut', tag: 'SEARCH' },
-  { stat: '5yr high', label: 'Prairie dress searches after Chloé FW26', tag: 'SEARCH' },
-  { stat: '+200%', label: 'Leather bomber spike within 24hrs of Gucci Milan', tag: 'SEARCH' },
-  { stat: '41/56', label: 'Gucci looks showed loafer — dominant footwear signal', tag: 'RUNWAY' },
-];
-
 export default function AnalysisClient({ articles }: { articles: Article[] }) {
   const [navVisible,     setNavVisible]     = useState(true);
   const [menuOpen,       setMenuOpen]       = useState(false);
@@ -122,12 +113,12 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         .fbtn.active { color:var(--ink); }
         .fbtn.active::after { transform:scaleX(1); }
 
-        /* Lead — both sides same 2/3 portrait ratio */
+        /* Lead — fixed heights, consistent proportions */
         .lead { display:grid; grid-template-columns:2fr 1fr; border-bottom:1px solid var(--bd); }
         .lead-main { border-right:1px solid var(--bd); }
         .lead-main-a { display:block; text-decoration:none; color:inherit; transition:opacity .18s; }
         .lead-main-a:hover { opacity:.84; }
-        .lead-img { overflow:hidden; aspect-ratio:2/3; width:100%; }
+        .lead-img { overflow:hidden; height:420px; }
         .lead-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .55s ease; }
         .lead-main-a:hover .lead-img img { transform:scale(1.025); }
         .lead-body { padding:14px 28px 22px; }
@@ -141,7 +132,7 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         .side-a { flex:1; text-decoration:none; color:inherit; display:flex; flex-direction:column; border-bottom:1px solid var(--bd); transition:opacity .18s; overflow:hidden; }
         .side-a:last-child { border-bottom:none; }
         .side-a:hover { opacity:.78; }
-        .side-img { overflow:hidden; aspect-ratio:2/3; width:100%; }
+        .side-img { overflow:hidden; height:210px; flex-shrink:0; }
         .side-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
         .side-a:hover .side-img img { transform:scale(1.04); }
         .side-body { padding:10px 18px 14px; display:flex; flex-direction:column; flex:1; }
@@ -177,7 +168,7 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         .g-card { text-decoration:none; color:inherit; border-right:1px solid var(--bd); display:flex; flex-direction:column; transition:opacity .18s; }
         .g-card:last-child { border-right:none; }
         .g-card:hover { opacity:.76; }
-        .g-card-img { overflow:hidden; aspect-ratio:2/3; width:100%; }
+        .g-card-img { overflow:hidden; height:220px; }
         .g-card-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
         .g-card:hover .g-card-img img { transform:scale(1.04); }
         .g-card-body { padding:18px 22px 22px; flex:1; display:flex; flex-direction:column; }
@@ -188,17 +179,6 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         .g-card-date { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.09em; text-transform:uppercase; color:var(--light); }
         .g-card-arrow { font-family:var(--f-mono); font-size:12px; color:var(--light); transition:transform .18s, color .15s; }
         .g-card:hover .g-card-arrow { transform:translateX(4px); color:var(--ink); }
-
-        /* FYI strip */
-        .fyi-section { border-bottom:1px solid var(--bd); }
-        .fyi-head { display:flex; align-items:baseline; justify-content:space-between; padding:26px 52px 16px; border-bottom:1px solid var(--bd); }
-        .fyi-grid { display:grid; grid-template-columns:repeat(3,1fr); }
-        .fyi-item { padding:28px 32px; border-right:1px solid var(--bd); border-bottom:1px solid var(--bd); }
-        .fyi-item:nth-child(3n) { border-right:none; }
-        .fyi-item:nth-last-child(-n+3) { border-bottom:none; }
-        .fyi-tag { font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); margin-bottom:10px; }
-        .fyi-stat { font-family:var(--f-display); font-size:clamp(32px,3vw,48px); font-weight:700; letter-spacing:-0.03em; line-height:1; color:var(--ink); margin-bottom:10px; }
-        .fyi-label { font-family:var(--f-body); font-size:13px; line-height:1.5; color:var(--mid); }
 
         .empty { padding:80px 52px; font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); border-bottom:1px solid var(--bd); }
 
@@ -230,6 +210,7 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         <a href="/shows">shows</a>
         <a href="/analysis">analysis</a>
         <a href="/archive">archive</a>
+        <a href="/fyi">fyi</a>
         <a href="/about">about</a>
       </div>
       <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
@@ -253,6 +234,7 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
           <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis" className="curr">Analysis</a></li>
           <li><a href="/archive">Archive</a></li>
+          <li><a href="/fyi">FYI</a></li>
         </ul>
       </header>
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
@@ -381,23 +363,6 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
           )}
         </>
       )}
-
-      {/* FYI strip */}
-      <div className="fyi-section">
-        <div className="fyi-head">
-          <h2 className="sec-title">FYI</h2>
-          <span className="sec-note">data signals · FW26</span>
-        </div>
-        <div className="fyi-grid">
-          {FYI_ITEMS.map((item, i) => (
-            <div key={i} className="fyi-item">
-              <div className="fyi-tag">{item.tag}</div>
-              <div className="fyi-stat">{item.stat}</div>
-              <div className="fyi-label">{item.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Footer */}
       <footer>

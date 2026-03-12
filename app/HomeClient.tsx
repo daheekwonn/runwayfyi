@@ -470,6 +470,7 @@ export default function HomeClient({ posts, fyis }: { posts: Post[]; fyis: FyiIt
           <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis">Analysis</a></li>
           <li><a href="/archive">Archive</a></li>
+          <li><a href="/fyi">FYI</a></li>
         </ul>
       </header>
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />

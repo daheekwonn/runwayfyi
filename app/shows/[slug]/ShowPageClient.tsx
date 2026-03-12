@@ -231,6 +231,7 @@ export default function ShowPageClient({ slug }: { slug: string }) {
         <a href="/shows">shows</a>
         <a href="/analysis">analysis</a>
         <a href="/archive">archive</a>
+        <a href="/fyi">fyi</a>
         <a href="/about">about</a>
       </nav>
 
@@ -252,6 +253,7 @@ export default function ShowPageClient({ slug }: { slug: string }) {
           <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis">Analysis</a></li>
           <li><a href="/archive">Archive</a></li>
+          <li><a href="/fyi">FYI</a></li>
         </ul>
       </header>
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
