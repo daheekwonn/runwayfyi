@@ -210,7 +210,6 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
         <a href="/shows">shows</a>
         <a href="/analysis">analysis</a>
         <a href="/archive">archive</a>
-        <a href="/fyi">fyi</a>
         <a href="/about">about</a>
       </div>
       <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
@@ -234,7 +233,6 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
           <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis" className="curr">Analysis</a></li>
           <li><a href="/archive">Archive</a></li>
-          <li><a href="/fyi">FYI</a></li>
         </ul>
       </header>
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
