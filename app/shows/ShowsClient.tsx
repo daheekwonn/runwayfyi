@@ -116,6 +116,7 @@ export default function ShowsClient({ shows }: { shows: any[] }) {
         {[['/trends','trends'],['/analysis','analysis'],['/fyi','fyi'],['/shows','shows'],['/archive','archive']].map(([href,label]) => (
           <a key={href} href={href}>{label}</a>
         ))}
+        <Link href="/about" onClick={() => setMenuOpen(false)}>about</Link>
       </nav>
       <div className={`header-spacer${navVisible?'':' collapsed'}`} />
 
