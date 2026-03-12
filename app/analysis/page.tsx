@@ -19,8 +19,8 @@ interface Article {
 const ARTICLES: Article[] = [
   {
     id: 1,
-    kicker: 'Opinion - Paris FW26',
-    category: 'opinion',
+    kicker: 'Analysis - Paris FW26',
+    category: 'analysis',
     season: 'Paris FW26',
     title: 'Jonathan Anderson just redefined what Dior means now',
     excerpt: `The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show -- a signal we'd been tracking since Anderson's appointment was announced in late 2025.`,
@@ -53,8 +53,8 @@ const ARTICLES: Article[] = [
   },
   {
     id: 4,
-    kicker: 'Opinion - Paris FW26',
-    category: 'opinion',
+    kicker: 'Analysis - Paris FW26',
+    category: 'analysis',
     season: 'Paris FW26',
     title: 'Matthieu Blazy at Chanel: the numbers behind the feeling',
     excerpt: 'Every metric jumped. Social velocity, search signals, editorial coverage -- all at once. What the data says about the most talked-about debut of the season.',
@@ -64,8 +64,8 @@ const ARTICLES: Article[] = [
   },
   {
     id: 5,
-    kicker: 'Cultural Context - FW26',
-    category: 'cultural-context',
+    kicker: 'Culture - FW26',
+    category: 'culture',
     season: 'FW26',
     title: 'Why recession dressing always brings the coat',
     excerpt: "Shearling at #1 isn't a coincidence. A historical pattern analysis of outerwear trends and economic anxiety.",
@@ -86,8 +86,8 @@ const ARTICLES: Article[] = [
   },
   {
     id: 7,
-    kicker: 'Opinion - Copenhagen FW26',
-    category: 'opinion',
+    kicker: 'Analysis - Copenhagen FW26',
+    category: 'analysis',
     season: 'Copenhagen FW26',
     title: 'Copenhagen is the most interesting fashion week and nobody talks about it',
     excerpt: 'Lower search volume. Smaller shows. But a higher concentration of pieces that actually end up in your wardrobe.',
@@ -103,7 +103,7 @@ const TICKER_ITEMS = [
   'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
 ];
 
-const CATEGORIES = ['All', 'Opinion', 'Data', 'Forecast', 'Cultural Context'];
+const CATEGORIES = ['All', 'Analysis', 'Opinion', 'Data', 'Forecast', 'Culture'];
 
 export default function AnalysisPage() {
   const [navVisible,     setNavVisible]     = useState(true);
@@ -123,7 +123,7 @@ export default function AnalysisPage() {
 
   const filtered = ARTICLES.filter(a =>
     activeCategory === 'All' ||
-    a.category === activeCategory.toLowerCase().replace(/ /g, '-')
+    a.category === activeCategory.toLowerCase()
   );
 
   const hero  = filtered.find(a => a.featured) || filtered[0];
@@ -215,13 +215,13 @@ export default function AnalysisPage() {
         .lead-main-a { display:block; text-decoration:none; color:inherit; transition:opacity .18s; }
         .lead-main-a:hover { opacity:.84; }
         .lead-img { overflow:hidden; }
-        .lead-img img { width:100%; aspect-ratio:16/10; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .55s ease; }
+        .lead-img img { width:100%; aspect-ratio:16/7; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .55s ease; }
         .lead-main-a:hover .lead-img img { transform:scale(1.025); }
-        .lead-body { padding:22px 32px 32px; }
+        .lead-body { padding:14px 28px 22px; }
         .lead-score { display:inline-block; font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; background:var(--ink); color:#fff; padding:3px 10px; margin-bottom:14px; }
         .lead-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); margin-bottom:10px; }
-        .lead-title { font-family:var(--f-display); font-size:clamp(24px,2.8vw,38px); font-weight:700; letter-spacing:-0.02em; line-height:1.02; text-transform:lowercase; color:var(--ink); margin-bottom:12px; }
-        .lead-excerpt { font-family:var(--f-body); font-size:14px; line-height:1.75; color:var(--mid); margin-bottom:16px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+        .lead-title { font-family:var(--f-display); font-size:clamp(20px,2.2vw,30px); font-weight:700; letter-spacing:-0.02em; line-height:1.05; text-transform:lowercase; color:var(--ink); margin-bottom:8px; }
+        .lead-excerpt { font-family:var(--f-body); font-size:13px; line-height:1.65; color:var(--mid); margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .lead-date { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
 
         .lead-side { display:flex; flex-direction:column; }
@@ -229,9 +229,9 @@ export default function AnalysisPage() {
         .side-a:last-child { border-bottom:none; }
         .side-a:hover { opacity:.78; }
         .side-img { overflow:hidden; }
-        .side-img img { width:100%; aspect-ratio:3/2; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
+        .side-img img { width:100%; aspect-ratio:16/9; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
         .side-a:hover .side-img img { transform:scale(1.04); }
-        .side-body { padding:16px 22px 20px; display:flex; flex-direction:column; flex:1; }
+        .side-body { padding:10px 18px 14px; display:flex; flex-direction:column; flex:1; }
         .side-kicker { font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); margin-bottom:7px; }
         .side-title { font-family:var(--f-display); font-size:clamp(14px,1.4vw,18px); font-weight:700; letter-spacing:-0.01em; line-height:1.1; text-transform:lowercase; color:var(--ink); margin-bottom:7px; flex:1; }
         .side-foot { display:flex; align-items:center; justify-content:space-between; margin-top:10px; padding-top:9px; border-top:1px solid var(--bd); }
@@ -336,7 +336,7 @@ export default function AnalysisPage() {
 
       {/* Page header */}
       <div className="page-header">
-        <h1 className="page-title">Analysis<br />& Opinion</h1>
+        <h1 className="page-title">Analysis</h1>
         <div className="page-meta">
           {filtered.length} pieces published<br />
           FW26 season - composite scoring<br />
