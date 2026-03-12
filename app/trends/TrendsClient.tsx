@@ -395,17 +395,9 @@ export default function TrendsClient({ leaderboard, all }: Props) {
         <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'8px' }}>
           Season · FW26
         </div>
-        <div style={{ display:'flex', alignItems:'baseline', gap:'16px' }}>
-          <h1 style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'clamp(52px,8vw,96px)', fontWeight:700, letterSpacing:'-0.03em', lineHeight:0.9, margin:0 }}>
-            Trends
-          </h1>
-          <span style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'11px', color:'var(--light)', letterSpacing:'0.1em' }}>
-            {all.length} signals
-          </span>
-        </div>
-        <p style={{ fontFamily:`'Lora', Georgia, serif`, fontSize:'14px', fontWeight:500, color:'var(--mid)', maxWidth:'520px', lineHeight:1.65, margin:'12px 0 28px' }}>
-          Composite scores from runway frequency, search velocity, and social engagement. Updated daily.
-        </p>
+        <h1 style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'clamp(52px,8vw,96px)', fontWeight:700, letterSpacing:'-0.03em', lineHeight:0.9, margin:'0 0 28px' }}>
+          Trends
+        </h1>
       </div>
 
       {/* ── Top 3 hero cards ── */}
@@ -584,6 +576,82 @@ export default function TrendsClient({ leaderboard, all }: Props) {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── Methodology ── */}
+      <section id="methodology" style={{ borderBottom:'1px solid var(--bd)', background:'var(--cream)' }}>
+        <div style={{ padding:'48px 48px 32px', borderBottom:'1px solid var(--bd)', display:'flex', alignItems:'baseline', justifyContent:'space-between' }}>
+          <div>
+            <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'10px' }}>How it works</div>
+            <h2 style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'clamp(32px,4vw,52px)', fontWeight:700, letterSpacing:'-0.02em', lineHeight:1, margin:0 }}>Scoring Methodology</h2>
+          </div>
+          <span style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'10px', color:'var(--light)', letterSpacing:'0.1em' }}>FW26 · Updated daily</span>
+        </div>
+
+        {/* Three pillars */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', borderBottom:'1px solid var(--bd)' }}>
+          {[
+            {
+              key: 'R', label: 'Runway Frequency', weight: '50%',
+              desc: 'The backbone of the score. We count how many looks and how many shows featured a given garment, silhouette, or material signal across Paris, Milan, London, and New York. A trend that appeared in 40 looks across 8 shows scores far higher than one spotted in 3 looks at a single designer.',
+              stat: '2,847', statLabel: 'looks indexed FW26',
+            },
+            {
+              key: 'S', label: 'Search Velocity', weight: '30%',
+              desc: 'We track Google Trends data for each trend keyword over a 90-day window and calculate velocity — the rate of change in search interest in the two weeks following each show versus the prior six-week baseline. A +200% velocity spike signals real consumer intent, not just editorial coverage.',
+              stat: '+180%', statLabel: 'avg velocity top 10',
+            },
+            {
+              key: 'V', label: 'Social Signal', weight: '20%',
+              desc: 'Instagram and TikTok engagement velocity measured per trend hashtag and brand handle post-show. We weight recency heavily — a spike in the 72 hours after a show matters more than aggregate likes. This component is currently being wired; scores reflect runway and search only until live.',
+              stat: 'Pending', statLabel: 'Instagram API wiring',
+            },
+          ].map(({ key, label, weight, desc, stat, statLabel }, i) => (
+            <div key={key} style={{ borderRight: i < 2 ? '1px solid var(--bd)' : 'none', padding:'40px 40px 36px', display:'flex', flexDirection:'column', gap:'24px' }}>
+              <div style={{ display:'flex', alignItems:'baseline', gap:'12px' }}>
+                <span style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'52px', fontWeight:700, letterSpacing:'-0.03em', lineHeight:1, color:'var(--ink)' }}>{key}</span>
+                <div>
+                  <div style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'18px', fontWeight:700, letterSpacing:'-0.01em', color:'var(--ink)' }}>{label}</div>
+                  <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'11px', color:'var(--light)', letterSpacing:'0.08em' }}>{weight} of composite score</div>
+                </div>
+              </div>
+              <p style={{ fontFamily:`'Lora', Georgia, serif`, fontSize:'13px', fontWeight:500, lineHeight:1.75, color:'var(--mid)', flex:1 }}>{desc}</p>
+              <div style={{ borderTop:'1px solid var(--bd)', paddingTop:'20px' }}>
+                <div style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'28px', fontWeight:700, letterSpacing:'-0.02em', color:'var(--ink)', lineHeight:1 }}>{stat}</div>
+                <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--light)', marginTop:'4px' }}>{statLabel}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Formula + notes row */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:'1px solid var(--bd)' }}>
+          <div style={{ padding:'36px 40px', borderRight:'1px solid var(--bd)' }}>
+            <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'16px' }}>The formula</div>
+            <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'clamp(14px,1.6vw,20px)', fontWeight:500, letterSpacing:'0.04em', color:'var(--ink)', lineHeight:1.8, background:'var(--warm)', padding:'24px 28px', borderLeft:'3px solid var(--ink)' }}>
+              score = 0.5 × runway<br />
+              {'     '}+ 0.3 × search<br />
+              {'     '}+ 0.2 × social
+            </div>
+            <p style={{ fontFamily:`'Lora', Georgia, serif`, fontSize:'13px', fontWeight:500, lineHeight:1.7, color:'var(--mid)', marginTop:'20px' }}>
+              Each component is normalised to a 0–100 scale before weighting. The composite score therefore also sits between 0 and 100. A score above 80 indicates a confirmed macro trend for the season.
+            </p>
+          </div>
+          <div style={{ padding:'36px 40px' }}>
+            <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'16px' }}>Notes on the data</div>
+            {[
+              { label: 'Season scope', note: 'FW26 covers shows from January–March 2026 across Paris, Milan, London, and New York. Copenhagen is tracked separately as an emerging signal market.' },
+              { label: 'Search baseline', note: 'Google Trends scores are relative (0–100 within the query window), not absolute search volumes. We use 90-day windows with a 2-week recency weight.' },
+              { label: 'Social pending', note: 'The social velocity component (20%) is currently 0 on all items while Instagram Basic Display API access is being finalised. Scores reflect R + S only.' },
+              { label: 'Manual seed data', note: 'Initial runway counts are manually seeded from show notes. Google Vision API integration for automated look tagging is in progress.' },
+            ].map(({ label, note }) => (
+              <div key={label} style={{ borderBottom:'1px solid var(--bd)', padding:'14px 0' }}>
+                <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'10px', fontWeight:500, letterSpacing:'0.08em', color:'var(--ink)', marginBottom:'4px' }}>{label}</div>
+                <p style={{ fontFamily:`'Lora', Georgia, serif`, fontSize:'12px', fontWeight:500, lineHeight:1.6, color:'var(--mid)', margin:0 }}>{note}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
