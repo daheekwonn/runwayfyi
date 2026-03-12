@@ -297,7 +297,7 @@ export default function HomePage() {
         .sbtn.active::after,.sbtn:hover::after { transform:scaleX(1); }
 
         /* ── Leaderboard + Analysis two-col layout ── */
-        .board-analysis-wrap { display:grid; grid-template-columns:44% 56%; border-bottom:1px solid var(--bd); background:#fff; align-items:start; position:relative; z-index:0; }
+        .board-analysis-wrap { display:grid; grid-template-columns:44% 56%; border-bottom:1px solid var(--bd); background:#fff; align-items:stretch; position:relative; z-index:0; }
 
         /* ── Leaderboard (left, compact) ── */
         .board { padding:32px 32px 32px 52px; border-right:1px solid var(--bd); }
@@ -333,11 +333,11 @@ export default function HomePage() {
         .badge-new { background:rgba(12,11,9,0.06);   color:var(--ink); }
         .badge-hi  { background:rgba(180,140,0,0.10); color:#8B6A00; }
 
-        /* ── Legend tooltip (replaces ?) ── */
+        /* ── Legend tooltip — opens downward ── */
         .score-tooltip-wrap { position:relative; display:inline-flex; align-items:center; gap:6px; cursor:help; }
         .score-tooltip-wrap:hover .score-tooltip { opacity:1; pointer-events:all; }
-        .score-tooltip { position:absolute; bottom:calc(100% + 10px); right:0; background:var(--ink); color:#fff; font-family:var(--f-mono); font-size:8px; letter-spacing:0.07em; line-height:1; padding:14px 16px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .18s; z-index:200; min-width:200px; }
-        .score-tooltip::after { content:''; position:absolute; top:100%; right:12px; border:5px solid transparent; border-top-color:var(--ink); }
+        .score-tooltip { position:absolute; top:calc(100% + 10px); right:0; background:var(--ink); color:#fff; font-family:var(--f-mono); font-size:8px; letter-spacing:0.07em; line-height:1; padding:14px 16px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .18s; z-index:200; min-width:200px; }
+        .score-tooltip::after { content:''; position:absolute; bottom:100%; right:12px; border:5px solid transparent; border-bottom-color:var(--ink); }
         .tooltip-legend-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
         .tooltip-legend-row:last-child { margin-bottom:0; }
         .tooltip-legend-badge { font-family:var(--f-mono); font-size:9px; font-weight:500; display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; flex-shrink:0; }
@@ -365,24 +365,26 @@ export default function HomePage() {
         .a-date { font-family:var(--f-mono); font-size:10px; letter-spacing:0.09em; text-transform:uppercase; color:var(--light); margin-top:5px; }
         .a-img { width:110px; height:88px; object-fit:cover; object-position:top center; display:block; filter:grayscale(10%) brightness(0.9); flex-shrink:0; }
 
-        /* ── Feature — portrait split ── */
-        .feature { display:grid; grid-template-columns:45% 55%; border-bottom:1px solid var(--bd); position:relative; z-index:0; height:clamp(340px,45vh,480px); }
+        /* ── Feature — portrait split, full viewport height ── */
+        .feature { display:grid; grid-template-columns:45% 55%; border-bottom:1px solid var(--bd); position:relative; z-index:0; height:calc(100vh - 118px); min-height:520px; }
         .feature-img { position:relative; overflow:hidden; background:var(--warm); height:100%; }
         .feature-img img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.72) contrast(1.06); display:block; transition:filter .4s ease; }
         .feature:hover .feature-img img { filter:grayscale(10%) brightness(0.65) contrast(1.06); }
-        .feature-img-caption { position:absolute; bottom:16px; left:16px; font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
 
-        /* title + blurb as one sliding unit */
-        .feature-img-title { position:absolute; bottom:0; left:0; right:0; padding:32px 32px 32px; background:linear-gradient(to top, rgba(12,11,9,0.88) 0%, rgba(12,11,9,0.3) 60%, transparent 100%); transition:opacity .32s ease; }
-        .feature:hover .feature-img-title { opacity:0; pointer-events:none; }
-        .feature-img-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-bottom:10px; display:flex; align-items:center; gap:9px; }
+        /* title always visible at bottom */
+        .feature-img-title { position:absolute; bottom:0; left:0; right:0; padding:40px 36px 36px; background:linear-gradient(to top, rgba(12,11,9,0.92) 0%, rgba(12,11,9,0.4) 60%, transparent 100%); transition:transform .38s cubic-bezier(.4,0,.2,1); }
+        .feature:hover .feature-img-title { transform:translateY(-100%); }
+        .feature-img-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-bottom:12px; display:flex; align-items:center; gap:9px; }
         .feature-img-kicker::before { content:''; width:16px; height:1px; background:rgba(255,255,255,0.4); }
-        .feature-img-h { font-family:var(--f-display); font-size:clamp(22px,2.4vw,30px); font-weight:700; line-height:1.05; letter-spacing:-0.02em; color:#fff; }
+        .feature-img-h { font-family:var(--f-display); font-size:clamp(24px,2.6vw,36px); font-weight:700; line-height:1.05; letter-spacing:-0.02em; color:#fff; }
 
-        /* blurb — slides up from bottom edge on hover */
-        .feature-img-blurb { position:absolute; bottom:0; left:0; right:0; padding:80px 32px 36px; background:linear-gradient(to top, rgba(12,11,9,0.88) 40%, transparent 100%); transform:translateY(100%); transition:transform .38s cubic-bezier(.4,0,.2,1); }
+        /* blurb slides up from bottom carrying kicker + title + excerpt */
+        .feature-img-blurb { position:absolute; bottom:0; left:0; right:0; padding:60px 36px 36px; background:linear-gradient(to top, rgba(12,11,9,0.94) 50%, transparent 100%); transform:translateY(100%); transition:transform .38s cubic-bezier(.4,0,.2,1); }
         .feature:hover .feature-img-blurb { transform:translateY(0); }
-        .feature-img-blurb p { font-family:var(--f-body); font-size:14px; font-weight:500; line-height:1.75; color:rgba(255,255,255,0.85); margin:0; }
+        .feature-img-blurb-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:12px; display:flex; align-items:center; gap:9px; }
+        .feature-img-blurb-kicker::before { content:''; width:16px; height:1px; background:rgba(255,255,255,0.35); }
+        .feature-img-blurb-h { font-family:var(--f-display); font-size:clamp(22px,2.4vw,32px); font-weight:700; line-height:1.05; letter-spacing:-0.02em; color:#fff; margin-bottom:16px; }
+        .feature-img-blurb p { font-family:var(--f-body); font-size:14px; font-weight:500; line-height:1.75; color:rgba(255,255,255,0.82); margin:0; }
 
         /* right side: stats 2-row grid + read link */
         .feature-right { background:var(--ink); display:flex; flex-direction:column; height:100%; overflow:hidden; }
@@ -643,8 +645,10 @@ export default function HomePage() {
             src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80"
             alt="Dior FW26"
           />
-          {/* blurb — appears on hover */}
+          {/* blurb slides up carrying kicker + title + excerpt */}
           <div className="feature-img-blurb">
+            <div className="feature-img-blurb-kicker">Opinion · Paris FW26 · Dior</div>
+            <div className="feature-img-blurb-h">Jonathan Anderson redefines what Dior means now</div>
             <p>
               The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show — a signal we'd been tracking since Anderson's appointment was announced in late 2025.
             </p>
