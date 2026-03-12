@@ -19,11 +19,11 @@ interface Article {
 const ARTICLES: Article[] = [
   {
     id: 1,
-    kicker: 'Opinion Â· Paris FW26',
+    kicker: 'Opinion - Paris FW26',
     category: 'opinion',
     season: 'Paris FW26',
     title: 'Jonathan Anderson just redefined what Dior means now',
-    excerpt: 'The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show â€" a signal we'd been tracking since Anderson's appointment was announced in late 2025.',
+    excerpt: 'The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show -- a signal we'd been tracking since Anderson's appointment was announced in late 2025.',
     date: 'Mar 8, 2026',
     img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
     score: 94,
@@ -31,7 +31,7 @@ const ARTICLES: Article[] = [
   },
   {
     id: 2,
-    kicker: 'Data Â· Milan FW26',
+    kicker: 'Data - Milan FW26',
     category: 'data',
     season: 'Milan FW26',
     title: 'The leather bomber is a macro trend',
@@ -42,29 +42,29 @@ const ARTICLES: Article[] = [
   },
   {
     id: 3,
-    kicker: 'Forecast Â· FW26',
+    kicker: 'Forecast - FW26',
     category: 'forecast',
     season: 'FW26',
     title: 'Prairie or bust: the silhouette taking over',
-    excerpt: 'ChloÃ© made it obvious but the signal started in Copenhagen. A data-driven case for the maxi dress revival.',
+    excerpt: 'Chloe made it obvious but the signal started in Copenhagen. A data-driven case for the maxi dress revival.',
     date: 'Mar 4, 2026',
     img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&q=80',
     score: 78,
   },
   {
     id: 4,
-    kicker: 'Show Review Â· Paris FW26',
+    kicker: 'Show Review - Paris FW26',
     category: 'show-review',
     season: 'Paris FW26',
     title: 'Matthieu Blazy at Chanel: the numbers behind the feeling',
-    excerpt: 'Every metric jumped. Social velocity, search signals, editorial coverage â€" all at once. What the data says about the most talked-about debut of the season.',
+    excerpt: 'Every metric jumped. Social velocity, search signals, editorial coverage -- all at once. What the data says about the most talked-about debut of the season.',
     date: 'Mar 5, 2026',
     img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80',
     score: 91,
   },
   {
     id: 5,
-    kicker: 'Cultural Context Â· FW26',
+    kicker: 'Cultural Context - FW26',
     category: 'cultural-context',
     season: 'FW26',
     title: 'Why recession dressing always brings the coat',
@@ -75,7 +75,7 @@ const ARTICLES: Article[] = [
   },
   {
     id: 6,
-    kicker: 'Data Â· FW26',
+    kicker: 'Data - FW26',
     category: 'data',
     season: 'FW26',
     title: 'Burgundy ran through every city this season',
@@ -86,7 +86,7 @@ const ARTICLES: Article[] = [
   },
   {
     id: 7,
-    kicker: 'Opinion Â· Copenhagen FW26',
+    kicker: 'Opinion - Copenhagen FW26',
     category: 'opinion',
     season: 'Copenhagen FW26',
     title: 'Copenhagen is the most interesting fashion week and nobody talks about it',
@@ -153,9 +153,9 @@ export default function AnalysisPage() {
         }
         body { background:#fff; color:var(--ink); -webkit-font-smoothing:antialiased; }
 
-        /* â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
-           HEADER â€" exact copy of homepage
-        â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
+        /* ------------------------------------------------------
+           HEADER -- exact copy of homepage
+        ------------------------------------------------------ */
         .site-header { position:fixed; top:0; left:0; right:0; z-index:1000; background:#fff; border-bottom:1px solid var(--bd); }
 
         .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:7px 0; }
@@ -191,17 +191,17 @@ export default function AnalysisPage() {
         .nav-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.18); z-index:1900; opacity:0; pointer-events:none; transition:opacity .3s; }
         .nav-overlay.open { opacity:1; pointer-events:all; }
 
-        /* â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+        /* ------------------------------------------------------
            PAGE HEADER
-        â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
+        ------------------------------------------------------ */
         .page-header { padding:48px 52px 32px; border-bottom:2px solid var(--ink); display:flex; align-items:flex-end; justify-content:space-between; }
         .page-title { font-family:var(--f-display); font-size:clamp(52px,7vw,88px); font-weight:700; letter-spacing:-0.04em; line-height:0.9; text-transform:lowercase; }
         .page-title em { font-family:var(--f-body); font-style:italic; font-weight:400; }
         .page-meta { font-family:var(--f-mono); font-size:10px; letter-spacing:0.11em; text-transform:uppercase; color:var(--light); text-align:right; line-height:2; padding-bottom:4px; }
 
-        /* â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+        /* ------------------------------------------------------
            FILTER BAR
-        â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
+        ------------------------------------------------------ */
         .filter-bar { display:flex; align-items:stretch; background:#fff; border-bottom:1px solid var(--bd); overflow-x:auto; padding:0 52px; }
         .filter-group { display:flex; align-items:center; }
         .filter-group + .filter-group { border-left:1px solid var(--bd); margin-left:20px; padding-left:20px; }
@@ -212,10 +212,10 @@ export default function AnalysisPage() {
         .fbtn.active { color:var(--ink); }
         .fbtn.active::after { transform:scaleX(1); }
 
-        /* â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
-           LEAD STORY â€" Hypebeast style
+        /* ------------------------------------------------------
+           LEAD STORY -- Hypebeast style
            Big image left, title/text below. Two stacked right.
-        â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
+        ------------------------------------------------------ */
         .lead { display:grid; grid-template-columns:2fr 1fr; border-bottom:1px solid var(--bd); }
         .lead-main { border-right:1px solid var(--bd); }
         .lead-main-a { display:block; text-decoration:none; color:inherit; transition:opacity .18s; }
@@ -244,17 +244,17 @@ export default function AnalysisPage() {
         .side-date { font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.09em; text-transform:uppercase; color:var(--light); }
         .side-score { font-family:var(--f-mono); font-size:8.5px; color:var(--mid); }
 
-        /* â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
+        /* ------------------------------------------------------
            SECTION HEADER
-        â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
+        ------------------------------------------------------ */
         .sec-head { display:flex; align-items:baseline; justify-content:space-between; padding:26px 52px 16px; border-bottom:1px solid var(--bd); }
         .sec-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
         .sec-note { font-family:var(--f-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); white-space:nowrap; margin-left:16px; }
 
-        /* â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
-           ARTICLE ROWS â€" GQ style
+        /* ------------------------------------------------------
+           ARTICLE ROWS -- GQ style
            Text left, image right. Category tag small above title.
-        â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
+        ------------------------------------------------------ */
         .a-rows { border-bottom:1px solid var(--bd); }
         .a-row-link { display:grid; grid-template-columns:1fr 400px; border-bottom:1px solid var(--bd); text-decoration:none; color:inherit; transition:opacity .18s; }
         .a-row-link:last-child { border-bottom:none; }
@@ -273,10 +273,10 @@ export default function AnalysisPage() {
         .a-row-img-wrap img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
         .a-row-link:hover .a-row-img-wrap img { transform:scale(1.03); }
 
-        /* â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
-           4-COLUMN GRID â€" GQ Recommends style
+        /* ------------------------------------------------------
+           4-COLUMN GRID -- GQ Recommends style
            Image top, kicker, title, excerpt, date+arrow below.
-        â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
+        ------------------------------------------------------ */
         .four-grid { display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--bd); }
         .g-card { text-decoration:none; color:inherit; border-right:1px solid var(--bd); display:flex; flex-direction:column; transition:opacity .18s; }
         .g-card:last-child { border-right:none; }
@@ -295,9 +295,9 @@ export default function AnalysisPage() {
 
         .empty { padding:80px 52px; font-family:var(--f-mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); border-bottom:1px solid var(--bd); }
 
-        /* â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
-           FOOTER â€" exact homepage match
-        â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€ */
+        /* ------------------------------------------------------
+           FOOTER -- exact homepage match
+        ------------------------------------------------------ */
         footer { background:var(--ink); padding:26px 52px; display:flex; align-items:center; justify-content:space-between; }
         .f-logo { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:0.1em; text-transform:lowercase; color:#fff; }
         .f-links { display:flex; gap:28px; list-style:none; }
@@ -308,7 +308,7 @@ export default function AnalysisPage() {
 
       {/* Drawer */}
       <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
-        <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>âœ• close</button>
+        <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>x close</button>
         <a href="/trends"   onClick={() => setMenuOpen(false)}>Trends</a>
         <a href="/shows"    onClick={() => setMenuOpen(false)}>Shows</a>
         <a href="/analysis" onClick={() => setMenuOpen(false)}>Analysis</a>
@@ -345,8 +345,8 @@ export default function AnalysisPage() {
         <h1 className="page-title">Analysis<br /><em>&amp; Opinion</em></h1>
         <div className="page-meta">
           {filtered.length} pieces published<br />
-          FW26 season Â· composite scoring<br />
-          runway Â· search Â· social
+          FW26 season - composite scoring<br />
+          runway - search - social
         </div>
       </div>
 
@@ -370,7 +370,7 @@ export default function AnalysisPage() {
         <div className="empty">No articles match these filters.</div>
       ) : (
         <>
-          {/* â"€â"€ LEAD STORY â€" Hypebeast: big image left, text below, 2 stacked right â"€â"€ */}
+          {/* -- LEAD STORY -- Hypebeast: big image left, text below, 2 stacked right -- */}
           {hero && (
             <div className="lead">
               <div className="lead-main">
@@ -407,7 +407,7 @@ export default function AnalysisPage() {
             </div>
           )}
 
-          {/* â"€â"€ LATEST â€" GQ rows â"€â"€ */}
+          {/* -- LATEST -- GQ rows -- */}
           {rows.length > 0 && (
             <>
               <div className="sec-head">
@@ -426,7 +426,7 @@ export default function AnalysisPage() {
                       <div className="a-row-foot">
                         <span className="a-row-date">{a.date}</span>
                         <span className="a-row-score-tag">Score {a.score}</span>
-                        <span className="a-row-cta">Read analysis â†'</span>
+                        <span className="a-row-cta">Read analysis -></span>
                       </div>
                     </div>
                     <div className="a-row-img-wrap">
@@ -438,7 +438,7 @@ export default function AnalysisPage() {
             </>
           )}
 
-          {/* â"€â"€ MORE â€" GQ Recommends 4-col grid â"€â"€ */}
+          {/* -- MORE -- GQ Recommends 4-col grid -- */}
           {grid.length > 0 && (
             <div className="four-grid">
               {grid.map(a => (
@@ -452,7 +452,7 @@ export default function AnalysisPage() {
                     <p className="g-card-excerpt">{a.excerpt}</p>
                     <div className="g-card-foot">
                       <span className="g-card-date">{a.date}</span>
-                      <span className="g-card-arrow">â†'</span>
+                      <span className="g-card-arrow">-></span>
                     </div>
                   </div>
                 </a>
@@ -471,7 +471,7 @@ export default function AnalysisPage() {
           <li><a href="#">Newsletter</a></li>
           <li><a href="/about">About</a></li>
         </ul>
-        <span className="f-copy">Â© 2026 runway.fyi</span>
+        <span className="f-copy">(c) 2026 runway.fyi</span>
       </footer>
     </>
   );

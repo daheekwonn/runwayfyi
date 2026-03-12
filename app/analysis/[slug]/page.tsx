@@ -6,11 +6,11 @@ import { useEffect, useState } from 'react';
 const ARTICLES = [
   {
     id: 1,
-    kicker: 'Opinion Â· Paris FW26',
+    kicker: 'Opinion - Paris FW26',
     category: 'Opinion',
     season: 'Paris FW26',
     title: 'Jonathan Anderson just redefined what Dior means now',
-    excerpt: 'The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show â€" a signal we'd been tracking since Anderson's appointment was announced in late 2025.',
+    excerpt: 'The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show -- a signal we'd been tracking since Anderson's appointment was announced in late 2025.',
     date: 'Mar 8, 2026',
     img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80',
     score: 94,
@@ -19,13 +19,13 @@ const ARTICLES = [
     socialScore: 19,
     body: `## The data spoke first
 
-When Jonathan Anderson was announced as Dior's new creative director in late 2025, we started tracking the signal. His appointment created immediate spikes in searches for both "Jonathan Anderson" and "Dior" â€" but more tellingly, searches for "Dior aesthetic" and "Dior style guide" began climbing weeks before the FW26 show even opened.
+When Jonathan Anderson was announced as Dior's new creative director in late 2025, we started tracking the signal. His appointment created immediate spikes in searches for both "Jonathan Anderson" and "Dior" -- but more tellingly, searches for "Dior aesthetic" and "Dior style guide" began climbing weeks before the FW26 show even opened.
 
 That pre-show anticipation translated into one of the highest composite scores we've recorded this season: 94/100.
 
 ## What the runway said
 
-Anderson's debut was characterised by a tension between Dior's architectural heritage and his own instinct for the tactile and the strange. The collection featured 48 looks. Of those, 31 showed up in multiple trend detection sweeps â€" unusual for a single show. Materials that registered most strongly: structured wool, tonal cream, and unexpected leatherwork at the collar.
+Anderson's debut was characterised by a tension between Dior's architectural heritage and his own instinct for the tactile and the strange. The collection featured 48 looks. Of those, 31 showed up in multiple trend detection sweeps -- unusual for a single show. Materials that registered most strongly: structured wool, tonal cream, and unexpected leatherwork at the collar.
 
 The silhouette was lean but never severe. A long coat with a barely-there waist. Trousers that broke cleanly at the ankle. Shoulders that hinted at volume without committing to it.
 
@@ -35,17 +35,17 @@ The silhouette was lean but never severe. A long coat with a barely-there waist.
 
 The 48-hour post-show window is where we find the clearest signal. Searches for "Dior leather coat" jumped 140%. "Dior FW26 looks" entered the top 50 fashion searches for the first time in three seasons.
 
-What's significant isn't just the volume â€" it's the specificity. People weren't searching for "Dior" broadly. They were searching for particular pieces. That tells us the collection produced actual desire, not just admiration.
+What's significant isn't just the volume -- it's the specificity. People weren't searching for "Dior" broadly. They were searching for particular pieces. That tells us the collection produced actual desire, not just admiration.
 
 ## What this means for your wardrobe
 
-The structured coat is the piece to watch. Not just at Dior â€" Anderson's interpretation will filter through to the high street within two seasons. The lean trouser + long coat combination already appeared at 6 other FW26 shows in similar form.
+The structured coat is the piece to watch. Not just at Dior -- Anderson's interpretation will filter through to the high street within two seasons. The lean trouser + long coat combination already appeared at 6 other FW26 shows in similar form.
 
 Score: 94/100. Watch this space.`,
   },
   {
     id: 2,
-    kicker: 'Data Â· Milan FW26',
+    kicker: 'Data - Milan FW26',
     category: 'Data',
     season: 'Milan FW26',
     title: 'The leather bomber is a macro trend',
@@ -58,7 +58,7 @@ Score: 94/100. Watch this space.`,
     socialScore: 14,
     body: `## The numbers
 
-Seven shows. Three cities. Two hundred percent search increase. The leather bomber didn't just appear at Gucci FW26 Milan â€" it appeared everywhere, in every form, across the entire season.
+Seven shows. Three cities. Two hundred percent search increase. The leather bomber didn't just appear at Gucci FW26 Milan -- it appeared everywhere, in every form, across the entire season.
 
 ## Why this is different from a micro trend
 
@@ -122,7 +122,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         }
         body { background:#fff; color:var(--ink); -webkit-font-smoothing:antialiased; }
 
-        /* â"€â"€ Header â€" exact homepage â"€â"€ */
+        /* -- Header -- exact homepage -- */
         .site-header { position:fixed; top:0; left:0; right:0; z-index:1000; background:#fff; border-bottom:1px solid var(--bd); }
 
         .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:7px 0; }
@@ -158,7 +158,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         .nav-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.18); z-index:1900; opacity:0; pointer-events:none; transition:opacity .3s; }
         .nav-overlay.open { opacity:1; pointer-events:all; }
 
-        /* â"€â"€ Article layout â"€â"€ */
+        /* -- Article layout -- */
 
         /* breadcrumb */
         .breadcrumb { padding:18px 52px; border-bottom:1px solid var(--bd); font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--light); display:flex; align-items:center; gap:10px; }
@@ -176,7 +176,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         .article-title { font-family:var(--f-display); font-size:clamp(32px,4.5vw,64px); font-weight:700; letter-spacing:-0.03em; line-height:0.96; text-transform:lowercase; color:var(--ink); margin-bottom:24px; max-width:880px; }
         .article-excerpt { font-family:var(--f-body); font-size:17px; font-weight:400; line-height:1.7; color:var(--mid); max-width:620px; margin-bottom:36px; }
 
-        /* hero image â€" full width with score badge over */
+        /* hero image -- full width with score badge over */
         .article-hero { position:relative; margin:0 -0px; overflow:hidden; }
         .article-hero img { width:100%; aspect-ratio:21/9; object-fit:cover; object-position:top center; filter:grayscale(6%) brightness(0.88); display:block; }
         .article-hero-score { position:absolute; bottom:20px; left:52px; background:var(--ink); color:#fff; font-family:var(--f-mono); font-size:10px; letter-spacing:0.13em; text-transform:uppercase; padding:6px 14px; display:flex; align-items:center; gap:14px; }
@@ -209,7 +209,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         .sidebar-link { font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:var(--ink); text-decoration:none; display:flex; align-items:center; gap:6px; transition:gap .15s; }
         .sidebar-link:hover { gap:10px; }
 
-        /* Related articles â€" 3-col grid like GQ Recommends */
+        /* Related articles -- 3-col grid like GQ Recommends */
         .related { border-bottom:1px solid var(--bd); }
         .related-head { padding:26px 52px 16px; border-bottom:1px solid var(--bd); display:flex; align-items:baseline; justify-content:space-between; }
         .related-title { font-family:var(--f-display); font-size:32px; font-weight:700; letter-spacing:-0.02em; line-height:1; color:var(--ink); }
@@ -230,7 +230,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         .r-card-arrow { font-family:var(--f-mono); font-size:12px; color:var(--light); transition:transform .18s, color .15s; }
         .r-card:hover .r-card-arrow { transform:translateX(4px); color:var(--ink); }
 
-        /* â"€â"€ Footer â€" exact homepage â"€â"€ */
+        /* -- Footer -- exact homepage -- */
         footer { background:var(--ink); padding:26px 52px; display:flex; align-items:center; justify-content:space-between; }
         .f-logo { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:0.1em; text-transform:lowercase; color:#fff; }
         .f-links { display:flex; gap:28px; list-style:none; }
@@ -241,7 +241,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
 
       {/* Drawer */}
       <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
-        <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>âœ• close</button>
+        <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>x close</button>
         <a href="/trends"   onClick={() => setMenuOpen(false)}>Trends</a>
         <a href="/shows"    onClick={() => setMenuOpen(false)}>Shows</a>
         <a href="/analysis" onClick={() => setMenuOpen(false)}>Analysis</a>
@@ -282,7 +282,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         <span>{article.category}</span>
       </div>
 
-      {/* Article header â€" GQ style: meta â†' title â†' excerpt â†' then hero image */}
+      {/* Article header -- GQ style: meta -> title -> excerpt -> then hero image */}
       <div className="article-header">
         <div className="article-meta-row">
           <span className="article-category">{article.kicker}</span>
@@ -329,7 +329,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
           <div className="sidebar-score-block">
             <div className="sidebar-score-lbl">Composite Score</div>
             <div className="sidebar-score-num">{article.score}</div>
-            <div className="sidebar-score-sub">/ 100 Â· FW26</div>
+            <div className="sidebar-score-sub">/ 100 - FW26</div>
           </div>
           <div className="sidebar-info">
             {[
@@ -347,15 +347,15 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
             ))}
           </div>
           <p className="sidebar-method">Scores are computed using a composite formula: 50% runway frequency, 30% search velocity (pytrends), 20% social signal.</p>
-          <a href="/about" className="sidebar-link">Read the methodology â†'</a>
+          <a href="/about" className="sidebar-link">Read the methodology -></a>
         </aside>
       </div>
 
-      {/* Related â€" GQ Recommends 3-col */}
+      {/* Related -- GQ Recommends 3-col */}
       <div className="related">
         <div className="related-head">
           <h2 className="related-title">More Analysis</h2>
-          <a href="/analysis" className="related-link">View all â†'</a>
+          <a href="/analysis" className="related-link">View all -></a>
         </div>
         <div className="related-grid">
           {related.map(a => (
@@ -368,7 +368,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
                 <div className="r-card-title">{a.title}</div>
                 <div className="r-card-foot">
                   <span className="r-card-date">{a.date}</span>
-                  <span className="r-card-arrow">â†'</span>
+                  <span className="r-card-arrow">-></span>
                 </div>
               </div>
             </a>
@@ -385,7 +385,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
           <li><a href="#">Newsletter</a></li>
           <li><a href="/about">About</a></li>
         </ul>
-        <span className="f-copy">Â© 2026 runway.fyi</span>
+        <span className="f-copy">(c) 2026 runway.fyi</span>
       </footer>
     </>
   );
