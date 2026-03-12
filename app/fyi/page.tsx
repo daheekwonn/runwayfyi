@@ -1,61 +1,74 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
 
 const FYI_DATA = [
   {
     id: '1',
+    slug: 'chanel-ballet-flat',
     type: 'SEARCH',
     stat: '+312%',
     label: 'Chanel ballet flat searches post-show',
     body: "matthieu blazy's chanel fw26 was the most anticipated collection of the season",
     show: 'Chanel',
     season: 'FW26',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
   },
   {
     id: '2',
+    slug: 'chanel-tweed',
     type: 'RUNWAY',
     stat: '38/52',
     label: 'Chanel looks featured tweed — highest in 6 seasons',
     body: 'tweed is back and it never really left. blazy just made it feel new',
     show: 'Chanel',
     season: 'FW26',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
   },
   {
     id: '3',
+    slug: 'dior-bar-jacket',
     type: 'SEARCH',
     stat: '+245%',
     label: "Dior bar jacket searches after Jonathan Anderson's debut",
     body: 'jonathan anderson at dior is already rewriting what the house means',
     show: 'Dior',
     season: 'FW26',
+    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80',
   },
   {
     id: '4',
+    slug: 'chloe-prairie-dress',
     type: 'SEARCH',
     stat: '5-year high',
     label: 'Prairie dress searches after Chloé FW26',
     body: "chemena kamali's chloé continues its cottagecore arc — and search data proves the customer is following",
     show: 'Chloé',
     season: 'FW26',
+    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80',
   },
   {
     id: '5',
+    slug: 'gucci-leather-bomber',
     type: 'SEARCH',
     stat: '+200%',
     label: 'Leather bomber spike within 24hrs of Gucci Milan',
     body: 'sabato de sarno is building a language for gucci that the internet understands',
     show: 'Gucci',
     season: 'FW26',
+    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80',
   },
   {
     id: '6',
+    slug: 'gucci-loafer',
     type: 'RUNWAY',
     stat: '41/56',
     label: 'Gucci looks showed loafer — dominant footwear signal',
     body: "when more than two thirds of a show shares one shoe, that's not a trend. that's a directive",
     show: 'Gucci',
     season: 'FW26',
+    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80',
   },
 ]
 
@@ -193,82 +206,89 @@ export default function FYIPage() {
       {/* ── Cards Grid ── */}
       <div style={{ padding:'40px 48px 80px', display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(340px, 1fr))', gap:'2px' }}>
         {filtered.map(fyi => (
-          <div key={fyi.id} style={{
-            background:'var(--cream)',
-            padding:'32px 28px',
-            position:'relative',
-            minHeight:300,
-            display:'flex',
-            flexDirection:'column',
-          }}>
-            {/* Type badge */}
+          <Link key={fyi.id} href={`/analysis/${fyi.slug}`} style={{ textDecoration:'none', color:'inherit' }}>
             <div style={{
-              display:'inline-block',
-              alignSelf:'flex-start',
-              fontFamily:"'Geist Mono', monospace",
-              fontSize:'9px',
-              letterSpacing:'0.18em',
-              textTransform:'uppercase',
-              padding:'4px 10px',
-              background:'var(--ink)',
-              color:'#fff',
-              marginBottom:'24px',
-              borderRadius:'1px',
+              background:`linear-gradient(rgba(12,11,9,0.45), rgba(12,11,9,0.45)), url(${fyi.image})`,
+              backgroundColor:'var(--ink)',
+              backgroundSize:'cover',
+              backgroundPosition:'center',
+              padding:'32px 28px',
+              position:'relative',
+              minHeight:300,
+              display:'flex',
+              flexDirection:'column',
             }}>
-              {fyi.type}
+              {/* Type badge */}
+              <div style={{
+                display:'inline-block',
+                alignSelf:'flex-start',
+                fontFamily:"'Geist Mono', monospace",
+                fontSize:'9px',
+                letterSpacing:'0.18em',
+                textTransform:'uppercase',
+                padding:'4px 10px',
+                background:'rgba(255,255,255,0.15)',
+                color:'#fff',
+                marginBottom:'24px',
+                borderRadius:'1px',
+                border:'1px solid rgba(255,255,255,0.25)',
+              }}>
+                {fyi.type}
+              </div>
+
+              {/* Big stat */}
+              <div style={{
+                fontFamily:"'Ranade', sans-serif",
+                fontSize:'clamp(36px,5vw,64px)',
+                fontWeight:700,
+                letterSpacing:'-0.03em',
+                lineHeight:0.9,
+                marginBottom:'14px',
+                color:'#fff',
+              }}>
+                {fyi.stat}
+              </div>
+
+              {/* Label in mono */}
+              <p style={{
+                margin:'0 0 20px',
+                fontFamily:"'Geist Mono', monospace",
+                fontSize:'11px',
+                letterSpacing:'0.08em',
+                color:'rgba(255,255,255,0.8)',
+                lineHeight:1.5,
+              }}>
+                {fyi.label}
+              </p>
+
+              {/* Opinion in body font, italic */}
+              <p style={{
+                margin:0,
+                fontFamily:"'Lora', Georgia, serif",
+                fontSize:'14px',
+                fontStyle:'italic',
+                color:'rgba(255,255,255,0.75)',
+                lineHeight:1.6,
+                flex:1,
+              }}>
+                {fyi.body}
+              </p>
+
+              {/* Show + season bottom right */}
+              <div style={{
+                position:'absolute',
+                bottom:20,
+                right:20,
+                fontFamily:"'Geist Mono', monospace",
+                fontSize:'9px',
+                letterSpacing:'0.14em',
+                textTransform:'uppercase',
+                color:'rgba(255,255,255,0.55)',
+              }}>
+                {fyi.show} · {fyi.season}
+              </div>
             </div>
-
-            {/* Big stat */}
-            <div style={{
-              fontFamily:"'Ranade', sans-serif",
-              fontSize:'clamp(36px,5vw,64px)',
-              fontWeight:700,
-              letterSpacing:'-0.03em',
-              lineHeight:0.9,
-              marginBottom:'14px',
-            }}>
-              {fyi.stat}
-            </div>
-
-            {/* Label in mono */}
-            <p style={{
-              margin:'0 0 20px',
-              fontFamily:"'Geist Mono', monospace",
-              fontSize:'11px',
-              letterSpacing:'0.08em',
-              color:'var(--mid)',
-              lineHeight:1.5,
-            }}>
-              {fyi.label}
-            </p>
-
-            {/* Opinion in body font, italic */}
-            <p style={{
-              margin:0,
-              fontFamily:"'Lora', Georgia, serif",
-              fontSize:'14px',
-              fontStyle:'italic',
-              color:'var(--mid)',
-              lineHeight:1.6,
-              flex:1,
-            }}>
-              {fyi.body}
-            </p>
-
-            {/* Show + season bottom right */}
-            <div style={{
-              position:'absolute',
-              bottom:20,
-              right:20,
-              fontFamily:"'Geist Mono', monospace",
-              fontSize:'9px',
-              letterSpacing:'0.14em',
-              textTransform:'uppercase',
-              color:'var(--light)',
-            }}>
-              {fyi.show} · {fyi.season}
-            </div>
-          </div>
+          </Link>
         ))}
       </div>
 
