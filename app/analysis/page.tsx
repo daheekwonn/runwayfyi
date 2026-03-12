@@ -2,7 +2,7 @@
 // SERVER COMPONENT — fetches from Sanity at build/request time.
 // Falls back to static data if Sanity returns nothing (useful during dev).
 
-import { sanityFetch } from '@/sanity/lib/fetch';
+import { client } from '@/sanity/lib/client';
 import { articlesQuery, featuredArticleQuery } from '@/sanity/lib/queries';
 import AnalysisClient from './AnalysisClient';
 
@@ -56,8 +56,8 @@ const FALLBACK = [
 export default async function AnalysisPage() {
   // Fetch from Sanity — parallel requests
   let [articles, featured] = await Promise.all([
-    sanityFetch<SanityArticle[]>({ query: articlesQuery }).catch(() => []),
-    sanityFetch<SanityArticle | null>({ query: featuredArticleQuery }).catch(() => null),
+    client.fetch<SanityArticle[]>(articlesQuery).catch(() => []),
+    client.fetch<SanityArticle | null>(featuredArticleQuery).catch(() => null),
   ]);
 
   // Use fallback if Sanity returns nothing
