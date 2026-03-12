@@ -108,7 +108,7 @@ const DETECTIONS = [
 
 // ─── Page component ───────────────────────────────────────────────────────────
 export default function HomePage() {
-  const [panelsLoaded, setPanelsLoaded] = useState([false, false, false]);
+  const [panelsLoaded, setPanelsLoaded] = useState([false, false]);
   const [detVisible,   setDetVisible]   = useState([false, false, false, false]);
   const [detScores,    setDetScores]    = useState([0, 0, 0, 0]);
   const [titleVisible, setTitleVisible] = useState(false);
@@ -116,7 +116,7 @@ export default function HomePage() {
   const [activeCity,   setActiveCity]   = useState('All');
   const [navVisible,   setNavVisible]   = useState(true);
   const [menuOpen,     setMenuOpen]     = useState(false);
-  const imgRefs        = useRef<(HTMLImageElement | null)[]>([null, null, null]);
+  const imgRefs        = useRef<(HTMLImageElement | null)[]>([null, null]);
   const sequenceStarted = useRef(false);
   const lastScrollY = useRef(0);
 
@@ -165,7 +165,7 @@ export default function HomePage() {
     setPanelsLoaded(prev => {
       const next = [...prev];
       next[index] = true;
-      if (next.every(Boolean)) setTimeout(startSequence, 600);
+      if (next.length === 2 && next.every(Boolean)) setTimeout(startSequence, 400);
       return next;
     });
   }
@@ -174,6 +174,9 @@ export default function HomePage() {
     imgRefs.current.forEach((img, i) => {
       if (img?.complete) handleImgLoad(i);
     });
+    // Fallback: always start sequence after 1.2s regardless of image load state
+    const fallback = setTimeout(() => startSequence(), 1200);
+    return () => clearTimeout(fallback);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
