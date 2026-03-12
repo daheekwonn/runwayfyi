@@ -414,7 +414,7 @@ export default function AnalysisPage() {
                       <div className="a-row-foot">
                         <span className="a-row-date">{a.date}</span>
                         <span className="a-row-score-tag">Score {a.score}</span>
-                        <span className="a-row-cta">Read analysis -></span>
+                        <span className="a-row-cta">Read analysis {'->'}</span>
                       </div>
                     </div>
                     <div className="a-row-img-wrap">
@@ -440,7 +440,7 @@ export default function AnalysisPage() {
                     <p className="g-card-excerpt">{a.excerpt}</p>
                     <div className="g-card-foot">
                       <span className="g-card-date">{a.date}</span>
-                      <span className="g-card-arrow">-></span>
+                      <span className="g-card-arrow">{'->'}</span>
                     </div>
                   </div>
                 </a>

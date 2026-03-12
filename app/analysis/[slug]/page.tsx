@@ -10,7 +10,7 @@ const ARTICLES = [
     category: 'Opinion',
     season: 'Paris FW26',
     title: 'Jonathan Anderson just redefined what Dior means now',
-    excerpt: 'The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show -- a signal we'd been tracking since Anderson's appointment was announced in late 2025.',
+    excerpt: `The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show -- a signal we'd been tracking since Anderson's appointment was announced in late 2025.`,
     date: 'Mar 8, 2026',
     img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80',
     score: 94,
@@ -282,7 +282,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         <span>{article.category}</span>
       </div>
 
-      {/* Article header -- GQ style: meta -> title -> excerpt -> then hero image */}
+      {/* Article header -- GQ style: meta {'->'} title {'->'} excerpt {'->'} then hero image */}
       <div className="article-header">
         <div className="article-meta-row">
           <span className="article-category">{article.kicker}</span>
@@ -347,7 +347,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
             ))}
           </div>
           <p className="sidebar-method">Scores are computed using a composite formula: 50% runway frequency, 30% search velocity (pytrends), 20% social signal.</p>
-          <a href="/about" className="sidebar-link">Read the methodology -></a>
+          <a href="/about" className="sidebar-link">Read the methodology {'->'}</a>
         </aside>
       </div>
 
@@ -355,7 +355,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
       <div className="related">
         <div className="related-head">
           <h2 className="related-title">More Analysis</h2>
-          <a href="/analysis" className="related-link">View all -></a>
+          <a href="/analysis" className="related-link">View all {'->'}</a>
         </div>
         <div className="related-grid">
           {related.map(a => (
@@ -368,7 +368,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
                 <div className="r-card-title">{a.title}</div>
                 <div className="r-card-foot">
                   <span className="r-card-date">{a.date}</span>
-                  <span className="r-card-arrow">-></span>
+                  <span className="r-card-arrow">{'->'}</span>
                 </div>
               </div>
             </a>
