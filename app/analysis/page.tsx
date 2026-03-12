@@ -23,7 +23,7 @@ const ARTICLES: Article[] = [
     category: 'opinion',
     season: 'Paris FW26',
     title: 'Jonathan Anderson just redefined what Dior means now',
-    excerpt: 'The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show -- a signal we'd been tracking since Anderson's appointment was announced in late 2025.',
+    excerpt: `The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show -- a signal we'd been tracking since Anderson's appointment was announced in late 2025.`,
     date: 'Mar 8, 2026',
     img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
     score: 94,
@@ -53,8 +53,8 @@ const ARTICLES: Article[] = [
   },
   {
     id: 4,
-    kicker: 'Show Review - Paris FW26',
-    category: 'show-review',
+    kicker: 'Opinion - Paris FW26',
+    category: 'opinion',
     season: 'Paris FW26',
     title: 'Matthieu Blazy at Chanel: the numbers behind the feeling',
     excerpt: 'Every metric jumped. Social velocity, search signals, editorial coverage -- all at once. What the data says about the most talked-about debut of the season.',
@@ -103,14 +103,12 @@ const TICKER_ITEMS = [
   'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
 ];
 
-const CATEGORIES = ['All', 'Opinion', 'Data', 'Forecast', 'Cultural Context', 'Show Review'];
-const SEASONS    = ['All Seasons', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26', 'Copenhagen FW26'];
+const CATEGORIES = ['All', 'Opinion', 'Data', 'Forecast', 'Cultural Context'];
 
 export default function AnalysisPage() {
   const [navVisible,     setNavVisible]     = useState(true);
   const [menuOpen,       setMenuOpen]       = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
-  const [activeSeason,   setActiveSeason]   = useState('All Seasons');
 
   useEffect(() => {
     let ticking = false;
@@ -123,12 +121,10 @@ export default function AnalysisPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const filtered = ARTICLES.filter(a => {
-    const catMatch = activeCategory === 'All' ||
-      a.category === activeCategory.toLowerCase().replace(/ /g, '-');
-    const seaMatch = activeSeason === 'All Seasons' || a.season === activeSeason;
-    return catMatch && seaMatch;
-  });
+  const filtered = ARTICLES.filter(a =>
+    activeCategory === 'All' ||
+    a.category === activeCategory.toLowerCase().replace(/ /g, '-')
+  );
 
   const hero  = filtered.find(a => a.featured) || filtered[0];
   const side  = filtered.filter(a => a.id !== hero?.id).slice(0, 2);
@@ -196,16 +192,14 @@ export default function AnalysisPage() {
         ------------------------------------------------------ */
         .page-header { padding:48px 52px 32px; border-bottom:2px solid var(--ink); display:flex; align-items:flex-end; justify-content:space-between; }
         .page-title { font-family:var(--f-display); font-size:clamp(52px,7vw,88px); font-weight:700; letter-spacing:-0.04em; line-height:0.9; text-transform:lowercase; }
-        .page-title em { font-family:var(--f-body); font-style:italic; font-weight:400; }
+        .page-title em { font-style:normal; font-weight:700; }
         .page-meta { font-family:var(--f-mono); font-size:10px; letter-spacing:0.11em; text-transform:uppercase; color:var(--light); text-align:right; line-height:2; padding-bottom:4px; }
 
         /* ------------------------------------------------------
            FILTER BAR
         ------------------------------------------------------ */
         .filter-bar { display:flex; align-items:stretch; background:#fff; border-bottom:1px solid var(--bd); overflow-x:auto; padding:0 52px; }
-        .filter-group { display:flex; align-items:center; }
-        .filter-group + .filter-group { border-left:1px solid var(--bd); margin-left:20px; padding-left:20px; }
-        .filter-lbl { font-family:var(--f-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); padding:14px 14px 14px 0; white-space:nowrap; flex-shrink:0; }
+        .filter-group { display:flex; align-items:center; padding-left:4px; }
         .fbtn { background:none; border:none; cursor:pointer; font-family:var(--f-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); padding:14px 11px; position:relative; transition:color .15s; white-space:nowrap; }
         .fbtn::after { content:''; position:absolute; bottom:0; left:11px; right:11px; height:2px; background:var(--ink); transform:scaleX(0); transition:transform .2s; }
         .fbtn:hover { color:var(--ink); }
@@ -342,7 +336,7 @@ export default function AnalysisPage() {
 
       {/* Page header */}
       <div className="page-header">
-        <h1 className="page-title">Analysis<br /><em>&amp; Opinion</em></h1>
+        <h1 className="page-title">Analysis<br />& Opinion</h1>
         <div className="page-meta">
           {filtered.length} pieces published<br />
           FW26 season - composite scoring<br />
@@ -353,17 +347,11 @@ export default function AnalysisPage() {
       {/* Filter bar */}
       <div className="filter-bar">
         <div className="filter-group">
-          <span className="filter-lbl">Type</span>
           {CATEGORIES.map(c => (
             <button key={c} className={`fbtn${activeCategory === c ? ' active' : ''}`} onClick={() => setActiveCategory(c)}>{c}</button>
           ))}
         </div>
-        <div className="filter-group">
-          <span className="filter-lbl">Season</span>
-          {SEASONS.map(s => (
-            <button key={s} className={`fbtn${activeSeason === s ? ' active' : ''}`} onClick={() => setActiveSeason(s)}>{s}</button>
-          ))}
-        </div>
+
       </div>
 
       {filtered.length === 0 ? (
