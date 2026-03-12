@@ -215,7 +215,7 @@ export default function AnalysisPage() {
         .lead-main-a { display:block; text-decoration:none; color:inherit; transition:opacity .18s; }
         .lead-main-a:hover { opacity:.84; }
         .lead-img { overflow:hidden; }
-        .lead-img img { width:100%; aspect-ratio:16/7; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .55s ease; }
+        .lead-img img { width:100%; aspect-ratio:2/3; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .55s ease; }
         .lead-main-a:hover .lead-img img { transform:scale(1.025); }
         .lead-body { padding:14px 28px 22px; }
         .lead-score { display:inline-block; font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; background:var(--ink); color:#fff; padding:3px 10px; margin-bottom:14px; }
@@ -229,7 +229,7 @@ export default function AnalysisPage() {
         .side-a:last-child { border-bottom:none; }
         .side-a:hover { opacity:.78; }
         .side-img { overflow:hidden; }
-        .side-img img { width:100%; aspect-ratio:16/9; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
+        .side-img img { width:100%; aspect-ratio:2/3; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
         .side-a:hover .side-img img { transform:scale(1.04); }
         .side-body { padding:10px 18px 14px; display:flex; flex-direction:column; flex:1; }
         .side-kicker { font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); margin-bottom:7px; }
@@ -276,7 +276,7 @@ export default function AnalysisPage() {
         .g-card:last-child { border-right:none; }
         .g-card:hover { opacity:.76; }
         .g-card-img { overflow:hidden; }
-        .g-card-img img { width:100%; aspect-ratio:4/3; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
+        .g-card-img img { width:100%; aspect-ratio:2/3; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.9); display:block; transition:transform .5s ease; }
         .g-card:hover .g-card-img img { transform:scale(1.04); }
         .g-card-body { padding:18px 22px 22px; flex:1; display:flex; flex-direction:column; }
         .g-card-kicker { font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:var(--light); margin-bottom:8px; }
