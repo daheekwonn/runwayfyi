@@ -266,7 +266,7 @@ export default function FYIPage() {
                 margin:0,
                 fontFamily:"'Lora', Georgia, serif",
                 fontSize:'14px',
-                fontStyle:'italic',
+                fontStyle:'normal',
                 color:'rgba(255,255,255,0.75)',
                 lineHeight:1.6,
                 flex:1,
