@@ -3,6 +3,12 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 
+const TICKER_ITEMS = [
+  'Shearling Coat  94.1', 'Chanel FW26  91.2', 'Leather Bomber  88.7',
+  'Dior FW26  87.4', 'Prairie Silhouette  78.6', 'Wide-Leg Trouser  74.3',
+  'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
+];
+
 // ─── Static show data ─────────────────────────────────────────────────────────
 // Replace image values with your own URLs. Wire to GET /api/trends/shows later.
 
@@ -62,6 +68,10 @@ export default function ShowsPage() {
         body { background:#fff; color:var(--ink); -webkit-font-smoothing:antialiased; }
 
         .site-header { position:fixed; top:0; left:0; right:0; z-index:1000; background:#fff; border-bottom:1px solid var(--bd); }
+        .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:7px 0; }
+        .ticker-inner { display:inline-flex; animation:tick 48s linear infinite; }
+        .ticker-inner span { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.13em; color:rgba(255,255,255,0.9); padding:0 42px; }
+        @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
         .nav-title-row { height:56px; display:flex; align-items:center; justify-content:center; padding:0 52px; background:#fff; position:relative; }
         .nav-logo { font-family:var(--f-display); font-size:20px; font-weight:700; letter-spacing:0.08em; text-transform:lowercase; color:var(--ink); text-decoration:none; }
         .nav-menu-btn { position:absolute; left:24px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; display:flex; flex-direction:column; gap:5px; padding:6px; }
@@ -74,7 +84,7 @@ export default function ShowsPage() {
         .nav-links-row.hidden { height:0; opacity:0; pointer-events:none; }
         .nav-links-row a { font-family:var(--f-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink); text-decoration:none; transition:color .15s; }
         .nav-links-row a:hover,.nav-links-row a.active { color:var(--light); }
-        .header-spacer { height:94px; }
+        .header-spacer { height:118px; }
         .nav-drawer { position:fixed; top:0; left:0; bottom:0; width:260px; background:#fff; z-index:2000; transform:translateX(-100%); transition:transform .3s cubic-bezier(.4,0,.2,1); border-right:1px solid var(--bd); padding:88px 36px 40px; display:flex; flex-direction:column; gap:8px; }
         .nav-drawer.open { transform:translateX(0); }
         .nav-drawer a { font-family:var(--f-display); font-size:28px; font-weight:700; letter-spacing:-0.02em; text-transform:lowercase; color:var(--ink); text-decoration:none; line-height:1.25; opacity:.85; }
@@ -88,9 +98,8 @@ export default function ShowsPage() {
 
         .shows-header { padding:64px 0 0; border-bottom:1px solid var(--bd); }
         .shows-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--light); margin-bottom:20px; }
-        .shows-headline-row { display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:28px; }
+        .shows-headline-row { display:flex; align-items:flex-end; justify-content:flex-start; gap:32px; margin-bottom:28px; }
         .shows-headline { font-family:var(--f-display); font-size:clamp(2.4rem,5vw,4.5rem); font-weight:700; letter-spacing:-0.03em; line-height:1; color:var(--ink); }
-        .shows-subline { font-family:var(--f-body); font-size:14px; line-height:1.6; color:var(--mid); max-width:320px; text-align:right; }
 
         /* city filter tabs */
         .city-tabs { display:flex; gap:0; }
@@ -137,13 +146,19 @@ export default function ShowsPage() {
       <nav className={`nav-drawer${menuOpen ? ' open' : ''}`}>
         <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>close ×</button>
         <Link href="/" onClick={() => setMenuOpen(false)}>home</Link>
-        <Link href="/analysis" onClick={() => setMenuOpen(false)}>analysis</Link>
-        <Link href="/shows" onClick={() => setMenuOpen(false)}>shows</Link>
         <Link href="/trends" onClick={() => setMenuOpen(false)}>trends</Link>
+        <Link href="/shows" onClick={() => setMenuOpen(false)}>shows</Link>
+        <Link href="/analysis" onClick={() => setMenuOpen(false)}>analysis</Link>
+        <Link href="/archive" onClick={() => setMenuOpen(false)}>archive</Link>
         <Link href="/about" onClick={() => setMenuOpen(false)}>about</Link>
       </nav>
 
       <header className="site-header">
+        <div className="ticker">
+          <div className="ticker-inner">
+            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => <span key={i}>{item}</span>)}
+          </div>
+        </div>
         <div className="nav-title-row">
           <button className={`nav-menu-btn${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
             <span /><span /><span />
@@ -152,10 +167,10 @@ export default function ShowsPage() {
           <span className="nav-pill">FW26</span>
         </div>
         <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
-          <li><Link href="/analysis">Analysis</Link></li>
-          <li><Link href="/shows" className="active">Shows</Link></li>
           <li><Link href="/trends">Trends</Link></li>
-          <li><Link href="/about">About</Link></li>
+          <li><Link href="/shows" className="active">Shows</Link></li>
+          <li><Link href="/analysis">Analysis</Link></li>
+          <li><Link href="/archive">Archive</Link></li>
         </ul>
       </header>
 
@@ -167,9 +182,6 @@ export default function ShowsPage() {
             <p className="shows-kicker">Season · FW26</p>
             <div className="shows-headline-row">
               <h1 className="shows-headline">FW26 Shows</h1>
-              <p className="shows-subline">
-                Ranked by composite trend score — runway data, search velocity, and social momentum combined.
-              </p>
             </div>
             <div className="city-tabs">
               {CITIES.map(city => (
