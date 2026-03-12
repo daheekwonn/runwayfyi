@@ -96,10 +96,10 @@ export default function ShowsPage() {
         /* ── Page ── */
         .shows-wrap { max-width:1200px; margin:0 auto; padding:0 52px; }
 
-        .shows-header { padding:64px 0 0; border-bottom:1px solid var(--bd); }
-        .shows-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--light); margin-bottom:20px; }
+        .shows-header { padding:28px 0 0; border-bottom:1px solid var(--bd); }
+        .shows-kicker { font-family:var(--f-mono); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:var(--light); margin-bottom:12px; }
         .shows-headline-row { display:flex; align-items:flex-end; justify-content:flex-start; gap:32px; margin-bottom:28px; }
-        .shows-headline { font-family:var(--f-display); font-size:clamp(2.4rem,5vw,4.5rem); font-weight:700; letter-spacing:-0.03em; line-height:1; color:var(--ink); }
+        .shows-headline { font-family:var(--f-display); font-size:clamp(52px, 8vw, 96px); font-weight:700; letter-spacing:-0.03em; line-height:0.9; color:var(--ink); }
 
         /* city filter tabs */
         .city-tabs { display:flex; gap:0; }
@@ -145,12 +145,11 @@ export default function ShowsPage() {
       <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
       <nav className={`nav-drawer${menuOpen ? ' open' : ''}`}>
         <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>close ×</button>
-        <Link href="/" onClick={() => setMenuOpen(false)}>home</Link>
         <Link href="/trends" onClick={() => setMenuOpen(false)}>trends</Link>
-        <Link href="/shows" onClick={() => setMenuOpen(false)}>shows</Link>
         <Link href="/analysis" onClick={() => setMenuOpen(false)}>analysis</Link>
+        <Link href="/fyi" onClick={() => setMenuOpen(false)}>fyi</Link>
+        <Link href="/shows" onClick={() => setMenuOpen(false)}>shows</Link>
         <Link href="/archive" onClick={() => setMenuOpen(false)}>archive</Link>
-        <Link href="/about" onClick={() => setMenuOpen(false)}>about</Link>
       </nav>
 
       <header className="site-header">
@@ -168,8 +167,9 @@ export default function ShowsPage() {
         </div>
         <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
           <li><Link href="/trends">Trends</Link></li>
-          <li><Link href="/shows" className="active">Shows</Link></li>
           <li><Link href="/analysis">Analysis</Link></li>
+          <li><Link href="/fyi">FYI</Link></li>
+          <li><Link href="/shows" className="active">Shows</Link></li>
           <li><Link href="/archive">Archive</Link></li>
         </ul>
       </header>
