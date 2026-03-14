@@ -15,10 +15,12 @@ const TICKER_ITEMS = [
 interface ShowData {
   id?: string;
   designer?: string;
+  brand?: string;
   season?: string;
   city?: string;
   date?: string;
   venue?: string;
+  total_looks?: number;
   trendScore?: number;
   runwayScore?: number;
   searchScore?: number;
@@ -55,7 +57,7 @@ export default function ShowPageClient({ slug, show: showData, looks }: ShowPage
   const show = {
     ...FALLBACK,
     ...showData,
-    designer: showData?.designer ?? slug,
+    designer: showData?.designer ?? showData?.brand ?? slug,
     looks: looks.map((look, i) => ({
       number: look.look_number ?? i + 1,
       score: look.score ?? 0,
@@ -314,7 +316,7 @@ export default function ShowPageClient({ slug, show: showData, looks }: ShowPage
               </div>
               <div className="sidebar-meta-row">
                 <span className="sidebar-meta-key">Looks</span>
-                <span className="sidebar-meta-val">{show.looks.length}</span>
+                <span className="sidebar-meta-val">{showData?.total_looks ?? show.looks.length}</span>
               </div>
               <a href="/about" className="sidebar-method-link">About the methodology →</a>
             </div>
@@ -324,7 +326,7 @@ export default function ShowPageClient({ slug, show: showData, looks }: ShowPage
             <div className="looks-section">
               <div className="looks-header">
                 <span className="looks-title">Looks</span>
-                <span className="looks-note">{show.looks.length} total · scores = individual trend signal</span>
+                <span className="looks-note">{showData?.total_looks ?? show.looks.length} total · scores = individual trend signal</span>
               </div>
               <div className="looks-grid">
                 {show.looks.map((look: any) => (
