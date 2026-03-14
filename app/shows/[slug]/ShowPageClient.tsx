@@ -12,74 +12,55 @@ const TICKER_ITEMS = [
   'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
 ];
 
-const SHOWS_DATA: Record<string, any> = {
-  'chanel-fw26': {
-    designer: 'Chanel', season: 'FW26', city: 'Paris', date: 'March 4, 2026',
-    venue: 'Grand Palais Éphémère, Paris',
-    trendScore: 91, runwayScore: 94, searchScore: 90, socialScore: 87,
-    description: `Matthieu Blazy's first full Chanel season rewired the house codes entirely. Tweed is back — but cut like a second skin. The ballet flat appeared on 34 of 52 looks, a frequency that almost never happens at this level. Search data confirmed it within 48 hours: "Chanel ballet flat" up 312% globally after the show.`,
-    keySignals: [
-      '"Chanel ballet flat" +312% search in 48hrs post-show',
-      'Tweed appeared on 38 of 52 looks — highest frequency in 6 seasons',
-      'Instagram saves on show content: 2.4× higher than FW25',
-      'Camellia motif recurred across accessories — first time since 2019',
-    ],
-    heroImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80',
-    looks: Array.from({ length: 12 }, (_, i) => ({ number: i + 1, score: 70 + (i * 2), materials: ['tweed', 'silk'], img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80' })),
-  },
-  'dior-fw26': {
-    designer: 'Dior', season: 'FW26', city: 'Paris', date: 'February 28, 2026',
-    venue: 'Musée Rodin, Paris',
-    trendScore: 88, runwayScore: 92, searchScore: 86, socialScore: 83,
-    description: `Jonathan Anderson's debut at Dior was the most watched show of the season. His signature object-as-embellishment approach landed differently at a house this historic — more legible, more wearable, but no less strange. The bar jacket returned but warped. "Dior bar jacket" searches hit +245% post-show.`,
-    keySignals: [
-      '"Dior bar jacket" +245% search post-show',
-      "Anderson's first collection: highest social engagement of any Paris show",
-      'Corset silhouette on 29 of 48 looks',
-      'Strongest press response of the Paris season',
-    ],
-    heroImg: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1400&q=80',
-    looks: Array.from({ length: 10 }, (_, i) => ({ number: i + 1, score: 68 + (i * 2), materials: ['tailoring', 'silk'], img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80' })),
-  },
-  'chloe-fw26': {
-    designer: 'Chloé', season: 'FW26', city: 'Paris', date: 'March 1, 2026',
-    venue: 'Palais de Tokyo, Paris',
-    trendScore: 84, runwayScore: 88, searchScore: 80, socialScore: 83,
-    description: `Chemena Kamali pushed prairie dressing into genuinely strange territory — pink plaid, tiered ruffles, dark boots. It shouldn't work. The data says it does. "Prairie dress" searches hit a 5-year high in the 72 hours after the show, spreading well beyond the fashion crowd into general lifestyle content.`,
-    keySignals: [
-      '"Prairie dress" searches at 5-year high post-show',
-      'Plaid fabric searches up 178% globally',
-      'Heavy organic reach in lifestyle and cottage content on Instagram',
-      'Ruffle silhouette appeared on 28 of 40 looks',
-    ],
-    heroImg: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400&q=80',
-    looks: Array.from({ length: 10 }, (_, i) => ({ number: i + 1, score: 65 + (i * 2), materials: ['plaid', 'organza'], img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80' })),
-  },
-  'gucci-fw26': {
-    designer: 'Gucci', season: 'FW26', city: 'Milan', date: 'February 23, 2026',
-    venue: 'Gucci Hub, Milan',
-    trendScore: 87, runwayScore: 85, searchScore: 91, socialScore: 84,
-    description: `The leather bomber at Gucci was the single most-searched post-show item of FW26. A 200% spike in "leather bomber jacket" searches within 24 hours is the kind of number that changes a buyer's order book. The loafer signal — 41 of 56 looks — is the dominant footwear forecast of the season.`,
-    keySignals: [
-      '"Leather bomber" +200% search within 24hrs post-show',
-      'Loafer silhouette on 41 of 56 looks — dominant footwear signal',
-      'Double G hardware drove 3× engagement vs non-logo looks',
-      'Highest repost rate of any Milan show',
-    ],
-    heroImg: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1400&q=80',
-    looks: Array.from({ length: 12 }, (_, i) => ({ number: i + 1, score: 72 + (i * 2), materials: ['leather', 'wool'], img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80' })),
-  },
-};
+interface ShowData {
+  id?: string;
+  designer?: string;
+  season?: string;
+  city?: string;
+  date?: string;
+  venue?: string;
+  trendScore?: number;
+  runwayScore?: number;
+  searchScore?: number;
+  socialScore?: number;
+  description?: string;
+  keySignals?: string[];
+  heroImg?: string;
+  [key: string]: any;
+}
 
-const FALLBACK = {
+interface LookData {
+  number?: number;
+  score?: number;
+  materials?: string[];
+  img: string;
+}
+
+interface ShowPageClientProps {
+  slug: string;
+  show: ShowData | null;
+  looks: LookData[];
+}
+
+const FALLBACK: ShowData = {
   designer: '', season: 'FW26', city: '—', date: '—', venue: '—',
   trendScore: 0, runwayScore: 0, searchScore: 0, socialScore: 0,
   description: 'Full show data coming soon.',
-  keySignals: [], heroImg: '', looks: [],
+  keySignals: [], heroImg: '',
 };
 
-export default function ShowPageClient({ slug }: { slug: string }) {
-  const show = { ...FALLBACK, ...SHOWS_DATA[slug], designer: SHOWS_DATA[slug]?.designer ?? slug };
+export default function ShowPageClient({ slug, show: showData, looks }: ShowPageClientProps) {
+  const show = {
+    ...FALLBACK,
+    ...showData,
+    designer: showData?.designer ?? slug,
+    looks: looks.map((look, i) => ({
+      number: look.number ?? i + 1,
+      score: look.score ?? 0,
+      materials: look.materials ?? [],
+      img: look.img,
+    })),
+  };
 
   const [navVisible, setNavVisible] = useState(true);
   const [menuOpen,   setMenuOpen]   = useState(false);
@@ -286,11 +267,11 @@ export default function ShowPageClient({ slug }: { slug: string }) {
             <div>
               <p className="show-section-label">Analysis</p>
               <p className="show-description">{show.description}</p>
-              {show.keySignals.length > 0 && (
+              {(show.keySignals ?? []).length > 0 && (
                 <>
                   <p className="show-section-label">Key Signals</p>
                   <div className="signals-list">
-                    {show.keySignals.map((signal: string, i: number) => (
+                    {(show.keySignals ?? []).map((signal: string, i: number) => (
                       <div key={i} className="signal-row">
                         <span className="signal-num">0{i + 1}</span>
                         <span className="signal-text">{signal}</span>

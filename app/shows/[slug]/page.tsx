@@ -1,25 +1,38 @@
 // app/shows/[slug]/page.tsx
-// SERVER COMPONENT — no 'use client' here.
-// generateStaticParams must live in a server component in Next.js App Router.
+// SERVER COMPONENT — fetches show data from the API and passes it to the client.
 
 import ShowPageClient from './ShowPageClient';
 
-export async function generateStaticParams() {
-  return [
-    { slug: 'chanel-fw26' },
-    { slug: 'dior-fw26' },
-    { slug: 'chloe-fw26' },
-    { slug: 'gucci-fw26' },
-    { slug: 'prada-fw26' },
-    { slug: 'bottega-veneta-fw26' },
-    { slug: 'burberry-fw26' },
-    { slug: 'jw-anderson-fw26' },
-    { slug: 'marc-jacobs-fw26' },
-    { slug: 'proenza-schouler-fw26' },
-    { slug: 'saint-laurent-fw26' },
-  ];
+const RAILWAY_API = process.env.NEXT_PUBLIC_RAILWAY_URL || 'https://fashion-backend-production-6880.up.railway.app'
+
+async function fetchShowBySlug(slug: string) {
+  try {
+    const res = await fetch(`${RAILWAY_API}/api/trends/shows/by-slug/${encodeURIComponent(slug)}`, {
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
 }
 
-export default function ShowPage({ params }: { params: { slug: string } }) {
-  return <ShowPageClient slug={params.slug} />;
+async function fetchShowLooks(showId: string) {
+  try {
+    const res = await fetch(`${RAILWAY_API}/api/trends/shows/${encodeURIComponent(showId)}/looks`, {
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return []
+    return res.json()
+  } catch {
+    return []
+  }
+}
+
+export default async function ShowPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const show = await fetchShowBySlug(slug)
+  const looks = show?.id ? await fetchShowLooks(show.id) : []
+
+  return <ShowPageClient slug={slug} show={show} looks={looks} />
 }
