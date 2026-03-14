@@ -55,10 +55,10 @@ export default function ShowPageClient({ slug, show: showData, looks }: ShowPage
     ...showData,
     designer: showData?.designer ?? slug,
     looks: looks.map((look, i) => ({
-      number: look.number ?? i + 1,
+      number: look.look_number ?? i + 1,
       score: look.score ?? 0,
       materials: look.materials ?? [],
-      img: look.img,
+      img: look.image_url,
     })),
   };
 
@@ -207,12 +207,11 @@ export default function ShowPageClient({ slug, show: showData, looks }: ShowPage
       <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
       <nav className={`nav-drawer${menuOpen ? ' open' : ''}`}>
         <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>close ×</button>
-        <a href="/">home</a>
         <a href="/trends">trends</a>
-        <a href="/shows">shows</a>
         <a href="/analysis">analysis</a>
-        <a href="/archive">archive</a>
         <a href="/fyi">fyi</a>
+        <a href="/shows">shows</a>
+        <a href="/archive">archive</a>
         <a href="/about">about</a>
       </nav>
 
@@ -231,10 +230,10 @@ export default function ShowPageClient({ slug, show: showData, looks }: ShowPage
         </div>
         <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
           <li><a href="/trends">Trends</a></li>
-          <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis">Analysis</a></li>
-          <li><a href="/archive">Archive</a></li>
           <li><a href="/fyi">FYI</a></li>
+          <li><a href="/shows">Shows</a></li>
+          <li><a href="/archive">Archive</a></li>
         </ul>
       </header>
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />

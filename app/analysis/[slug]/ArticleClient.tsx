@@ -250,12 +250,11 @@ export default function ArticleClient({ article, related }: { article: Article; 
       {/* Drawer */}
       <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
         <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>close ×</button>
-        <a href="/">home</a>
         <a href="/trends">trends</a>
-        <a href="/shows">shows</a>
         <a href="/analysis">analysis</a>
-        <a href="/archive">archive</a>
         <a href="/fyi">fyi</a>
+        <a href="/shows">shows</a>
+        <a href="/archive">archive</a>
         <a href="/about">about</a>
       </div>
       <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
@@ -276,10 +275,10 @@ export default function ArticleClient({ article, related }: { article: Article; 
         </div>
         <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
           <li><a href="/trends">Trends</a></li>
-          <li><a href="/shows">Shows</a></li>
           <li><a href="/analysis" className="curr">Analysis</a></li>
-          <li><a href="/archive">Archive</a></li>
           <li><a href="/fyi">FYI</a></li>
+          <li><a href="/shows">Shows</a></li>
+          <li><a href="/archive">Archive</a></li>
         </ul>
       </header>
       <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
