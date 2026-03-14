@@ -34,6 +34,8 @@ interface LookData {
   score?: number;
   materials?: string[];
   img: string;
+  look_number?: number;
+  image_url?: string;
 }
 
 interface ShowPageClientProps {
