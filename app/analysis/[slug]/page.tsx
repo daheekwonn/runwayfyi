@@ -1,8 +1,8 @@
 // app/analysis/[slug]/page.tsx
 // SERVER COMPONENT — fetches single article from Sanity by slug.
-// Falls back to static data if Sanity returns nothing.
 
 import { client } from '@/sanity/lib/client';
+import { notFound } from 'next/navigation';
 import ArticleClient from './ArticleClient';
 
 export const revalidate = 60;
@@ -77,65 +77,22 @@ function normalise(a: SanityArticle) {
   };
 }
 
-// ── Static fallback articles ───────────────────────────────────────────────────
-const FALLBACK_ARTICLES: SanityArticle[] = [
-  {
-    _id: '1',
-    title: 'Jonathan Anderson just redefined what Dior means now',
-    slug: 'jonathan-anderson-dior-fw26',
-    category: 'Opinion',
-    season: 'Paris FW26',
-    excerpt: `The data agreed before the critics did. Searches for "Dior aesthetic" climbed 140% in the 48 hours after the show.`,
-    publishedAt: '2026-03-08',
-    coverImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=80',
-    score: 94, runwayScore: 48, searchScore: 27, socialScore: 19,
-    body: null,
-  },
-  {
-    _id: '2',
-    title: 'The leather bomber is a macro trend',
-    slug: 'leather-bomber-macro-trend',
-    category: 'Data',
-    season: 'Milan FW26',
-    excerpt: '200% search spike, 7 major shows, 3 cities. A data-driven case for the jacket of the season.',
-    publishedAt: '2026-03-06',
-    coverImage: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1400&q=80',
-    score: 88, runwayScore: 44, searchScore: 30, socialScore: 14,
-    body: null,
-  },
-  {
-    _id: '3',
-    title: 'Prairie or bust: the silhouette taking over',
-    slug: 'prairie-silhouette-fw26',
-    category: 'Forecast',
-    season: 'FW26',
-    excerpt: 'Chloe made it obvious but the signal started in Copenhagen.',
-    publishedAt: '2026-03-04',
-    coverImage: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400&q=80',
-    score: 78, runwayScore: 39, searchScore: 23, socialScore: 16,
-    body: null,
-  },
-];
-
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
-  const [sanityArticle, sanityRelated] = await Promise.all([
-    client.fetch<SanityArticle | null>(articleBySlugQuery, { slug }).catch(() => null),
-    client.fetch<SanityArticle[]>(relatedArticlesQuery, { slug }).catch(() => []),
+  const [article, relatedArticles] = await Promise.all([
+    client.fetch<SanityArticle | null>(articleBySlugQuery, { slug }),
+    client.fetch<SanityArticle[]>(relatedArticlesQuery, { slug }),
   ]);
 
-  // Use Sanity data if available, otherwise fall back to static
-  const rawArticle = sanityArticle
-    ?? FALLBACK_ARTICLES.find(a => (typeof a.slug === 'string' ? a.slug : a.slug?.current) === slug)
-    ?? FALLBACK_ARTICLES[0];
+  if (!article) {
+    notFound();
+  }
 
-  const rawRelated = (sanityRelated && sanityRelated.length > 0)
-    ? sanityRelated
-    : FALLBACK_ARTICLES.filter(a => (typeof a.slug === 'string' ? a.slug : a.slug?.current) !== slug).slice(0, 3);
-
-  const article = normalise(rawArticle);
-  const related = rawRelated.map(normalise);
-
-  return <ArticleClient article={article} related={related} />;
+  return (
+    <ArticleClient
+      article={normalise(article)}
+      related={(relatedArticles ?? []).map(normalise)}
+    />
+  );
 }
