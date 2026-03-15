@@ -9,27 +9,22 @@ const RAILWAY_API = 'https://fashion-backend-production-6880.up.railway.app'
 interface Show {
   id: number
   brand: string
-  slug: string
-  season: string
   city: string
+  season: string
+  total_looks?: number
   show_score?: number
-  runway_score?: number
-  search_score?: number
-  social_score?: number
-  notes?: string
-  coverImage?: string // fetched from first look
+  coverImage?: string
 }
 
-// ─── Static fallback (used if API is empty) ───────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const FALLBACK_SHOWS: Show[] = [
-  { id: 1, brand: 'Chanel', slug: 'chanel-fw26', season: 'FW26', city: 'Paris', show_score: 91.2 },
-  { id: 2, brand: 'Dior', slug: 'dior-fw26', season: 'FW26', city: 'Paris', show_score: 88.7 },
-  { id: 3, brand: 'Gucci', slug: 'gucci-fw26', season: 'FW26', city: 'Milan', show_score: 84.1 },
-  { id: 4, brand: 'Prada', slug: 'prada-fw26', season: 'FW26', city: 'Milan', show_score: 82.6 },
-  { id: 5, brand: 'Miu Miu', slug: 'miu-miu-fw26', season: 'FW26', city: 'Paris', show_score: 85.1 },
-  { id: 6, brand: 'Chloe', slug: 'chloe-fw26', season: 'FW26', city: 'Paris', show_score: 79.4 },
-]
+// Generate slug from brand name — matches the backend's by-slug endpoint logic
+function brandToSlug(brand: string): string {
+  return brand
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')   // replace non-alphanumeric with hyphen
+    .replace(/^-|-$/g, '')          // trim leading/trailing hyphens
+}
 
 const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen']
 
@@ -37,22 +32,22 @@ const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen']
 
 export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) {
   const [activeCity, setActiveCity] = useState('All')
-  const [shows, setShows] = useState<Show[]>(
-    initialShows.length > 0 ? initialShows : FALLBACK_SHOWS
-  )
+  const [shows, setShows] = useState<Show[]>(initialShows)
 
-  // Fetch first look image for each show that doesn't have a coverImage yet
+  // Fetch first look image for each show as cover
   useEffect(() => {
+    if (initialShows.length === 0) return
+
     const fetchCoverImages = async () => {
       const updated = await Promise.all(
-        shows.map(async (show) => {
-          if (show.coverImage) return show
+        initialShows.map(async (show) => {
           try {
             const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
             if (!res.ok) return show
             const looks = await res.json()
-            // Use the first look's image_url as the cover
-            const firstImage = looks?.[0]?.image_url || null
+            const firstImage = Array.isArray(looks) && looks[0]?.image_url
+              ? looks[0].image_url
+              : null
             return { ...show, coverImage: firstImage }
           } catch {
             return show
@@ -63,7 +58,7 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
     }
 
     fetchCoverImages()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [initialShows.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered =
     activeCity === 'All' ? shows : shows.filter((s) => s.city === activeCity)
@@ -105,12 +100,16 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
                 padding: '12px 20px',
                 background: 'none',
                 border: 'none',
-                borderBottom: activeCity === city ? '2px solid var(--ink, #0C0B09)' : '2px solid transparent',
+                borderBottom: activeCity === city
+                  ? '2px solid var(--ink, #0C0B09)'
+                  : '2px solid transparent',
                 fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
                 fontSize: 11,
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                color: activeCity === city ? 'var(--ink, #0C0B09)' : 'var(--light, #A09A94)',
+                color: activeCity === city
+                  ? 'var(--ink, #0C0B09)'
+                  : 'var(--light, #A09A94)',
                 cursor: 'pointer',
                 transition: 'all 0.15s',
               }}
@@ -132,7 +131,7 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
         {filtered.map((show) => (
           <a
             key={show.id}
-            href={`/shows/${show.slug}`}
+            href={`/shows/${brandToSlug(show.brand)}`}
             style={{ textDecoration: 'none', display: 'block', background: 'var(--cream, #F5F2ED)' }}
           >
             <ShowCard show={show} />
@@ -160,11 +159,7 @@ function ShowCard({ show }: { show: Show }) {
   const score = show.show_score ?? 0
 
   return (
-    <div style={{
-      position: 'relative',
-      overflow: 'hidden',
-      cursor: 'pointer',
-    }}>
+    <div style={{ position: 'relative', overflow: 'hidden' }}>
       {/* Cover image */}
       <div style={{
         height: 360,
@@ -188,7 +183,6 @@ function ShowCard({ show }: { show: Show }) {
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           />
         ) : (
-          // Placeholder while image loads
           <div style={{
             width: '100%',
             height: '100%',
@@ -201,7 +195,7 @@ function ShowCard({ show }: { show: Show }) {
             textTransform: 'uppercase',
             color: 'var(--light, #A09A94)',
           }}>
-            Loading...
+            {show.total_looks ? `${show.total_looks} looks` : '—'}
           </div>
         )}
 
@@ -234,6 +228,7 @@ function ShowCard({ show }: { show: Show }) {
           margin: '0 0 6px',
         }}>
           {show.city} · {show.season}
+          {show.total_looks ? ` · ${show.total_looks} looks` : ''}
         </p>
         <h2 style={{
           fontFamily: 'var(--f-display, "Ranade", sans-serif)',
@@ -241,29 +236,10 @@ function ShowCard({ show }: { show: Show }) {
           fontWeight: 700,
           letterSpacing: '-0.02em',
           color: 'var(--ink, #0C0B09)',
-          margin: '0 0 12px',
+          margin: 0,
         }}>
           {show.brand}
         </h2>
-
-        {/* Score bar */}
-        {score > 0 && (
-          <div>
-            <div style={{
-              height: 2,
-              background: 'var(--bd, rgba(12,11,9,0.1))',
-              borderRadius: 1,
-              overflow: 'hidden',
-            }}>
-              <div style={{
-                height: '100%',
-                width: `${score}%`,
-                background: 'var(--ink, #0C0B09)',
-                transition: 'width 0.6s ease',
-              }} />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
