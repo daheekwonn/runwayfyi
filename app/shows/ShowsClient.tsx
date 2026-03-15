@@ -44,25 +44,25 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
     if (initialShows.length === 0) return
 
     const fetchCoverImages = async () => {
-      const updated = await Promise.all(
-        initialShows.map(async (show) => {
-          try {
-            const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
-            if (!res.ok) return show
-            const looks = await res.json()
-            if (!Array.isArray(looks) || looks.length === 0) return show
-
-            // Try looks 3, 2, 1 in that order — look 1 is often a close-up face shot
-            const candidates = [looks[2], looks[1], looks[0]].filter(Boolean)
-            const firstImage = candidates.find((l) => l?.image_url)?.image_url ?? null
-            return { ...show, coverImage: firstImage }
-          } catch {
-            return show
-          }
-        })
-      )
-      setShows(updated)
+    for (const show of initialShows) {
+    try {
+      const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
+      if (!res.ok) continue
+      const looks = await res.json()
+      if (!Array.isArray(looks) || looks.length === 0) continue
+      const candidates = [looks[2], looks[1], looks[0]].filter(Boolean)
+      const firstImage = candidates.find((l) => l?.image_url)?.image_url ?? null
+      if (firstImage) {
+        setShows((prev) =>
+          prev.map((s) => (s.id === show.id ? { ...s, coverImage: firstImage } : s))
+        )
+      }
+    } catch {
+      continue
     }
+    await new Promise((resolve) => setTimeout(resolve, 100))
+  }
+}
 
     fetchCoverImages()
   }, [initialShows.length]) // eslint-disable-line react-hooks/exhaustive-deps
