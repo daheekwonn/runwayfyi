@@ -256,10 +256,11 @@ function ShowCard({ show }: { show: Show }) {
   return (
     <div style={{ position: 'relative', overflow: 'hidden' }}>
       <div style={{
-        height: 360,
+        width: '100%',
+        paddingBottom: '150%',
+        position: 'relative',
         background: 'var(--warm)',
         overflow: 'hidden',
-        position: 'relative',
       }}>
         {show.coverImage ? (
           <img
@@ -267,6 +268,8 @@ function ShowCard({ show }: { show: Show }) {
             referrerPolicy="no-referrer"
             alt={`${show.brand} FW26`}
             style={{
+              position: 'absolute',
+              inset: 0,
               width: '100%',
               height: '100%',
               objectFit: 'cover',
