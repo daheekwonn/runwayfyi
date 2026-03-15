@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react'
 
 const RAILWAY_API = 'https://fashion-backend-production-6880.up.railway.app'
 
+function proxyImage(url: string): string {
+  return `${RAILWAY_API}/api/trends/image-proxy?url=${encodeURIComponent(url)}`
+}
+
 interface LookData {
   id: number
   look_number: number
