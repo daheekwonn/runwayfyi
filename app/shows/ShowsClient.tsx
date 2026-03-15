@@ -4,10 +4,6 @@ import { useState, useEffect } from 'react'
 
 const RAILWAY_API = 'https://fashion-backend-production-6880.up.railway.app'
 
-function proxyImage(url: string): string {
-  return `${RAILWAY_API}/api/trends/image-proxy?url=${encodeURIComponent(url)}`
-}
-
 interface Show {
   id: number
   brand: string
@@ -27,42 +23,55 @@ function brandToSlug(brand: string): string {
 
 const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen']
 
-const NAV_LINKS = [
-  { label: 'Trends', href: '/trends' },
-  { label: 'Analysis', href: '/analysis' },
-  { label: 'FYI', href: '/fyi' },
-  { label: 'Shows', href: '/shows' },
-  { label: 'Archive', href: '/archive' },
+const TICKER_ITEMS = [
+  'Shearling Coat  94.1', 'Chanel FW26  91.2', 'Leather Bomber  88.7',
+  'Dior FW26  87.4', 'Prairie Silhouette  78.6', 'Wide-Leg Trouser  74.3',
+  'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
 ]
 
 export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) {
   const [activeCity, setActiveCity] = useState('All')
   const [shows, setShows] = useState<Show[]>(initialShows)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [navVisible, setNavVisible] = useState(true)
+
+  useEffect(() => {
+    let ticking = false
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        setNavVisible(window.scrollY < 20)
+        ticking = false
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     if (initialShows.length === 0) return
 
     const fetchCoverImages = async () => {
-    for (const show of initialShows) {
-    try {
-      const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
-      if (!res.ok) continue
-      const looks = await res.json()
-      if (!Array.isArray(looks) || looks.length === 0) continue
-      const candidates = [looks[2], looks[1], looks[0]].filter(Boolean)
-      const firstImage = candidates.find((l) => l?.image_url)?.image_url ?? null
-      if (firstImage) {
-        setShows((prev) =>
-          prev.map((s) => (s.id === show.id ? { ...s, coverImage: firstImage } : s))
-        )
+      for (const show of initialShows) {
+        try {
+          const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
+          if (!res.ok) continue
+          const looks = await res.json()
+          if (!Array.isArray(looks) || looks.length === 0) continue
+          const candidates = [looks[2], looks[1], looks[0]].filter(Boolean)
+          const firstImage = candidates.find((l) => l?.image_url)?.image_url ?? null
+          if (firstImage) {
+            setShows((prev) =>
+              prev.map((s) => (s.id === show.id ? { ...s, coverImage: firstImage } : s))
+            )
+          }
+        } catch {
+          continue
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100))
       }
-    } catch {
-      continue
     }
-    await new Promise((resolve) => setTimeout(resolve, 100))
-  }
-}
 
     fetchCoverImages()
   }, [initialShows.length]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -71,147 +80,173 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
     activeCity === 'All' ? shows : shows.filter((s) => s.city === activeCity)
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--cream, #F5F2ED)', color: 'var(--ink, #0C0B09)' }}>
+    <>
+      <style>{`
+        @import url('https://api.fontshare.com/v2/css?f[]=ranade@300,400,500,600,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Geist+Mono:wght@300;400;500&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+          --ink: #0C0B09; --white: #FFFFFF; --cream: #F5F2ED; --warm: #EDE9E2;
+          --mid: #5A5550; --light: #A09A94; --bd: rgba(12,11,9,0.1);
+          --f-mono: 'Geist Mono', monospace;
+          --f-display: 'Ranade', sans-serif;
+          --f-body: 'Lora', Georgia, serif;
+        }
+        body { background: var(--cream); color: var(--ink); -webkit-font-smoothing: antialiased; }
+        .site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(245,242,237,1); border-bottom: 1px solid var(--bd); }
+        .nav-links-row { height: 38px; display: flex; align-items: center; justify-content: center; gap: 44px; background: var(--cream); border-top: 1px solid var(--bd); list-style: none; padding: 0; overflow: hidden; transition: height .3s cubic-bezier(.4,0,.2,1), opacity .3s ease, border-color .3s ease; }
+        .nav-links-row.hidden { height: 0; opacity: 0; pointer-events: none; border-color: transparent; }
+        .nav-links-row a { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); text-decoration: none; transition: color .15s; }
+        .nav-links-row a:hover { color: var(--light); }
+        .nav-links-row a.curr { color: var(--light); }
+        .ticker { background: var(--ink); overflow: hidden; white-space: nowrap; padding: 7px 0; }
+        .ticker-inner { display: inline-flex; animation: tick 48s linear infinite; }
+        .ticker-inner span { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.13em; color: rgba(255,255,255,0.9); padding: 0 42px; }
+        @keyframes tick { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+        .nav-title-row { height: 56px; display: flex; align-items: center; justify-content: center; padding: 0 52px; background: var(--cream); position: relative; }
+        .nav-logo { font-family: var(--f-display); font-size: 20px; font-weight: 700; letter-spacing: 0.08em; text-transform: lowercase; color: var(--ink); text-decoration: none; }
+        .nav-menu-btn { position: absolute; left: 24px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 6px; }
+        .nav-menu-btn span { display: block; width: 22px; height: 1.5px; background: var(--ink); transition: transform .2s, opacity .2s; }
+        .nav-menu-btn.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .nav-menu-btn.open span:nth-child(2) { opacity: 0; }
+        .nav-menu-btn.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .nav-pill { position: absolute; right: 52px; top: 50%; transform: translateY(-50%); font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; border: 1px solid var(--bd); color: var(--light); padding: 5px 13px; }
+        .header-spacer { height: 118px; }
+        .header-spacer.collapsed { height: 80px; }
+        .nav-drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; background: var(--cream); z-index: 2000; transform: translateX(-100%); transition: transform .3s cubic-bezier(.4,0,.2,1); border-right: 1px solid var(--bd); padding: 88px 36px 40px; display: flex; flex-direction: column; gap: 8px; }
+        .nav-drawer.open { transform: translateX(0); }
+        .nav-drawer a { font-family: var(--f-display); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; text-transform: lowercase; color: var(--ink); text-decoration: none; line-height: 1.25; opacity: .85; transition: opacity .15s; }
+        .nav-drawer a:hover { opacity: 1; }
+        .nav-drawer-close { position: absolute; top: 22px; right: 22px; background: none; border: none; cursor: pointer; font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--light); }
+        .nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.18); z-index: 1900; opacity: 0; pointer-events: none; transition: opacity .3s; }
+        .nav-overlay.open { opacity: 1; pointer-events: all; }
+      `}</style>
 
-      {/* ── Nav ── */}
-      <nav style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 48px',
-        height: 56,
-        borderBottom: '1px solid var(--bd, rgba(12,11,9,0.1))',
-        position: 'sticky',
-        top: 0,
-        background: 'var(--cream, #F5F2ED)',
-        zIndex: 100,
-      }}>
-        <a href="/" style={{
-          fontFamily: 'var(--f-display, "Ranade", sans-serif)',
-          fontSize: 18,
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
-          color: 'var(--ink, #0C0B09)',
-          textDecoration: 'none',
+      {/* ── Drawer ── */}
+      <div className={`nav-drawer${menuOpen ? ' open' : ''}`}>
+        <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>✕ close</button>
+        <a href="/trends" onClick={() => setMenuOpen(false)}>Trends</a>
+        <a href="/analysis" onClick={() => setMenuOpen(false)}>Analysis</a>
+        <a href="/fyi" onClick={() => setMenuOpen(false)}>FYI</a>
+        <a href="/shows" onClick={() => setMenuOpen(false)}>Shows</a>
+        <a href="/archive" onClick={() => setMenuOpen(false)}>Archive</a>
+        <a href="/about" onClick={() => setMenuOpen(false)}>About</a>
+      </div>
+      <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
+
+      {/* ── Site header ── */}
+      <header className="site-header">
+        <div className="ticker">
+          <div className="ticker-inner">
+            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+              <span key={i}>{item}</span>
+            ))}
+          </div>
+        </div>
+        <div className="nav-title-row">
+          <button
+            className={`nav-menu-btn${menuOpen ? ' open' : ''}`}
+            onClick={() => setMenuOpen(v => !v)}
+            aria-label="Menu"
+          >
+            <span /><span /><span />
+          </button>
+          <a href="/" className="nav-logo">runway fyi</a>
+          <span className="nav-pill">FW26</span>
+        </div>
+        <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
+          <li><a href="/trends">Trends</a></li>
+          <li><a href="/analysis">Analysis</a></li>
+          <li><a href="/fyi">FYI</a></li>
+          <li><a href="/shows" className="curr">Shows</a></li>
+          <li><a href="/archive">Archive</a></li>
+        </ul>
+      </header>
+      <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
+
+      <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
+
+        {/* ── Page header ── */}
+        <div style={{ padding: '28px 48px 0', borderBottom: '1px solid var(--bd)' }}>
+          <p style={{
+            fontFamily: 'var(--f-mono)',
+            fontSize: 9,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            color: 'var(--light)',
+            marginBottom: 12,
+          }}>
+            Season · FW26
+          </p>
+          <h1 style={{
+            fontFamily: 'var(--f-display)',
+            fontSize: 'clamp(52px, 8vw, 96px)',
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
+            lineHeight: 0.9,
+            color: 'var(--ink)',
+            margin: '0 0 24px',
+          }}>
+            Shows
+          </h1>
+
+          {/* City filter */}
+          <div style={{ display: 'flex', gap: 0, borderTop: '1px solid var(--bd)' }}>
+            {CITIES.map((city) => (
+              <button
+                key={city}
+                onClick={() => setActiveCity(city)}
+                style={{
+                  padding: '12px 20px',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: activeCity === city ? '2px solid var(--ink)' : '2px solid transparent',
+                  fontFamily: 'var(--f-mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: activeCity === city ? 'var(--ink)' : 'var(--light)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Show Grid ── */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: 1,
+          padding: 1,
+          background: 'var(--bd)',
         }}>
-          runway.fyi
-        </a>
-
-        {/* Desktop links */}
-        <div style={{ display: 'flex', gap: 32 }}>
-          {NAV_LINKS.map(({ label, href }) => (
-            <a key={label} href={href} style={{
-              fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
-              fontSize: 11,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: href === '/shows' ? 'var(--light, #A09A94)' : 'var(--ink, #0C0B09)',
-              textDecoration: 'none',
-            }}>
-              {label}
+          {filtered.map((show) => (
+            <a
+              key={show.id}
+              href={`/shows/${brandToSlug(show.brand)}`}
+              style={{ textDecoration: 'none', display: 'block', background: 'var(--cream)' }}
+            >
+              <ShowCard show={show} />
             </a>
           ))}
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          style={{
-            display: 'none',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 4,
-            color: 'var(--ink, #0C0B09)',
-          }}
-          aria-label="Menu"
-        >
-          ☰
-        </button>
-      </nav>
-
-      {/* ── Header ── */}
-      <div style={{ padding: '28px 48px 0', borderBottom: '1px solid var(--bd, rgba(12,11,9,0.1))' }}>
-        <p style={{
-          fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
-          fontSize: 9,
-          letterSpacing: '0.16em',
-          textTransform: 'uppercase',
-          color: 'var(--light, #A09A94)',
-          marginBottom: 12,
-        }}>
-          Season · FW26
-        </p>
-        <h1 style={{
-          fontFamily: 'var(--f-display, "Ranade", sans-serif)',
-          fontSize: 'clamp(52px, 8vw, 96px)',
-          fontWeight: 700,
-          letterSpacing: '-0.03em',
-          lineHeight: 0.9,
-          color: 'var(--ink, #0C0B09)',
-          margin: '0 0 24px',
-        }}>
-          Shows
-        </h1>
-
-        {/* City filter */}
-        <div style={{ display: 'flex', gap: 0, borderTop: '1px solid var(--bd, rgba(12,11,9,0.1))' }}>
-          {CITIES.map((city) => (
-            <button
-              key={city}
-              onClick={() => setActiveCity(city)}
-              style={{
-                padding: '12px 20px',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeCity === city
-                  ? '2px solid var(--ink, #0C0B09)'
-                  : '2px solid transparent',
-                fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
-                fontSize: 11,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: activeCity === city ? 'var(--ink, #0C0B09)' : 'var(--light, #A09A94)',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-              }}
-            >
-              {city}
-            </button>
-          ))}
-        </div>
+        {filtered.length === 0 && (
+          <div style={{
+            padding: '80px 48px',
+            textAlign: 'center',
+            fontFamily: 'var(--f-body)',
+            color: 'var(--light)',
+          }}>
+            No shows found for {activeCity}.
+          </div>
+        )}
       </div>
-
-      {/* ── Show Grid ── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: 1,
-        padding: 1,
-        background: 'var(--bd, rgba(12,11,9,0.1))',
-      }}>
-        {filtered.map((show) => (
-          <a
-            key={show.id}
-            href={`/shows/${brandToSlug(show.brand)}`}
-            style={{ textDecoration: 'none', display: 'block', background: 'var(--cream, #F5F2ED)' }}
-          >
-            <ShowCard show={show} />
-          </a>
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <div style={{
-          padding: '80px 48px',
-          textAlign: 'center',
-          fontFamily: 'var(--f-body, "Lora", serif)',
-          color: 'var(--light, #A09A94)',
-        }}>
-          No shows found for {activeCity}.
-        </div>
-      )}
-    </div>
+    </>
   )
 }
 
@@ -222,7 +257,7 @@ function ShowCard({ show }: { show: Show }) {
     <div style={{ position: 'relative', overflow: 'hidden' }}>
       <div style={{
         height: 360,
-        background: 'var(--warm, #EDE9E2)',
+        background: 'var(--warm)',
         overflow: 'hidden',
         position: 'relative',
       }}>
@@ -249,11 +284,11 @@ function ShowCard({ show }: { show: Show }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+            fontFamily: 'var(--f-mono)',
             fontSize: 10,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'var(--light, #A09A94)',
+            color: 'var(--light)',
           }}>
             {show.total_looks ? `${show.total_looks} looks` : '—'}
           </div>
@@ -264,9 +299,9 @@ function ShowCard({ show }: { show: Show }) {
             position: 'absolute',
             top: 12,
             right: 12,
-            background: 'var(--ink, #0C0B09)',
+            background: 'var(--ink)',
             color: '#fff',
-            fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+            fontFamily: 'var(--f-mono)',
             fontSize: 10,
             letterSpacing: '0.08em',
             padding: '4px 8px',
@@ -278,22 +313,22 @@ function ShowCard({ show }: { show: Show }) {
 
       <div style={{ padding: '16px 20px 20px' }}>
         <p style={{
-          fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+          fontFamily: 'var(--f-mono)',
           fontSize: 9,
           letterSpacing: '0.16em',
           textTransform: 'uppercase',
-          color: 'var(--light, #A09A94)',
+          color: 'var(--light)',
           margin: '0 0 6px',
         }}>
           {show.city} · {show.season}
           {show.total_looks ? ` · ${show.total_looks} looks` : ''}
         </p>
         <h2 style={{
-          fontFamily: 'var(--f-display, "Ranade", sans-serif)',
+          fontFamily: 'var(--f-display)',
           fontSize: 22,
           fontWeight: 700,
           letterSpacing: '-0.02em',
-          color: 'var(--ink, #0C0B09)',
+          color: 'var(--ink)',
           margin: 0,
         }}>
           {show.brand}
