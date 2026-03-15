@@ -34,5 +34,5 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
   const show = await fetchShowBySlug(slug)
   const looks = show?.id ? await fetchShowLooks(show.id) : []
 
-  return <ShowPageClient slug={slug} show={show} looks={looks} />
+  return <ShowPageClient show={show} looks={looks} />
 }
