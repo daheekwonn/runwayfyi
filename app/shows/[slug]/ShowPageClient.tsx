@@ -357,7 +357,7 @@ function LookCard({ look, brand }: { look: LookData; brand: string }) {
       }}>
         {look.image_url && !imgError ? (
           <img
-            src={look.image_url}
+            src={proxyImage(look.image_url)}
             alt={`${brand} Look ${look.look_number}`}
             onError={() => setImgError(true)}
             style={{

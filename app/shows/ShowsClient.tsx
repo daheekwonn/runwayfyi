@@ -224,7 +224,7 @@ function ShowCard({ show }: { show: Show }) {
       }}>
         {show.coverImage ? (
           <img
-            src={show.coverImage}
+            src={proxyImage(show.coverImage)}
             alt={`${show.brand} FW26`}
             style={{
               width: '100%',
