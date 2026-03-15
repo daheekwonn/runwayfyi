@@ -1,365 +1,402 @@
-'use client';
+'use client'
 
-// app/shows/[slug]/ShowPageClient.tsx
-// CLIENT COMPONENT — all interactive nav/menu/scroll logic lives here.
+import { useState, useEffect } from 'react'
 
-import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+const RAILWAY_API = 'https://fashion-backend-production-6880.up.railway.app'
 
-const TICKER_ITEMS = [
-  'Shearling Coat  94.1', 'Chanel FW26  91.2', 'Leather Bomber  88.7',
-  'Dior FW26  87.4', 'Prairie Silhouette  78.6', 'Wide-Leg Trouser  74.3',
-  'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
-];
-
-interface ShowData {
-  id?: string;
-  designer?: string;
-  brand?: string;
-  season?: string;
-  city?: string;
-  date?: string;
-  venue?: string;
-  total_looks?: number;
-  trendScore?: number;
-  runwayScore?: number;
-  searchScore?: number;
-  socialScore?: number;
-  description?: string;
-  keySignals?: string[];
-  heroImg?: string;
-  [key: string]: any;
-}
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface LookData {
-  number?: number;
-  score?: number;
-  materials?: string[];
-  img: string;
-  look_number?: number;
-  image_url?: string;
+  id: number
+  look_number: number
+  image_url: string
+  materials?: string[]
+  color_names?: string[]
+  silhouettes?: string[]
 }
 
-interface ShowPageClientProps {
-  slug: string;
-  show: ShowData | null;
-  looks: LookData[];
+interface ShowData {
+  id: number
+  brand: string
+  designer?: string
+  slug: string
+  season: string
+  city: string
+  show_score?: number
+  runway_score?: number
+  search_score?: number
+  social_score?: number
+  notes?: string
 }
 
-const FALLBACK: ShowData = {
-  designer: '', season: 'FW26', city: '—', date: '—', venue: '—',
-  trendScore: 0, runwayScore: 0, searchScore: 0, socialScore: 0,
-  description: 'Full show data coming soon.',
-  keySignals: [], heroImg: '',
-};
+// ─── Component ────────────────────────────────────────────────────────────────
 
-export default function ShowPageClient({ slug, show: showData, looks }: ShowPageClientProps) {
-  const show = {
-    ...FALLBACK,
-    ...showData,
-    designer: showData?.designer ?? showData?.brand ?? slug,
-    looks: looks.map((look, i) => ({
-      number: look.look_number ?? i + 1,
-      score: look.score ?? 0,
-      materials: look.materials ?? [],
-      img: look.image_url,
-    })),
-  };
+export default function ShowPageClient({
+  show,
+  looks: initialLooks,
+}: {
+  show: ShowData
+  looks: LookData[]
+}) {
+  const [looks, setLooks] = useState<LookData[]>(initialLooks)
+  const [loading, setLoading] = useState(initialLooks.length === 0)
+  const [activeFilter, setActiveFilter] = useState<string | null>(null)
 
-  const [navVisible, setNavVisible] = useState(true);
-  const [menuOpen,   setMenuOpen]   = useState(false);
-  const lastScrollY = useRef(0);
-
+  // If no looks passed from server component, fetch client-side
   useEffect(() => {
-    lastScrollY.current = window.scrollY;
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const y = window.scrollY;
-        setNavVisible(y < 20);
-        lastScrollY.current = y;
-        ticking = false;
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    if (initialLooks.length > 0) return
+    const fetchLooks = async () => {
+      try {
+        const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
+        if (res.ok) {
+          const data = await res.json()
+          setLooks(data)
+        }
+      } catch (e) {
+        console.error('Failed to fetch looks', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLooks()
+  }, [show.id, initialLooks.length])
+
+  const score = show.show_score ?? 0
+  const runwayScore = show.runway_score ?? 0
+  const searchScore = show.search_score ?? 0
+  const socialScore = show.social_score ?? 0
+
+  // Collect all unique material tags for filter
+  const allMaterials = Array.from(
+    new Set(looks.flatMap((l) => l.materials ?? []))
+  ).slice(0, 6)
+
+  const filteredLooks = activeFilter
+    ? looks.filter((l) => l.materials?.includes(activeFilter))
+    : looks
 
   return (
-    <>
-      <style>{`
-        @import url('https://api.fontshare.com/v2/css?f[]=ranade@300,400,500,600,700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Geist+Mono:wght@300;400;500&display=swap');
+    <div style={{ minHeight: '100vh', background: 'var(--cream, #F5F2ED)' }}>
 
-        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-        :root {
-          --ink:#0C0B09; --white:#FFFFFF; --cream:#F5F2ED; --warm:#EDE9E2;
-          --mid:#5A5550; --light:#A09A94; --bd:rgba(12,11,9,0.1);
-          --f-mono:'Geist Mono',monospace; --f-display:'Ranade',sans-serif; --f-body:'Lora',Georgia,serif;
-        }
-        body { background:#fff; color:var(--ink); -webkit-font-smoothing:antialiased; }
+      {/* ── Header / Hero ── */}
+      <div style={{ padding: '28px 48px 0' }}>
+        {/* Breadcrumb */}
+        <p style={{
+          fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+          fontSize: 9,
+          letterSpacing: '0.16em',
+          textTransform: 'uppercase',
+          color: 'var(--light, #A09A94)',
+          margin: '0 0 16px',
+        }}>
+          <a href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Home</a>
+          {' / '}
+          <a href="/shows" style={{ color: 'inherit', textDecoration: 'none' }}>Shows</a>
+          {' / '}
+          <span style={{ color: 'var(--ink, #0C0B09)' }}>{show.brand}</span>
+        </p>
 
-        .site-header { position:fixed; top:0; left:0; right:0; z-index:1000; background:#fff; border-bottom:1px solid var(--bd); }
-        .ticker { background:var(--ink); overflow:hidden; white-space:nowrap; padding:7px 0; }
-        .ticker-inner { display:inline-flex; animation:tick 48s linear infinite; }
-        .ticker-inner span { font-family:var(--f-mono); font-size:9.5px; letter-spacing:0.13em; color:rgba(255,255,255,0.9); padding:0 42px; }
-        @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-        .nav-title-row { height:56px; display:flex; align-items:center; justify-content:center; padding:0 52px; background:#fff; position:relative; }
-        .nav-logo { font-family:var(--f-display); font-size:20px; font-weight:700; letter-spacing:0.08em; text-transform:lowercase; color:var(--ink); text-decoration:none; }
-        .nav-menu-btn { position:absolute; left:24px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; display:flex; flex-direction:column; gap:5px; padding:6px; }
-        .nav-menu-btn span { display:block; width:22px; height:1.5px; background:var(--ink); transition:transform .2s,opacity .2s; }
-        .nav-menu-btn.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
-        .nav-menu-btn.open span:nth-child(2) { opacity:0; }
-        .nav-menu-btn.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
-        .nav-pill { position:absolute; right:52px; top:50%; transform:translateY(-50%); font-family:var(--f-mono); font-size:9px; letter-spacing:0.13em; text-transform:uppercase; border:1px solid var(--bd); color:var(--light); padding:5px 13px; }
-        .nav-links-row { height:38px; display:flex; align-items:center; justify-content:center; gap:44px; background:#fff; border-top:1px solid var(--bd); list-style:none; padding:0; overflow:hidden; transition:height .3s cubic-bezier(.4,0,.2,1),opacity .3s ease,border-color .3s ease; }
-        .nav-links-row.hidden { height:0; opacity:0; pointer-events:none; border-color:transparent; }
-        .nav-links-row a { font-family:var(--f-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink); text-decoration:none; transition:color .15s; }
-        .nav-links-row a:hover { color:var(--light); }
-        .header-spacer { height:118px; }
-        .header-spacer.collapsed { height:80px; }
-        .nav-drawer { position:fixed; top:0; left:0; bottom:0; width:260px; background:#fff; z-index:2000; transform:translateX(-100%); transition:transform .3s cubic-bezier(.4,0,.2,1); border-right:1px solid var(--bd); padding:88px 36px 40px; display:flex; flex-direction:column; gap:8px; }
-        .nav-drawer.open { transform:translateX(0); }
-        .nav-drawer a { font-family:var(--f-display); font-size:28px; font-weight:700; letter-spacing:-0.02em; text-transform:lowercase; color:var(--ink); text-decoration:none; line-height:1.25; opacity:.85; transition:opacity .15s; }
-        .nav-drawer a:hover { opacity:1; }
-        .nav-drawer-close { position:absolute; top:22px; right:22px; background:none; border:none; cursor:pointer; font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
-        .nav-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.18); z-index:1900; opacity:0; pointer-events:none; transition:opacity .3s; }
-        .nav-overlay.open { opacity:1; pointer-events:all; }
+        <div style={{ display: 'flex', gap: 48, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 300px' }}>
+            <p style={{
+              fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+              fontSize: 9,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: 'var(--light, #A09A94)',
+              margin: '0 0 8px',
+            }}>
+              {show.city} · {show.season}
+            </p>
+            <h1 style={{
+              fontFamily: 'var(--f-display, "Ranade", sans-serif)',
+              fontSize: 'clamp(40px, 6vw, 80px)',
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              lineHeight: 0.9,
+              color: 'var(--ink, #0C0B09)',
+              margin: '0 0 24px',
+            }}>
+              {show.brand}
+            </h1>
 
-        /* ── Hero ── */
-        .show-hero { position:relative; width:100%; height:70vh; min-height:420px; overflow:hidden; border-bottom:1px solid var(--bd); }
-        .show-hero-img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(10%) brightness(0.88); display:block; }
-        .show-hero-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.3) 45%, transparent 100%); }
-        .show-hero-content { position:absolute; bottom:0; left:0; right:0; padding:0 52px 48px; display:flex; align-items:flex-end; justify-content:space-between; gap:40px; }
-        .show-breadcrumb { font-family:var(--f-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); margin-bottom:16px; display:flex; gap:8px; align-items:center; }
-        .show-breadcrumb a { color:var(--mid); text-decoration:none; transition:color .15s; }
-        .show-breadcrumb a:hover { color:var(--ink); }
-        .show-kicker { font-family:var(--f-mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); margin-bottom:12px; }
-        .show-title { font-family:var(--f-display); font-size:clamp(3rem,7vw,6.5rem); font-weight:700; letter-spacing:-0.03em; line-height:0.95; color:var(--ink); }
-        .show-venue { font-family:var(--f-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); margin-top:14px; }
-        .show-composite { text-align:right; flex-shrink:0; }
-        .composite-label { font-family:var(--f-mono); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); margin-bottom:4px; }
-        .composite-score { font-family:var(--f-display); font-size:clamp(4rem,8vw,7rem); font-weight:700; letter-spacing:-0.04em; line-height:1; color:var(--ink); }
-        .composite-denom { font-family:var(--f-mono); font-size:11px; letter-spacing:0.08em; color:var(--light); }
-
-        /* ── Body ── */
-        .show-wrap { max-width:1200px; margin:0 auto; padding:0 52px; }
-        .show-body-grid { display:grid; grid-template-columns:1fr 360px; gap:80px; padding:56px 0 64px; border-bottom:1px solid var(--bd); align-items:start; }
-        .show-section-label { font-family:var(--f-mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--light); margin-bottom:20px; }
-        .show-description { font-family:var(--f-body); font-size:16px; line-height:1.8; color:var(--mid); margin-bottom:40px; max-width:600px; }
-        .signals-list { border-top:1px solid var(--bd); }
-        .signal-row { display:grid; grid-template-columns:28px 1fr; gap:14px; padding:16px 0; border-bottom:1px solid var(--bd); align-items:start; }
-        .signal-num { font-family:var(--f-mono); font-size:9px; color:var(--light); padding-top:2px; }
-        .signal-text { font-family:var(--f-body); font-size:14px; line-height:1.6; color:var(--mid); }
-
-        /* ── Score sidebar ── */
-        .score-sidebar { border:1px solid var(--bd); padding:32px; position:sticky; top:130px; }
-        .sidebar-title { font-family:var(--f-mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--light); margin-bottom:24px; }
-        .score-bar-row { margin-bottom:20px; }
-        .score-bar-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
-        .score-bar-label { font-family:var(--f-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid); }
-        .score-bar-value { font-family:var(--f-display); font-size:20px; font-weight:700; letter-spacing:-0.02em; color:var(--ink); }
-        .score-track { height:2px; background:var(--warm); }
-        .score-fill { height:100%; background:var(--ink); }
-        .sidebar-divider { height:1px; background:var(--bd); margin:24px 0; }
-        .sidebar-meta-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--bd); }
-        .sidebar-meta-row:last-of-type { border-bottom:none; }
-        .sidebar-meta-key { font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
-        .sidebar-meta-val { font-family:var(--f-body); font-size:13px; color:var(--mid); }
-        .sidebar-method-link { display:block; margin-top:20px; font-family:var(--f-mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); text-decoration:none; transition:color .15s; }
-        .sidebar-method-link:hover { color:var(--ink); }
-
-        /* ── Looks grid ── */
-        .looks-section { padding:48px 0 80px; }
-        .looks-header { display:flex; align-items:baseline; justify-content:space-between; padding-bottom:16px; border-bottom:1px solid var(--bd); }
-        .looks-title { font-family:var(--f-display); font-size:28px; font-weight:700; letter-spacing:-0.02em; color:var(--ink); }
-        .looks-note { font-family:var(--f-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
-        .looks-grid { display:grid; grid-template-columns:repeat(6,1fr); border-left:1px solid var(--bd); border-top:1px solid var(--bd); }
-        .look-cell { border-right:1px solid var(--bd); border-bottom:1px solid var(--bd); }
-        .look-img-wrap { position:relative; aspect-ratio:2/3; overflow:hidden; background:var(--cream); }
-        .look-img-wrap img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(8%) brightness(0.93); display:block; transition:transform .4s ease; }
-        .look-cell:hover .look-img-wrap img { transform:scale(1.04); }
-        .look-num { position:absolute; top:8px; left:8px; font-family:var(--f-mono); font-size:9px; background:rgba(255,255,255,0.9); color:var(--mid); padding:2px 7px; }
-        .look-score-badge { position:absolute; top:8px; right:8px; font-family:var(--f-mono); font-size:9px; font-weight:500; background:var(--ink); color:#fff; padding:2px 7px; }
-        .look-footer { padding:10px 12px; display:flex; flex-wrap:wrap; gap:4px; }
-        .look-mat { font-family:var(--f-mono); font-size:9px; color:var(--mid); background:var(--cream); padding:2px 6px; }
-
-        .back-link { display:inline-flex; align-items:center; gap:8px; font-family:var(--f-mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); text-decoration:none; padding:48px 0; transition:color .15s; }
-        .back-link:hover { color:var(--ink); }
-
-        /* ── Footer ── */
-        footer { border-top:1px solid var(--bd); padding:32px 52px; display:flex; align-items:center; justify-content:space-between; }
-        .f-logo { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:0.06em; text-transform:lowercase; color:var(--ink); }
-        .f-links { display:flex; gap:28px; list-style:none; }
-        .f-links a { font-family:var(--f-mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--mid); text-decoration:none; transition:color .15s; }
-        .f-links a:hover { color:var(--ink); }
-        .f-copy { font-family:var(--f-mono); font-size:10px; letter-spacing:0.08em; color:var(--light); }
-
-        @media (max-width:900px) {
-          .show-hero-content { padding:0 24px 36px; flex-direction:column; align-items:flex-start; gap:16px; }
-          .show-composite { text-align:left; }
-          .show-wrap { padding:0 24px; }
-          .show-body-grid { grid-template-columns:1fr; gap:40px; }
-          .score-sidebar { position:static; }
-          .looks-grid { grid-template-columns:repeat(3,1fr); }
-          footer { flex-direction:column; gap:20px; padding:32px 24px; align-items:flex-start; }
-        }
-      `}</style>
-
-      <div className={`nav-overlay${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)} />
-      <nav className={`nav-drawer${menuOpen ? ' open' : ''}`}>
-        <button className="nav-drawer-close" onClick={() => setMenuOpen(false)}>close ×</button>
-        <a href="/trends">trends</a>
-        <a href="/analysis">analysis</a>
-        <a href="/fyi">fyi</a>
-        <a href="/shows">shows</a>
-        <a href="/archive">archive</a>
-        <a href="/about">about</a>
-      </nav>
-
-      <header className="site-header">
-        <div className="ticker">
-          <div className="ticker-inner">
-            {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => <span key={i}>{item}</span>)}
+            {show.notes && (
+              <p style={{
+                fontFamily: 'var(--f-body, "Lora", serif)',
+                fontSize: 16,
+                lineHeight: 1.6,
+                color: 'var(--mid, #5A5550)',
+                maxWidth: 520,
+                margin: '0 0 24px',
+              }}>
+                {show.notes}
+              </p>
+            )}
           </div>
-        </div>
-        <div className="nav-title-row">
-          <button className={`nav-menu-btn${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(v => !v)} aria-label="Menu">
-            <span /><span /><span />
-          </button>
-          <a href="/" className="nav-logo">runway fyi</a>
-          <span className="nav-pill">FW26</span>
-        </div>
-        <ul className={`nav-links-row${navVisible ? '' : ' hidden'}`}>
-          <li><a href="/trends">Trends</a></li>
-          <li><a href="/analysis">Analysis</a></li>
-          <li><a href="/fyi">FYI</a></li>
-          <li><a href="/shows">Shows</a></li>
-          <li><a href="/archive">Archive</a></li>
-        </ul>
-      </header>
-      <div className={`header-spacer${navVisible ? '' : ' collapsed'}`} />
 
-      <div className="show-hero">
-        {show.heroImg && <img src={show.heroImg} alt={`${show.designer} ${show.season}`} className="show-hero-img" />}
-        <div className="show-hero-overlay" />
-        <div className="show-hero-content">
-          <div>
-            <div className="show-breadcrumb">
-              <a href="/shows">Shows</a><span>/</span>
-              <span>{show.city}</span><span>/</span>
-              <span>{show.designer}</span>
-            </div>
-            <p className="show-kicker">{show.city} · {show.season} · {show.date}</p>
-            <h1 className="show-title">{show.designer}</h1>
-            <p className="show-venue">{show.venue}</p>
-          </div>
-          <div className="show-composite">
-            <div className="composite-label">Trend Score</div>
-            <div className="composite-score">{show.trendScore}</div>
-            <div className="composite-denom">/ 100</div>
-          </div>
-        </div>
-      </div>
+          {/* Score breakdown sidebar */}
+          {score > 0 && (
+            <div style={{
+              flex: '0 0 240px',
+              background: 'var(--ink, #0C0B09)',
+              color: '#fff',
+              padding: '24px',
+            }}>
+              <p style={{
+                fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+                fontSize: 9,
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                opacity: 0.5,
+                margin: '0 0 8px',
+              }}>
+                Trend Score
+              </p>
+              <p style={{
+                fontFamily: 'var(--f-display, "Ranade", sans-serif)',
+                fontSize: 48,
+                fontWeight: 700,
+                letterSpacing: '-0.03em',
+                margin: '0 0 20px',
+              }}>
+                {score.toFixed(1)}
+              </p>
 
-      <main>
-        <div className="show-wrap">
-          <div className="show-body-grid">
-            <div>
-              <p className="show-section-label">Analysis</p>
-              <p className="show-description">{show.description}</p>
-              {(show.keySignals ?? []).length > 0 && (
-                <>
-                  <p className="show-section-label">Key Signals</p>
-                  <div className="signals-list">
-                    {(show.keySignals ?? []).map((signal: string, i: number) => (
-                      <div key={i} className="signal-row">
-                        <span className="signal-num">0{i + 1}</span>
-                        <span className="signal-text">{signal}</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="score-sidebar">
-              <div className="sidebar-title">Score Breakdown</div>
               {[
-                { label: 'Runway', value: show.runwayScore },
-                { label: 'Search', value: show.searchScore },
-                { label: 'Social', value: show.socialScore },
-              ].map(row => (
-                <div key={row.label} className="score-bar-row">
-                  <div className="score-bar-header">
-                    <span className="score-bar-label">{row.label}</span>
-                    <span className="score-bar-value">{row.value}</span>
+                { label: 'Runway 50%', value: runwayScore },
+                { label: 'Search 30%', value: searchScore },
+                { label: 'Social 20%', value: socialScore },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontFamily: 'var(--f-mono, "Geist Mono", monospace)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.5 }}>{label}</span>
+                    <span style={{ fontFamily: 'var(--f-mono, "Geist Mono", monospace)', fontSize: 10 }}>{value.toFixed(1)}</span>
                   </div>
-                  <div className="score-track">
-                    <div className="score-fill" style={{ width: `${row.value}%` }} />
+                  <div style={{ height: 2, background: 'rgba(255,255,255,0.15)', borderRadius: 1 }}>
+                    <div style={{ height: '100%', width: `${value}%`, background: '#fff', borderRadius: 1 }} />
                   </div>
                 </div>
               ))}
-              <div className="sidebar-divider" />
-              <div className="sidebar-meta-row">
-                <span className="sidebar-meta-key">Composite</span>
-                <span style={{ fontFamily: 'var(--f-display)', fontSize: '22px', fontWeight: 700, color: 'var(--ink)' }}>{show.trendScore}</span>
-              </div>
-              <div className="sidebar-meta-row">
-                <span className="sidebar-meta-key">City</span>
-                <span className="sidebar-meta-val">{show.city}</span>
-              </div>
-              <div className="sidebar-meta-row">
-                <span className="sidebar-meta-key">Season</span>
-                <span className="sidebar-meta-val">{show.season}</span>
-              </div>
-              <div className="sidebar-meta-row">
-                <span className="sidebar-meta-key">Looks</span>
-                <span className="sidebar-meta-val">{showData?.total_looks ?? show.looks.length}</span>
-              </div>
-              <a href="/about" className="sidebar-method-link">About the methodology →</a>
-            </div>
-          </div>
-
-          {show.looks.length > 0 && (
-            <div className="looks-section">
-              <div className="looks-header">
-                <span className="looks-title">Looks</span>
-                <span className="looks-note">{showData?.total_looks ?? show.looks.length} total · scores = individual trend signal</span>
-              </div>
-              <div className="looks-grid">
-                {show.looks.map((look: any) => (
-                  <div key={look.number} className="look-cell">
-                    <div className="look-img-wrap">
-                      <img src={look.img} alt={`Look ${look.number}`} />
-                      <span className="look-num">{String(look.number).padStart(2, '0')}</span>
-                      <span className="look-score-badge">{look.score}</span>
-                    </div>
-                    <div className="look-footer">
-                      {look.materials.slice(0, 1).map((m: string) => (
-                        <span key={m} className="look-mat">{m}</span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
-
-          <a href="/shows" className="back-link">← All Shows</a>
         </div>
-      </main>
+      </div>
 
-      <footer>
-        <span className="f-logo">runway fyi</span>
-        <ul className="f-links">
-          <li><a href="https://instagram.com/runwayfyi" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-          <li><a href="https://tiktok.com/@runwayfyi" target="_blank" rel="noopener noreferrer">TikTok</a></li>
-          <li><a href="/about">About</a></li>
-        </ul>
-        <span className="f-copy">© 2026 runwayfyi.com</span>
-      </footer>
-    </>
-  );
+      {/* ── Looks Grid ── */}
+      <div style={{ padding: '48px 48px 0' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid var(--bd, rgba(12,11,9,0.1))',
+          paddingBottom: 16,
+          marginBottom: 24,
+          flexWrap: 'wrap',
+          gap: 12,
+        }}>
+          <div>
+            <p style={{
+              fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+              fontSize: 9,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: 'var(--light, #A09A94)',
+              margin: '0 0 4px',
+            }}>
+              {looks.length} Looks
+            </p>
+            <h2 style={{
+              fontFamily: 'var(--f-display, "Ranade", sans-serif)',
+              fontSize: 28,
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              color: 'var(--ink, #0C0B09)',
+              margin: 0,
+            }}>
+              The Collection
+            </h2>
+          </div>
+
+          {/* Material filter tags */}
+          {allMaterials.length > 0 && (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setActiveFilter(null)}
+                style={{
+                  padding: '6px 12px',
+                  background: activeFilter === null ? 'var(--ink, #0C0B09)' : 'none',
+                  color: activeFilter === null ? '#fff' : 'var(--mid, #5A5550)',
+                  border: '1px solid var(--bd, rgba(12,11,9,0.15))',
+                  fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+                  fontSize: 9,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                }}
+              >
+                All
+              </button>
+              {allMaterials.map((mat) => (
+                <button
+                  key={mat}
+                  onClick={() => setActiveFilter(mat === activeFilter ? null : mat)}
+                  style={{
+                    padding: '6px 12px',
+                    background: activeFilter === mat ? 'var(--ink, #0C0B09)' : 'none',
+                    color: activeFilter === mat ? '#fff' : 'var(--mid, #5A5550)',
+                    border: '1px solid var(--bd, rgba(12,11,9,0.15))',
+                    fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+                    fontSize: 9,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {mat}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Loading state */}
+        {loading && (
+          <div style={{
+            padding: '80px 0',
+            textAlign: 'center',
+            fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+            fontSize: 10,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--light, #A09A94)',
+          }}>
+            Loading looks...
+          </div>
+        )}
+
+        {/* Grid */}
+        {!loading && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+            gap: 1,
+            background: 'var(--bd, rgba(12,11,9,0.1))',
+            marginBottom: 1,
+          }}>
+            {filteredLooks.map((look) => (
+              <LookCard key={look.id} look={look} brand={show.brand} />
+            ))}
+          </div>
+        )}
+
+        {!loading && filteredLooks.length === 0 && (
+          <div style={{
+            padding: '60px 0',
+            textAlign: 'center',
+            fontFamily: 'var(--f-body, "Lora", serif)',
+            color: 'var(--light, #A09A94)',
+          }}>
+            No looks found{activeFilter ? ` for "${activeFilter}"` : ''}.
+          </div>
+        )}
+      </div>
+
+      {/* bottom padding */}
+      <div style={{ height: 80 }} />
+    </div>
+  )
+}
+
+// ─── Look Card ────────────────────────────────────────────────────────────────
+
+function LookCard({ look, brand }: { look: LookData; brand: string }) {
+  const [imgError, setImgError] = useState(false)
+
+  return (
+    <div style={{
+      background: 'var(--cream, #F5F2ED)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Image container — portrait ratio matching runway photos */}
+      <div style={{
+        width: '100%',
+        paddingBottom: '150%', // 2:3 portrait
+        position: 'relative',
+        background: 'var(--warm, #EDE9E2)',
+        overflow: 'hidden',
+      }}>
+        {look.image_url && !imgError ? (
+          <img
+            src={look.image_url}
+            alt={`${brand} Look ${look.look_number}`}
+            onError={() => setImgError(true)}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'top center',
+              display: 'block',
+            }}
+          />
+        ) : (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+            fontSize: 9,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--light, #A09A94)',
+          }}>
+            Look {look.look_number}
+          </div>
+        )}
+
+        {/* Look number badge */}
+        <div style={{
+          position: 'absolute',
+          bottom: 8,
+          left: 8,
+          background: 'rgba(12,11,9,0.7)',
+          color: '#fff',
+          fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+          fontSize: 9,
+          letterSpacing: '0.08em',
+          padding: '3px 6px',
+        }}>
+          {String(look.look_number).padStart(2, '0')}
+        </div>
+      </div>
+
+      {/* Tags (materials) */}
+      {look.materials && look.materials.length > 0 && (
+        <div style={{
+          padding: '8px 10px',
+          display: 'flex',
+          gap: 4,
+          flexWrap: 'wrap',
+        }}>
+          {look.materials.slice(0, 2).map((mat) => (
+            <span key={mat} style={{
+              fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+              fontSize: 8,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: 'var(--light, #A09A94)',
+              background: 'var(--warm, #EDE9E2)',
+              padding: '2px 5px',
+            }}>
+              {mat}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
