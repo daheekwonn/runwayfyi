@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 
 const RAILWAY_API = 'https://fashion-backend-production-6880.up.railway.app'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Show {
   id: number
   brand: string
@@ -16,25 +14,28 @@ interface Show {
   coverImage?: string
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-// Generate slug from brand name — matches the backend's by-slug endpoint logic
 function brandToSlug(brand: string): string {
   return brand
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')   // replace non-alphanumeric with hyphen
-    .replace(/^-|-$/g, '')          // trim leading/trailing hyphens
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
 const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen']
 
-// ─── Component ────────────────────────────────────────────────────────────────
+const NAV_LINKS = [
+  { label: 'Trends', href: '/trends' },
+  { label: 'Analysis', href: '/analysis' },
+  { label: 'FYI', href: '/fyi' },
+  { label: 'Shows', href: '/shows' },
+  { label: 'Archive', href: '/archive' },
+]
 
 export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) {
   const [activeCity, setActiveCity] = useState('All')
   const [shows, setShows] = useState<Show[]>(initialShows)
+  const [menuOpen, setMenuOpen] = useState(false)
 
-  // Fetch first look image for each show as cover
   useEffect(() => {
     if (initialShows.length === 0) return
 
@@ -45,9 +46,11 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
             const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
             if (!res.ok) return show
             const looks = await res.json()
-            const firstImage = Array.isArray(looks) && looks[0]?.image_url
-              ? looks[0].image_url
-              : null
+            if (!Array.isArray(looks) || looks.length === 0) return show
+
+            // Try looks 3, 2, 1 in that order — look 1 is often a close-up face shot
+            const candidates = [looks[2], looks[1], looks[0]].filter(Boolean)
+            const firstImage = candidates.find((l) => l?.image_url)?.image_url ?? null
             return { ...show, coverImage: firstImage }
           } catch {
             return show
@@ -64,7 +67,64 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
     activeCity === 'All' ? shows : shows.filter((s) => s.city === activeCity)
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--cream, #F5F2ED)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--cream, #F5F2ED)', color: 'var(--ink, #0C0B09)' }}>
+
+      {/* ── Nav ── */}
+      <nav style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 48px',
+        height: 56,
+        borderBottom: '1px solid var(--bd, rgba(12,11,9,0.1))',
+        position: 'sticky',
+        top: 0,
+        background: 'var(--cream, #F5F2ED)',
+        zIndex: 100,
+      }}>
+        <a href="/" style={{
+          fontFamily: 'var(--f-display, "Ranade", sans-serif)',
+          fontSize: 18,
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          color: 'var(--ink, #0C0B09)',
+          textDecoration: 'none',
+        }}>
+          runway.fyi
+        </a>
+
+        {/* Desktop links */}
+        <div style={{ display: 'flex', gap: 32 }}>
+          {NAV_LINKS.map(({ label, href }) => (
+            <a key={label} href={href} style={{
+              fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+              fontSize: 11,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: href === '/shows' ? 'var(--light, #A09A94)' : 'var(--ink, #0C0B09)',
+              textDecoration: 'none',
+            }}>
+              {label}
+            </a>
+          ))}
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{
+            display: 'none',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 4,
+            color: 'var(--ink, #0C0B09)',
+          }}
+          aria-label="Menu"
+        >
+          ☰
+        </button>
+      </nav>
 
       {/* ── Header ── */}
       <div style={{ padding: '28px 48px 0', borderBottom: '1px solid var(--bd, rgba(12,11,9,0.1))' }}>
@@ -107,9 +167,7 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
                 fontSize: 11,
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                color: activeCity === city
-                  ? 'var(--ink, #0C0B09)'
-                  : 'var(--light, #A09A94)',
+                color: activeCity === city ? 'var(--ink, #0C0B09)' : 'var(--light, #A09A94)',
                 cursor: 'pointer',
                 transition: 'all 0.15s',
               }}
@@ -153,14 +211,11 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
   )
 }
 
-// ─── Show Card ────────────────────────────────────────────────────────────────
-
 function ShowCard({ show }: { show: Show }) {
   const score = show.show_score ?? 0
 
   return (
     <div style={{ position: 'relative', overflow: 'hidden' }}>
-      {/* Cover image */}
       <div style={{
         height: 360,
         background: 'var(--warm, #EDE9E2)',
@@ -175,7 +230,7 @@ function ShowCard({ show }: { show: Show }) {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              objectPosition: 'top center',
+              objectPosition: 'center center', // full look, not face crop
               display: 'block',
               transition: 'transform 0.4s ease',
             }}
@@ -199,7 +254,6 @@ function ShowCard({ show }: { show: Show }) {
           </div>
         )}
 
-        {/* Score badge */}
         {score > 0 && (
           <div style={{
             position: 'absolute',
@@ -217,7 +271,6 @@ function ShowCard({ show }: { show: Show }) {
         )}
       </div>
 
-      {/* Card info */}
       <div style={{ padding: '16px 20px 20px' }}>
         <p style={{
           fontFamily: 'var(--f-mono, "Geist Mono", monospace)',

@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 
 const RAILWAY_API = 'https://fashion-backend-production-6880.up.railway.app'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface LookData {
   id: number
   look_number: number
@@ -19,7 +17,7 @@ interface ShowData {
   id: number
   brand: string
   designer?: string
-  slug: string
+  slug?: string
   season: string
   city: string
   show_score?: number
@@ -29,7 +27,13 @@ interface ShowData {
   notes?: string
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+const NAV_LINKS = [
+  { label: 'Trends', href: '/trends' },
+  { label: 'Analysis', href: '/analysis' },
+  { label: 'FYI', href: '/fyi' },
+  { label: 'Shows', href: '/shows' },
+  { label: 'Archive', href: '/archive' },
+]
 
 export default function ShowPageClient({
   show,
@@ -42,7 +46,6 @@ export default function ShowPageClient({
   const [loading, setLoading] = useState(initialLooks.length === 0)
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
 
-  // If no looks passed from server component, fetch client-side
   useEffect(() => {
     if (initialLooks.length > 0) return
     const fetchLooks = async () => {
@@ -66,7 +69,6 @@ export default function ShowPageClient({
   const searchScore = show.search_score ?? 0
   const socialScore = show.social_score ?? 0
 
-  // Collect all unique material tags for filter
   const allMaterials = Array.from(
     new Set(looks.flatMap((l) => l.materials ?? []))
   ).slice(0, 6)
@@ -76,9 +78,48 @@ export default function ShowPageClient({
     : looks
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--cream, #F5F2ED)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--cream, #F5F2ED)', color: 'var(--ink, #0C0B09)' }}>
 
-      {/* ── Header / Hero ── */}
+      {/* ── Nav ── */}
+      <nav style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 48px',
+        height: 56,
+        borderBottom: '1px solid var(--bd, rgba(12,11,9,0.1))',
+        position: 'sticky',
+        top: 0,
+        background: 'var(--cream, #F5F2ED)',
+        zIndex: 100,
+      }}>
+        <a href="/" style={{
+          fontFamily: 'var(--f-display, "Ranade", sans-serif)',
+          fontSize: 18,
+          fontWeight: 700,
+          letterSpacing: '-0.02em',
+          color: 'var(--ink, #0C0B09)',
+          textDecoration: 'none',
+        }}>
+          runway.fyi
+        </a>
+        <div style={{ display: 'flex', gap: 32 }}>
+          {NAV_LINKS.map(({ label, href }) => (
+            <a key={label} href={href} style={{
+              fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
+              fontSize: 11,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: href === '/shows' ? 'var(--light, #A09A94)' : 'var(--ink, #0C0B09)',
+              textDecoration: 'none',
+            }}>
+              {label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      {/* ── Header ── */}
       <div style={{ padding: '28px 48px 0' }}>
         {/* Breadcrumb */}
         <p style={{
@@ -134,7 +175,7 @@ export default function ShowPageClient({
             )}
           </div>
 
-          {/* Score breakdown sidebar */}
+          {/* Score breakdown */}
           {score > 0 && (
             <div style={{
               flex: '0 0 240px',
@@ -161,7 +202,6 @@ export default function ShowPageClient({
               }}>
                 {score.toFixed(1)}
               </p>
-
               {[
                 { label: 'Runway 50%', value: runwayScore },
                 { label: 'Search 30%', value: searchScore },
@@ -217,7 +257,6 @@ export default function ShowPageClient({
             </h2>
           </div>
 
-          {/* Material filter tags */}
           {allMaterials.length > 0 && (
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <button
@@ -259,7 +298,6 @@ export default function ShowPageClient({
           )}
         </div>
 
-        {/* Loading state */}
         {loading && (
           <div style={{
             padding: '80px 0',
@@ -274,7 +312,6 @@ export default function ShowPageClient({
           </div>
         )}
 
-        {/* Grid */}
         {!loading && (
           <div style={{
             display: 'grid',
@@ -301,27 +338,19 @@ export default function ShowPageClient({
         )}
       </div>
 
-      {/* bottom padding */}
       <div style={{ height: 80 }} />
     </div>
   )
 }
 
-// ─── Look Card ────────────────────────────────────────────────────────────────
-
 function LookCard({ look, brand }: { look: LookData; brand: string }) {
   const [imgError, setImgError] = useState(false)
 
   return (
-    <div style={{
-      background: 'var(--cream, #F5F2ED)',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Image container — portrait ratio matching runway photos */}
+    <div style={{ background: 'var(--cream, #F5F2ED)', position: 'relative', overflow: 'hidden' }}>
       <div style={{
         width: '100%',
-        paddingBottom: '150%', // 2:3 portrait
+        paddingBottom: '150%',
         position: 'relative',
         background: 'var(--warm, #EDE9E2)',
         overflow: 'hidden',
@@ -337,7 +366,7 @@ function LookCard({ look, brand }: { look: LookData; brand: string }) {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              objectPosition: 'top center',
+              objectPosition: 'center center', // show full look, not face crop
               display: 'block',
             }}
           />
@@ -358,7 +387,6 @@ function LookCard({ look, brand }: { look: LookData; brand: string }) {
           </div>
         )}
 
-        {/* Look number badge */}
         <div style={{
           position: 'absolute',
           bottom: 8,
@@ -374,14 +402,8 @@ function LookCard({ look, brand }: { look: LookData; brand: string }) {
         </div>
       </div>
 
-      {/* Tags (materials) */}
       {look.materials && look.materials.length > 0 && (
-        <div style={{
-          padding: '8px 10px',
-          display: 'flex',
-          gap: 4,
-          flexWrap: 'wrap',
-        }}>
+        <div style={{ padding: '8px 10px', display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {look.materials.slice(0, 2).map((mat) => (
             <span key={mat} style={{
               fontFamily: 'var(--f-mono, "Geist Mono", monospace)',
