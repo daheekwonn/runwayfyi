@@ -9,7 +9,6 @@ function proxyImage(url: string): string {
 }
 
 interface Show {
-  ...
   id: number
   brand: string
   city: string
