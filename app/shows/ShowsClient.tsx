@@ -228,7 +228,8 @@ function ShowCard({ show }: { show: Show }) {
       }}>
         {show.coverImage ? (
           <img
-            src={proxyImage(show.coverImage)}
+            src={show.coverImage}
+            referrerPolicy="no-referrer"
             alt={`${show.brand} FW26`}
             style={{
               width: '100%',
