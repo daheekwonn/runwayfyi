@@ -235,7 +235,7 @@ function ShowCard({ show }: { show: Show }) {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              objectPosition: 'center center', // full look, not face crop
+              objectPosition: 'top center',
               display: 'block',
               transition: 'transform 0.4s ease',
             }}
