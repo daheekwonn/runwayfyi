@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 const RAILWAY_API = 'https://fashion-backend-production-6880.up.railway.app'
 
@@ -36,7 +36,11 @@ export default function RunwayFYIAdminLooks() {
   const [bulkMode, setBulkMode] = useState(false)
   const [bulkUrls, setBulkUrls] = useState('')
   const [bulkSaving, setBulkSaving] = useState(false)
+  const [savingOrder, setSavingOrder] = useState(false)
+  const [orderChanged, setOrderChanged] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: 'ok' | 'err' } | null>(null)
+  const dragItem = useRef<number | null>(null)
+  const dragOverItem = useRef<number | null>(null)
 
   const showMsg = (text: string, type: 'ok' | 'err' = 'ok') => {
     setMessage({ text, type })
@@ -57,6 +61,7 @@ export default function RunwayFYIAdminLooks() {
     setEditingLook(null)
     setAddingNew(false)
     setBulkMode(false)
+    setOrderChanged(false)
     try {
       const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
       const data = await res.json()
@@ -65,6 +70,55 @@ export default function RunwayFYIAdminLooks() {
       setLoadingLooks(false)
     }
   }, [])
+
+  // ── Drag handlers ──────────────────────────────────────────────────────────
+
+  const handleDragStart = (index: number) => {
+    dragItem.current = index
+  }
+
+  const handleDragEnter = (index: number) => {
+    dragOverItem.current = index
+    if (dragItem.current === null || dragItem.current === index) return
+    setLooks((prev) => {
+      const updated = [...prev]
+      const dragged = updated.splice(dragItem.current!, 1)[0]
+      updated.splice(index, 0, dragged)
+      // Update look_number to reflect new position visually
+      return updated.map((l, i) => ({ ...l, look_number: i + 1 }))
+    })
+    dragItem.current = index
+  }
+
+  const handleDragEnd = () => {
+    dragItem.current = null
+    dragOverItem.current = null
+    setOrderChanged(true)
+  }
+
+  // ── Save order ─────────────────────────────────────────────────────────────
+
+  const handleSaveOrder = async () => {
+    if (!selectedShow) return
+    setSavingOrder(true)
+    try {
+      const res = await fetch(`${RAILWAY_API}/api/trends/shows/${selectedShow.id}/looks/reorder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ look_ids: looks.map((l) => l.id) }),
+      })
+      if (res.ok) {
+        setOrderChanged(false)
+        showMsg('Order saved!')
+      } else {
+        showMsg('Failed to save order', 'err')
+      }
+    } finally {
+      setSavingOrder(false)
+    }
+  }
+
+  // ── Edit / delete ──────────────────────────────────────────────────────────
 
   const handleSaveEdit = async (lookId: number) => {
     if (!editUrl.trim() || !selectedShow) return
@@ -96,7 +150,12 @@ export default function RunwayFYIAdminLooks() {
         method: 'DELETE',
       })
       if (res.ok) {
-        setLooks((prev) => prev.filter((l) => l.id !== lookId))
+        setLooks((prev) => {
+          const updated = prev.filter((l) => l.id !== lookId)
+          // Renumber after delete
+          return updated.map((l, i) => ({ ...l, look_number: i + 1 }))
+        })
+        setOrderChanged(true)
         showMsg('Look deleted')
       } else {
         showMsg('Delete failed', 'err')
@@ -111,11 +170,10 @@ export default function RunwayFYIAdminLooks() {
     if (!confirm(`Delete ALL ${looks.length} looks for ${selectedShow.brand}? This cannot be undone.`)) return
     setDeletingAll(true)
     try {
-      const res = await fetch(`${RAILWAY_API}/api/trends/shows/${selectedShow.id}/looks`, {
-        method: 'DELETE',
-      })
+      const res = await fetch(`${RAILWAY_API}/api/trends/shows/${selectedShow.id}/looks`, { method: 'DELETE' })
       if (res.ok) {
         setLooks([])
+        setOrderChanged(false)
         showMsg(`Deleted all looks for ${selectedShow.brand}`)
       } else {
         showMsg('Delete all failed', 'err')
@@ -136,7 +194,10 @@ export default function RunwayFYIAdminLooks() {
       })
       if (res.ok) {
         const data = await res.json()
-        setLooks((prev) => [...prev, { id: data.id, look_number: data.look_number, image_url: newUrl.trim() }])
+        setLooks((prev) => {
+          const updated = [...prev, { id: data.id, look_number: data.look_number, image_url: newUrl.trim() }]
+          return updated.map((l, i) => ({ ...l, look_number: i + 1 }))
+        })
         setNewUrl('')
         setAddingNew(false)
         showMsg('Look added!')
@@ -153,6 +214,7 @@ export default function RunwayFYIAdminLooks() {
     setBulkSaving(true)
     const urls = bulkUrls.split('\n').map((u) => u.trim()).filter(Boolean)
     let added = 0
+    const newLooks: LookItem[] = []
     for (const url of urls) {
       const res = await fetch(`${RAILWAY_API}/api/trends/shows/${selectedShow.id}/looks`, {
         method: 'POST',
@@ -161,11 +223,15 @@ export default function RunwayFYIAdminLooks() {
       })
       if (res.ok) {
         const data = await res.json()
-        setLooks((prev) => [...prev, { id: data.id, look_number: data.look_number, image_url: url }])
+        newLooks.push({ id: data.id, look_number: data.look_number, image_url: url })
         added++
       }
       await new Promise((r) => setTimeout(r, 80))
     }
+    setLooks((prev) => {
+      const updated = [...prev, ...newLooks]
+      return updated.map((l, i) => ({ ...l, look_number: i + 1 }))
+    })
     setBulkUrls('')
     setBulkMode(false)
     setBulkSaving(false)
@@ -190,6 +256,10 @@ export default function RunwayFYIAdminLooks() {
         }
         body { background: var(--cream); color: var(--ink); -webkit-font-smoothing: antialiased; }
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: var(--bd); }
+        .look-card { cursor: grab; transition: opacity 0.15s, transform 0.15s; }
+        .look-card:active { cursor: grabbing; }
+        .look-card.dragging { opacity: 0.4; transform: scale(0.97); }
+        .look-card.drag-over { outline: 2px solid var(--ink); outline-offset: -2px; }
       `}</style>
 
       {message && (
@@ -205,12 +275,7 @@ export default function RunwayFYIAdminLooks() {
           <div style={{ padding: '20px 20px 12px' }}>
             <p style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', opacity: 0.4, marginBottom: 4 }}>runwayfyi.com · admin</p>
             <h1 style={{ fontFamily: 'var(--f-display)', fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 14 }}>Looks Editor</h1>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search shows..."
-              style={{ width: '100%', fontFamily: 'var(--f-mono)', fontSize: 10, padding: '7px 10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', outline: 'none', letterSpacing: '0.04em' }}
-            />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search shows..." style={{ width: '100%', fontFamily: 'var(--f-mono)', fontSize: 10, padding: '7px 10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', outline: 'none', letterSpacing: '0.04em' }} />
           </div>
           <div style={{ padding: '0 20px 12px', display: 'flex', gap: 12 }}>
             <a href="/admin/shows" style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>← Covers</a>
@@ -243,16 +308,29 @@ export default function RunwayFYIAdminLooks() {
                   <p style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--light)', marginBottom: 2 }}>{selectedShow.city} · {selectedShow.season} · {looks.length} looks</p>
                   <h2 style={{ fontFamily: 'var(--f-display)', fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>{selectedShow.brand}</h2>
                 </div>
+                {orderChanged && (
+                  <button onClick={handleSaveOrder} disabled={savingOrder} style={{ fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '8px 14px', background: '#1a7a4a', color: '#fff', border: 'none', cursor: 'pointer', animation: 'pulse 1.5s infinite' }}>
+                    {savingOrder ? 'Saving...' : '↑ Save Order'}
+                  </button>
+                )}
                 <button onClick={() => { setAddingNew(true); setBulkMode(false) }} style={{ fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '8px 14px', background: 'var(--ink)', color: '#fff', border: 'none', cursor: 'pointer' }}>+ Add Look</button>
                 <button onClick={() => { setBulkMode(true); setAddingNew(false) }} style={{ fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '8px 14px', background: 'none', color: 'var(--mid)', border: '1px solid var(--bd)', cursor: 'pointer' }}>Bulk Add</button>
-                <button
-                  onClick={handleDeleteAll}
-                  disabled={deletingAll || looks.length === 0}
-                  style={{ fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '8px 14px', background: 'none', color: '#c0392b', border: '1px solid #c0392b', cursor: looks.length === 0 ? 'not-allowed' : 'pointer', opacity: looks.length === 0 ? 0.4 : 1 }}
-                >
+                <button onClick={handleDeleteAll} disabled={deletingAll || looks.length === 0} style={{ fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '8px 14px', background: 'none', color: '#c0392b', border: '1px solid #c0392b', cursor: looks.length === 0 ? 'not-allowed' : 'pointer', opacity: looks.length === 0 ? 0.4 : 1 }}>
                   {deletingAll ? 'Deleting...' : `Delete All (${looks.length})`}
                 </button>
               </div>
+
+              {/* Drag hint */}
+              {looks.length > 0 && !orderChanged && (
+                <div style={{ padding: '8px 24px', background: 'var(--warm)', borderBottom: '1px solid var(--bd)', fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.08em', color: 'var(--light)', flexShrink: 0 }}>
+                  ↕ Drag cards to reorder · Look numbers update automatically · Hit "Save Order" to persist
+                </div>
+              )}
+              {orderChanged && (
+                <div style={{ padding: '8px 24px', background: '#fff8e1', borderBottom: '1px solid #f0c040', fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.08em', color: '#7a5c00', flexShrink: 0 }}>
+                  ⚠ Order changed — hit "Save Order" to persist to the database
+                </div>
+              )}
 
               {/* Add single */}
               {addingNew && (
@@ -286,25 +364,48 @@ export default function RunwayFYIAdminLooks() {
                   </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 1 }}>
-                    {looks.map((look) => {
+                    {looks.map((look, index) => {
                       const isEditing = editingLook === look.id
                       const isSaving = saving === look.id
                       const isDeleting = deleting === look.id
+
                       return (
-                        <div key={look.id} style={{ background: 'var(--cream)', position: 'relative' }}>
+                        <div
+                          key={look.id}
+                          className="look-card"
+                          draggable
+                          onDragStart={() => handleDragStart(index)}
+                          onDragEnter={() => handleDragEnter(index)}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={(e) => e.preventDefault()}
+                          style={{ background: 'var(--cream)', position: 'relative' }}
+                        >
                           <div style={{ width: '100%', paddingBottom: '150%', position: 'relative', background: 'var(--warm)', overflow: 'hidden' }}>
                             {look.image_url ? (
-                              <img src={look.image_url} referrerPolicy="no-referrer" alt={`Look ${look.look_number}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} onError={(e) => { e.currentTarget.style.opacity = '0.15' }} />
+                              <img src={look.image_url} referrerPolicy="no-referrer" alt={`Look ${look.look_number}`} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', pointerEvents: 'none' }} onError={(e) => { e.currentTarget.style.opacity = '0.15' }} />
                             ) : (
                               <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <span style={{ fontFamily: 'var(--f-mono)', fontSize: 8, color: 'var(--light)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>No image</span>
                               </div>
                             )}
-                            <div style={{ position: 'absolute', bottom: 6, left: 6, background: 'rgba(12,11,9,0.75)', color: '#fff', fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.06em', padding: '2px 6px' }}>{String(look.look_number).padStart(2, '0')}</div>
+
+                            {/* Look number badge */}
+                            <div style={{ position: 'absolute', bottom: 6, left: 6, background: 'rgba(12,11,9,0.75)', color: '#fff', fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.06em', padding: '2px 6px' }}>
+                              {String(look.look_number).padStart(2, '0')}
+                            </div>
+
+                            {/* Drag handle indicator */}
+                            <div style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(12,11,9,0.5)', color: '#fff', fontFamily: 'var(--f-mono)', fontSize: 10, padding: '2px 5px', letterSpacing: 0 }}>
+                              ⠿
+                            </div>
+
+                            {/* Delete button */}
                             <button onClick={() => handleDelete(look.id)} disabled={!!isDeleting} style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(192,57,43,0.85)', color: '#fff', border: 'none', cursor: 'pointer', width: 22, height: 22, fontFamily: 'var(--f-mono)', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               {isDeleting ? '…' : '✕'}
                             </button>
                           </div>
+
+                          {/* Edit URL */}
                           <div style={{ padding: '6px 8px 8px' }}>
                             {isEditing ? (
                               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
