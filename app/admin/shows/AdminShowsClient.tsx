@@ -70,7 +70,7 @@ const DETECTIONS = [
 ];
 
 // ─── Page component ───────────────────────────────────────────────────────────
-export default function HomePage() {
+export default function AdminCoverManager() {
   const [panelsLoaded, setPanelsLoaded] = useState([false, false]);
   const [detVisible,   setDetVisible]   = useState([false, false, false, false]);
   const [detScores,    setDetScores]    = useState([0, 0, 0, 0]);
