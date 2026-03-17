@@ -50,31 +50,24 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
   }, [])
 
   useEffect(() => {
-    if (initialShows.length === 0) return
-
-    const fetchCoverImages = async () => {
-      for (const show of initialShows) {
-        try {
-          const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
-          if (!res.ok) continue
-          const looks = await res.json()
-          if (!Array.isArray(looks) || looks.length === 0) continue
-          const candidates = [looks[2], looks[1], looks[0]].filter(Boolean)
-          const firstImage = candidates.find((l) => l?.image_url)?.image_url ?? null
-          if (firstImage) {
-            setShows((prev) =>
-              prev.map((s) => (s.id === show.id ? { ...s, coverImage: firstImage } : s))
-            )
-          }
-        } catch {
-          continue
-        }
-        await new Promise((resolve) => setTimeout(resolve, 100))
-      }
+  if (initialShows.length === 0) return
+  const fetchCovers = async () => {
+    try {
+      const res = await fetch(`${RAILWAY_API}/api/trends/shows/covers`)
+      if (!res.ok) return
+      const covers: { show_id: number; brand: string; cover_image: string }[] = await res.json()
+      setShows((prev) =>
+        prev.map((s) => {
+          const cover = covers.find((c) => c.show_id === s.id)
+          return cover ? { ...s, coverImage: cover.cover_image } : s
+        })
+      )
+    } catch {
+      // silently fail
     }
-
-    fetchCoverImages()
-  }, [initialShows.length]) // eslint-disable-line react-hooks/exhaustive-deps
+  }
+  fetchCovers()
+}, [initialShows.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered =
     activeCity === 'All' ? shows : shows.filter((s) => s.city === activeCity)
