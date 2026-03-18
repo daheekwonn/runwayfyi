@@ -6,7 +6,7 @@ const RAILWAY_API = process.env.NEXT_PUBLIC_RAILWAY_URL || 'https://fashion-back
 async function fetchShows() {
   try {
     const res = await fetch(`${RAILWAY_API}/api/trends/shows`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 0 },
     })
     if (!res.ok) return []
     return res.json()
