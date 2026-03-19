@@ -4,7 +4,7 @@
 // CLIENT COMPONENT — receives pre-fetched posts + fyis from server component (app/page.tsx).
 
 import { useEffect, useRef, useState } from 'react';
-import VisionUploader from '@/components/VisionUploader'
+import VisionUploader from './components/VisionUploader'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface TrendItem {
