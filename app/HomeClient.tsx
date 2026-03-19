@@ -4,6 +4,7 @@
 // CLIENT COMPONENT — receives pre-fetched posts + fyis from server component (app/page.tsx).
 
 import { useEffect, useRef, useState } from 'react';
+import VisionUploader from '@/components/VisionUploader'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface TrendItem {
@@ -662,6 +663,7 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis }: { posts: 
             );
           })}
         </section>
+        <VisionUploader />
 
         {/* Latest analysis — right column, list with images */}
         <section className="analysis-col">
