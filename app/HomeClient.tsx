@@ -144,8 +144,8 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
     ...CLIENT_FALLBACK_FYIS.filter(f => !rawFyis.find(p => p.id === f.id)).slice(0, 3 - rawFyis.length),
   ];
   const [panelsLoaded, setPanelsLoaded] = useState([false, false]);
-  const [detVisible,   setDetVisible]   = useState([false, false, false, false]);
-  const [detScores,    setDetScores]    = useState([0, 0, 0, 0]);
+  const [detVisible,   setDetVisible]   = useState(Array(12).fill(false));
+  const [detScores,    setDetScores]    = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   const [titleVisible, setTitleVisible] = useState(false);
   const [detCount,     setDetCount]     = useState(0);
   const [activeCity,   setActiveCity]   = useState('All');
@@ -597,7 +597,7 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
                     >
                       <div className="det-label">
                         <span className="det-label-text">{box.label}</span>
-                        <span className="det-score">{detScores[globalIdx].toFixed(1)}</span>
+                        <span className="det-score">{(detScores[globalIdx] ?? box.score).toFixed(1)}</span>
                       </div>
                       <span className="c c-tl" /><span className="c c-tr" />
                       <span className="c c-bl" /><span className="c c-br" />
