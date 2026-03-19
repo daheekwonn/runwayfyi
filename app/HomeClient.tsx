@@ -97,7 +97,7 @@ const DETECTIONS = [
 ];
 
 // ─── Page component ───────────────────────────────────────────────────────────
-export default function HomeClient({ posts: rawPosts, fyis: rawFyis }: { posts: Post[]; fyis: FyiItem[] }) {
+export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1, heroImage2, heroCaption1, heroCaption2 }: { posts: Post[]; fyis: FyiItem[]; heroImage1: string; heroImage2: string; heroCaption1: string; heroCaption2: string }) {
   // Always show 4 analysis posts and 3 FYI cards — fill gaps with client fallbacks
   const posts = rawPosts.length >= 4 ? rawPosts.slice(0, 4) : [
     ...rawPosts,
@@ -662,6 +662,7 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis }: { posts: 
             );
           })}
         </section>
+        <VisionUploader />
 
         {/* Latest analysis — right column, list with images */}
         <section className="analysis-col">
