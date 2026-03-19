@@ -88,13 +88,49 @@ const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen'];
 
 
 
-// ─── Detection boxes (2 image panels) ────────────────────────────────────────
-const DETECTIONS = [
-  { id: 0, panel: 0, style: { top: '18%', left: '22%', width: '52%', height: '54%' }, label: 'Silhouette',    val: 94.1, delay: 200  },
-  { id: 1, panel: 0, style: { top: '62%', left: '8%',  width: '30%', height: '26%' }, label: 'Material',      val: 74.3, delay: 500  },
-  { id: 2, panel: 1, style: { top: '10%', left: '18%', width: '56%', height: '52%' }, label: 'Outerwear',     val: 88.7, delay: 800  },
-  { id: 3, panel: 1, style: { top: '64%', left: '20%', width: '38%', height: '28%' }, label: 'Colour Signal', val: 78.6, delay: 1100 },
-];
+// ─── Vision API types ────────────────────────────────────────────────────────
+interface VisionBox {
+  label: string;
+  score: number;
+  top: number; left: number; width: number; height: number;
+}
+
+async function fetchVisionBoxes(imageUrl: string): Promise<VisionBox[]> {
+  const key = process.env.NEXT_PUBLIC_VISION_API_KEY;
+  if (!key) return [];
+  try {
+    const resp = await fetch(
+      `https://vision.googleapis.com/v1/images:annotate?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          requests: [{
+            image: { source: { imageUri: imageUrl } },
+            features: [{ type: 'OBJECT_LOCALIZATION', maxResults: 6 }],
+          }],
+        }),
+      }
+    );
+    const data = await resp.json();
+    const objects = data.responses?.[0]?.localizedObjectAnnotations ?? [];
+    return objects
+      .filter((o: { score: number }) => o.score > 0.5)
+      .slice(0, 3)
+      .map((o: { name: string; score: number; boundingPoly: { normalizedVertices: { x?: number; y?: number }[] } }) => {
+        const verts = o.boundingPoly?.normalizedVertices ?? [];
+        const xs = verts.map((v: { x?: number }) => v.x ?? 0);
+        const ys = verts.map((v: { y?: number }) => v.y ?? 0);
+        const left   = Math.min(...xs) * 100;
+        const top    = Math.min(...ys) * 100;
+        const width  = (Math.max(...xs) - Math.min(...xs)) * 100;
+        const height = (Math.max(...ys) - Math.min(...ys)) * 100;
+        return { label: o.name, score: Math.round(o.score * 100 * 10) / 10, top, left, width, height };
+      });
+  } catch {
+    return [];
+  }
+}
 
 // ─── Page component ───────────────────────────────────────────────────────────
 export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1, heroImage2, heroCaption1, heroCaption2 }: { posts: Post[]; fyis: FyiItem[]; heroImage1: string; heroImage2: string; heroCaption1: string; heroCaption2: string }) {
@@ -115,6 +151,7 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
   const [activeCity,   setActiveCity]   = useState('All');
   const [navVisible,   setNavVisible]   = useState(true);
   const [menuOpen,     setMenuOpen]     = useState(false);
+  const [visionBoxes,  setVisionBoxes]  = useState<[VisionBox[], VisionBox[]]>([[], []]);
   const imgRefs        = useRef<(HTMLImageElement | null)[]>([null, null]);
   const sequenceStarted = useRef(false);
   const lastScrollY = useRef(0);
@@ -147,17 +184,49 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
     requestAnimationFrame(step);
   }
 
-  function startSequence() {
+  async function startSequence() {
     if (sequenceStarted.current) return;
     sequenceStarted.current = true;
-    DETECTIONS.forEach(({ id, val, delay }) => {
-      setTimeout(() => {
-        setDetVisible(prev => { const next = [...prev]; next[id] = true; return next; });
-        countUp(id, val, 700);
-        setDetCount(c => c + 1);
-      }, delay);
-    });
-    setTimeout(() => setTitleVisible(true), 1600);
+
+    // Fetch real Vision boxes for both images in parallel
+    const [boxes0, boxes1] = await Promise.all([
+      fetchVisionBoxes(heroImage1),
+      fetchVisionBoxes(heroImage2),
+    ]);
+
+    setVisionBoxes([boxes0, boxes1]);
+
+    // Animate each box in staggered
+    const allBoxes = [
+      ...boxes0.map((b, i) => ({ ...b, panel: 0, idx: i })),
+      ...boxes1.map((b, i) => ({ ...b, panel: 1, idx: i })),
+    ];
+
+    if (allBoxes.length > 0) {
+      // Use real Vision data
+      allBoxes.forEach((box, i) => {
+        setTimeout(() => {
+          setDetVisible(prev => { const next = [...prev]; next[i] = true; return next; });
+          countUp(i, box.score, 700);
+          setDetCount(c => c + 1);
+        }, 200 + i * 300);
+      });
+      setTimeout(() => setTitleVisible(true), 200 + allBoxes.length * 300 + 300);
+    } else {
+      // Fallback to animated fake boxes if Vision key not set
+      const FALLBACK = [
+        { id: 0, val: 94.1, delay: 200 }, { id: 1, val: 74.3, delay: 500 },
+        { id: 2, val: 88.7, delay: 800 }, { id: 3, val: 78.6, delay: 1100 },
+      ];
+      FALLBACK.forEach(({ id, val, delay }) => {
+        setTimeout(() => {
+          setDetVisible(prev => { const next = [...prev]; next[id] = true; return next; });
+          countUp(id, val, 700);
+          setDetCount(c => c + 1);
+        }, delay);
+      });
+      setTimeout(() => setTitleVisible(true), 1600);
+    }
   }
 
   function handleImgLoad(index: number) {
@@ -511,20 +580,51 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
               alt={panelIdx === 0 ? 'Paris FW26' : 'Milan FW26'}
               onLoad={() => handleImgLoad(panelIdx)}
             />
-            {DETECTIONS.filter(d => d.panel === panelIdx).map(det => (
-              <div
-                key={det.id}
-                className={`det-box${detVisible[det.id] ? ' show' : ''}`}
-                style={det.style as React.CSSProperties}
-              >
-                <div className="det-label">
-                  <span className="det-label-text">{det.label}</span>
-                  <span className="det-score">{detScores[det.id].toFixed(1)}</span>
-                </div>
-                <span className="c c-tl" /><span className="c c-tr" />
-                <span className="c c-bl" /><span className="c c-br" />
-              </div>
-            ))}
+            {visionBoxes[panelIdx].length > 0
+              ? visionBoxes[panelIdx].map((box, i) => {
+                  const globalIdx = panelIdx === 0 ? i : visionBoxes[0].length + i;
+                  return (
+                    <div
+                      key={i}
+                      className={`det-box${detVisible[globalIdx] ? ' show' : ''}`}
+                      style={{
+                        position: 'absolute',
+                        top: `${box.top}%`,
+                        left: `${box.left}%`,
+                        width: `${box.width}%`,
+                        height: `${box.height}%`,
+                      }}
+                    >
+                      <div className="det-label">
+                        <span className="det-label-text">{box.label}</span>
+                        <span className="det-score">{detScores[globalIdx].toFixed(1)}</span>
+                      </div>
+                      <span className="c c-tl" /><span className="c c-tr" />
+                      <span className="c c-bl" /><span className="c c-br" />
+                    </div>
+                  );
+                })
+              : /* fallback fake boxes while Vision loads */
+                [
+                  { id: 0, panel: 0, style: { top: '18%', left: '22%', width: '52%', height: '54%' }, label: 'Silhouette' },
+                  { id: 1, panel: 0, style: { top: '62%', left: '8%',  width: '30%', height: '26%' }, label: 'Material'   },
+                  { id: 2, panel: 1, style: { top: '10%', left: '18%', width: '56%', height: '52%' }, label: 'Outerwear'  },
+                  { id: 3, panel: 1, style: { top: '64%', left: '20%', width: '38%', height: '28%' }, label: 'Colour Signal' },
+                ].filter(d => d.panel === panelIdx).map(det => (
+                  <div
+                    key={det.id}
+                    className={`det-box${detVisible[det.id] ? ' show' : ''}`}
+                    style={det.style as React.CSSProperties}
+                  >
+                    <div className="det-label">
+                      <span className="det-label-text">{det.label}</span>
+                      <span className="det-score">{detScores[det.id].toFixed(1)}</span>
+                    </div>
+                    <span className="c c-tl" /><span className="c c-tr" />
+                    <span className="c c-bl" /><span className="c c-br" />
+                  </div>
+                ))
+            }
           </div>
         ))}
 
