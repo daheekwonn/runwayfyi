@@ -662,7 +662,6 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
             );
           })}
         </section>
-        <VisionUploader />
 
         {/* Latest analysis — right column, list with images */}
         <section className="analysis-col">
