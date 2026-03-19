@@ -1,3 +1,5 @@
+// sanity/lib/queries.ts
+
 export const articlesQuery = `*[_type == "article"] | order(publishedAt desc) [0...4] {
   _id,
   title,
@@ -34,4 +36,12 @@ export const showsQuery = `*[_type == "show"] | order(showScore desc) {
   notes,
   keyPieces,
   "coverImage": coverImage.asset->url,
+}`
+
+// Hero images — fetches the single siteSettings document
+export const heroImagesQuery = `*[_type == "siteSettings"][0] {
+  "heroImage1": heroImage1.asset->url,
+  "heroImage2": heroImage2.asset->url,
+  heroCaption1,
+  heroCaption2,
 }`

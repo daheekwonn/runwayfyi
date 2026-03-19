@@ -1,6 +1,5 @@
 // app/page.tsx
-// SERVER COMPONENT — fetches latest articles and FYI items from Sanity.
-// All static data (TRENDS, ARCHIVE, hero images) stays in HomeClient.
+// SERVER COMPONENT — fetches articles, FYI items, and hero images from Sanity.
 // Falls back gracefully if Sanity returns nothing.
 
 import { client } from '@/sanity/lib/client';
@@ -21,8 +20,6 @@ const latestPostsQuery = `*[_type == "article"] | order(publishedAt desc) [0...4
   "coverImage": coverImage.asset->url,
 }`;
 
-// FYI items — if you have a dedicated 'fyi' type use that,
-// otherwise we pull the top 3 articles and format them as FYI cards.
 const fyiQuery = `*[_type == "article"] | order(publishedAt desc) [0...3] {
   _id,
   title,
@@ -32,6 +29,14 @@ const fyiQuery = `*[_type == "article"] | order(publishedAt desc) [0...3] {
   excerpt,
   score,
   "coverImage": coverImage.asset->url,
+}`;
+
+// Hero images — single siteSettings document
+const heroImagesQuery = `*[_type == "siteSettings"][0] {
+  "heroImage1": heroImage1.asset->url,
+  "heroImage2": heroImage2.asset->url,
+  heroCaption1,
+  heroCaption2,
 }`;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -46,6 +51,13 @@ interface SanityArticle {
   publishedAt?: string;
   score?: number;
   coverImage?: string;
+}
+
+interface HeroImages {
+  heroImage1?: string;
+  heroImage2?: string;
+  heroCaption1?: string;
+  heroCaption2?: string;
 }
 
 // ── Normalisers ───────────────────────────────────────────────────────────────
@@ -95,16 +107,35 @@ const FALLBACK_FYIS = [
   { id: 'prairie-silhouette-fw26',     tag: 'Forecast · FW26',        stat: '+312% search velocity', text: "prairie is not a micro trend. chloe fw26 confirmed what copenhagen started — this is the silhouette of the season",                               img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80' },
 ];
 
+// Fallback hero images — used until you set them in Sanity
+const FALLBACK_HERO: HeroImages = {
+  heroImage1: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+  heroImage2: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80',
+  heroCaption1: 'FW26 · Runway',
+  heroCaption2: 'FW26 · Runway',
+};
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
-  const [sanityPosts, sanityFyis] = await Promise.all([
+  const [sanityPosts, sanityFyis, heroData] = await Promise.all([
     client.fetch<SanityArticle[]>(latestPostsQuery).catch(() => []),
     client.fetch<SanityArticle[]>(fyiQuery).catch(() => []),
+    client.fetch<HeroImages | null>(heroImagesQuery).catch(() => null),
   ]);
 
   const posts = sanityPosts?.length > 0 ? sanityPosts.map(toPost) : FALLBACK_POSTS;
   const fyis  = sanityFyis?.length  > 0 ? sanityFyis.map(toFyi)  : FALLBACK_FYIS;
+  const hero  = heroData ?? FALLBACK_HERO;
 
-  return <HomeClient posts={posts} fyis={fyis} />;
+  return (
+    <HomeClient
+      posts={posts}
+      fyis={fyis}
+      heroImage1={hero.heroImage1 ?? FALLBACK_HERO.heroImage1!}
+      heroImage2={hero.heroImage2 ?? FALLBACK_HERO.heroImage2!}
+      heroCaption1={hero.heroCaption1 ?? FALLBACK_HERO.heroCaption1!}
+      heroCaption2={hero.heroCaption2 ?? FALLBACK_HERO.heroCaption2!}
+    />
+  );
 }
