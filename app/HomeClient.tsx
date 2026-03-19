@@ -507,11 +507,7 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
             </span>
             <img
               ref={el => { imgRefs.current[panelIdx] = el; }}
-              src={
-                panelIdx === 0
-                  ? 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80'
-                  : 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80'
-              }
+              src={panelIdx === 0 ? heroImage1 : heroImage2}
               alt={panelIdx === 0 ? 'Paris FW26' : 'Milan FW26'}
               onLoad={() => handleImgLoad(panelIdx)}
             />
