@@ -423,15 +423,15 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
         .nav-overlay.open { opacity:1; pointer-events:all; }
 
         /* ── Hero ── */
-        .hero { position:relative; width:100%; height:calc(100vh - 118px); min-height:480px; background:#fff; overflow:hidden; display:grid; grid-template-columns:1fr 1fr 380px; z-index:0; isolation:isolate; }
-        .img-panel { position:relative; overflow:hidden; opacity:0; transition:opacity 1s ease; border-right:1px solid var(--bd); }
+        .hero { position:relative; width:100%; background:#0C0B09; overflow:hidden; display:grid; grid-template-columns:1fr 1fr 380px; z-index:0; isolation:isolate; min-height:520px; }
+        .img-panel { position:relative; overflow:hidden; opacity:0; transition:opacity 1s ease; border-right:1px solid rgba(255,255,255,0.08); aspect-ratio:2/3; }
         .img-panel:last-of-type { border-right:none; }
         .img-panel.loaded { opacity:1; }
-        .img-panel img { width:100%; height:100%; object-fit:contain; object-position:center center; background:#0C0B09; filter:grayscale(15%) brightness(0.86) contrast(1.04); display:block; }
+        .img-panel img { width:100%; height:100%; object-fit:cover; object-position:top center; filter:grayscale(12%) brightness(0.88) contrast(1.03); display:block; }
         .cell-cam { position:absolute; top:14px; left:16px; font-family:var(--f-mono); font-size:8.5px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.38); z-index:5; }
 
         /* hero explanation panel */
-        .hero-explain { background:#fff; border-left:1px solid var(--bd); display:flex; flex-direction:column; justify-content:space-between; padding:32px 36px; overflow:hidden; min-width:0; }
+        .hero-explain { background:#fff; border-left:1px solid var(--bd); display:flex; flex-direction:column; justify-content:space-between; padding:32px 36px; overflow:hidden; min-width:0; align-self:stretch; }
         .hero-explain-top { display:flex; flex-direction:column; gap:20px; }
         .hero-explain-kicker { font-family:var(--f-mono); font-size:9px; letter-spacing:0.16em; text-transform:uppercase; color:var(--light); }
         .hero-explain-title { font-family:var(--f-display); font-size:22px; font-weight:700; letter-spacing:-0.02em; line-height:1.1; color:var(--ink); }
