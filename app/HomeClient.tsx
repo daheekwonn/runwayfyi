@@ -95,6 +95,95 @@ interface VisionBox {
   top: number; left: number; width: number; height: number;
 }
 
+// ─── FW26 trend-aligned label remapping ──────────────────────────────────────
+// Labels mapped to actual FW26 trending pieces from the leaderboard
+const FASHION_LABELS: Record<string, string> = {
+  // Outerwear — FW26 #1 trend: Shearling Coat (94.1), Leather Bomber (88.7)
+  'Outerwear': 'Shearling Coat · FW26 #1',
+  'Jacket': 'Leather Bomber · +200% search',
+  'Coat': 'Shearling Coat · 94.1',
+  // Dresses & silhouettes — Prairie Silhouette (78.6), Column Dress (61.7)
+  'Dress': 'Column Dress · FW26',
+  'Gown': 'Prairie Silhouette · FW26',
+  'Skirt': 'Midi Skirt · FW26',
+  // Tailoring — Wide-Leg Trouser (74.3), Oversized Blazer (68.4)
+  'Trousers': 'Wide-Leg Trouser · 74.3',
+  'Pants': 'Wide-Leg Trouser · FW26',
+  'Suit': 'Oversized Blazer · FW26',
+  // Tops
+  'Top': 'Structured Top · FW26',
+  'Shirt': 'Tailored Shirt · FW26',
+  'Blouse': 'Sheer Blouse · FW26',
+  // Footwear — Ballet Flat (65.2)
+  'Shoe': 'Ballet Flat · 65.2',
+  'Boot': 'Knee Boot · FW26',
+  'Sandal': 'Strappy Sandal · FW26',
+  'High heels': 'Block Heel · FW26',
+  'Footwear': 'Ballet Flat · FW26',
+  // Accessories
+  'Bag': 'Structured Bag · FW26',
+  'Handbag': 'Mini Bag · FW26',
+  'Hat': 'Beret · FW26',
+  'Glasses': 'Shield Eyewear · FW26',
+  'Belt': 'Cinched Belt · FW26',
+  // Silhouette signals
+  'Person': 'Runway Silhouette · FW26',
+  'Human face': 'Editorial · FW26',
+  'Human body': 'Full Look · FW26',
+  'Human hand': 'Accessory Detail · FW26',
+};
+
+// FW26 material signals — mapped to trending materials from leaderboard
+// Leather Outerwear #1 material (1,062 looks), Boucle Tweed, Shearling, Velvet, Satin
+const MATERIAL_SIGNALS: Record<string, string> = {
+  // Top FW26 materials by runway count
+  'leather': 'Leather · #1 FW26 Material',
+  'shearling': 'Shearling · Gucci Bottega Loewe',
+  'boucle': 'Boucle Tweed · Chanel FW26',
+  'tweed': 'Tweed · 38/52 Chanel Looks',
+  'velvet': 'Velvet · FW26 Signal',
+  'satin': 'Satin · Evening FW26',
+  'fur': 'Faux Fur · Outerwear Signal',
+  'feather': 'Feather · Trim Signal FW26',
+  'sequin': 'Sequin · Evening FW26',
+  'lace': 'Lace · Prairie Signal',
+  'silk': 'Silk · Fluid FW26',
+  'wool': 'Wool · Tailoring FW26',
+  'cashmere': 'Cashmere · Quiet Luxury',
+  'knit': 'Chunky Knit · FW26',
+  'crochet': 'Crochet · Artisan FW26',
+  'chiffon': 'Chiffon · Prairie Dress',
+  'organza': 'Organza · Volume FW26',
+  'fringe': 'Fringe · Movement Signal',
+  // Colour signals — Burgundy +180%, Chocolate Brown
+  'burgundy': 'Burgundy · +180% search',
+  'chocolate': 'Chocolate Brown · Sleeper',
+  'camel': 'Camel · Quiet Luxury',
+  'black': 'All-Black · Leather Signal',
+  'cream': 'Cream · Prairie Palette',
+};
+
+function remapLabel(raw: string): string {
+  return FASHION_LABELS[raw] ?? raw;
+}
+
+function extractMaterialFromLabels(labels: { description: string; score: number }[]): VisionBox | null {
+  for (const label of labels) {
+    const lower = label.description.toLowerCase();
+    for (const [kw, fashionName] of Object.entries(MATERIAL_SIGNALS)) {
+      if (lower.includes(kw) && label.score > 0.6) {
+        // Place material signal box in bottom-left area
+        return {
+          label: fashionName,
+          score: Math.round(label.score * 100 * 10) / 10,
+          top: 65, left: 5, width: 35, height: 22,
+        };
+      }
+    }
+  }
+  return null;
+}
+
 async function fetchVisionBoxes(imageUrl: string): Promise<VisionBox[]> {
   const key = process.env.NEXT_PUBLIC_VISION_API_KEY;
   if (!key) return [];
@@ -107,26 +196,42 @@ async function fetchVisionBoxes(imageUrl: string): Promise<VisionBox[]> {
         body: JSON.stringify({
           requests: [{
             image: { source: { imageUri: imageUrl } },
-            features: [{ type: 'OBJECT_LOCALIZATION', maxResults: 6 }],
+            features: [
+              { type: 'OBJECT_LOCALIZATION', maxResults: 6 },
+              { type: 'LABEL_DETECTION', maxResults: 20 },
+            ],
           }],
         }),
       }
     );
     const data = await resp.json();
-    const objects = data.responses?.[0]?.localizedObjectAnnotations ?? [];
-    return objects
+    const response = data.responses?.[0] ?? {};
+    const objects = response.localizedObjectAnnotations ?? [];
+    const labels  = response.labelAnnotations ?? [];
+
+    // Build object boxes with remapped fashion labels
+    const boxes: VisionBox[] = objects
       .filter((o: { score: number }) => o.score > 0.5)
       .slice(0, 3)
       .map((o: { name: string; score: number; boundingPoly: { normalizedVertices: { x?: number; y?: number }[] } }) => {
         const verts = o.boundingPoly?.normalizedVertices ?? [];
         const xs = verts.map((v: { x?: number }) => v.x ?? 0);
         const ys = verts.map((v: { y?: number }) => v.y ?? 0);
-        const left   = Math.min(...xs) * 100;
-        const top    = Math.min(...ys) * 100;
-        const width  = (Math.max(...xs) - Math.min(...xs)) * 100;
-        const height = (Math.max(...ys) - Math.min(...ys)) * 100;
-        return { label: o.name, score: Math.round(o.score * 100 * 10) / 10, top, left, width, height };
+        return {
+          label: remapLabel(o.name),
+          score: Math.round(o.score * 100 * 10) / 10,
+          top:    Math.min(...ys) * 100,
+          left:   Math.min(...xs) * 100,
+          width:  (Math.max(...xs) - Math.min(...xs)) * 100,
+          height: (Math.max(...ys) - Math.min(...ys)) * 100,
+        };
       });
+
+    // Add material signal box if detected
+    const material = extractMaterialFromLabels(labels);
+    if (material) boxes.push(material);
+
+    return boxes;
   } catch {
     return [];
   }
