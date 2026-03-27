@@ -75,14 +75,14 @@ const SECTIONS = [
     href: '/about',
     external: false,
   },
-  {
-    id: 'trends',
-    kicker: 'Live · runway fyi',
-    label: 'Trends Page',
-    description: 'View the live trends dashboard. Pulls from Railway every hour.',
-    href: '/trends',
-    external: false,
-  },
+ {
+  id: 'trends',
+  kicker: 'Manual · Tagging',
+  label: 'Trend Manager',
+  description: 'Add, rename, delete trends and categories. Set runway counts manually.',
+  href: '/admin/trends',
+  external: false,
+},
 ]
 
 const QUICK_ACTIONS = [
