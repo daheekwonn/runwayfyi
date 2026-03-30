@@ -595,7 +595,7 @@ export default function TrendsClient({ leaderboard, all }: Props) {
             {
               key: 'R', label: 'Runway Frequency', weight: '50%',
               desc: 'The backbone of the score. We count how many looks and how many shows featured a given garment, silhouette, or material signal across Paris, Milan, London, and New York. A trend that appeared in 40 looks across 8 shows scores far higher than one spotted in 3 looks at a single designer.',
-              stat: '5,659', statLabel: 'looks indexed FW26',,
+              stat: '5,659', statLabel: 'looks indexed FW26',
             },
             {
               key: 'S', label: 'Search Velocity', weight: '30%',
