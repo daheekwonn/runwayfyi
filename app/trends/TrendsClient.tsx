@@ -17,34 +17,6 @@ const CATEGORY_LABELS: Record<string,string> = {
 }
 const CATEGORY_ORDER = ['outerwear','tailoring','dress','footwear','material','color','accessory','aesthetic']
 
-export default function TrendsClient({ leaderboard, all }: Props) {
-  
-  // Derive material data from API
-  const MATERIAL_DATA = all
-    .filter(t => t.category === 'material')
-    .sort((a, b) => b.trend_score - a.trend_score)
-    .slice(0, 6)
-    .map(t => ({
-      name: t.name,
-      pct: Math.round(t.trend_score),
-      color: '#1a1816',
-    }))
-
-  // Derive keyword data from API
-  const KEYWORD_DATA = [...all]
-    .sort((a, b) => b.trend_score - a.trend_score)
-    .slice(0, 10)
-    .map(t => ({
-      name: t.name,
-      tag: t.category.toUpperCase(),
-      bar: Math.round(t.trend_score),
-      delta: t.trend_delta > 0 ? `+${t.trend_delta.toFixed(1)}%` : `${t.trend_delta.toFixed(1)}%`,
-      up: t.trend_delta >= 0,
-    }))
-
-  const [activeCategory, setActiveCategory] = useState('all')
-  // ... rest of state declarations
-
 // 12 months of simulated trend velocity data
 const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
 const VELOCITY_DATA = {
@@ -317,7 +289,30 @@ export default function TrendsClient({ leaderboard, all }: Props) {
   const top3 = leaderboard.slice(0, 3)
   const TICKER_ITEMS = leaderboard.slice(0,10).map(i => `${i.name}  ${i.trend_score.toFixed(1)}`).concat(['Paris FW26','Milan FW26','London FW26','New York FW26'])
 
-  return (
+// Derive material data from API
+const MATERIAL_DATA = all
+  .filter(t => t.category === 'material')
+  .sort((a, b) => b.trend_score - a.trend_score)
+  .slice(0, 6)
+  .map(t => ({
+    name: t.name,
+    pct: Math.round(t.trend_score),
+    color: '#1a1816',
+  }))
+
+// Derive keyword data from API
+const KEYWORD_DATA = [...all]
+  .sort((a, b) => b.trend_score - a.trend_score)
+  .slice(0, 10)
+  .map(t => ({
+    name: t.name,
+    tag: t.category.toUpperCase(),
+    bar: Math.round(t.trend_score),
+    delta: t.trend_delta > 0 ? `+${t.trend_delta.toFixed(1)}%` : `${t.trend_delta.toFixed(1)}%`,
+    up: t.trend_delta >= 0,
+  }))
+
+return (
     <>
       <style>{`
         @import url('https://api.fontshare.com/v2/css?f[]=ranade@300,400,500,600,700&display=swap');
