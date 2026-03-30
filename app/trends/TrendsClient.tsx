@@ -634,7 +634,6 @@ export default function TrendsClient({ leaderboard, all }: Props) {
   {'score = 0.5 \u00d7 runway'}<br />
   {'      + 0.3 \u00d7 search'}<br />
   {'      + 0.2 \u00d7 social'}
-</div>
             </div>
             <p style={{ fontFamily:`'Lora', Georgia, serif`, fontSize:'13px', fontWeight:500, lineHeight:1.7, color:'var(--mid)', marginTop:'20px' }}>
               Each component is normalised to a 0–100 scale before weighting. The composite score therefore also sits between 0 and 100. A score above 80 indicates a confirmed macro trend for the season.
