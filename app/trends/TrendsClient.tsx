@@ -26,9 +26,9 @@ const VELOCITY_DATA = {
 }
 
 const CULTURAL_CONTEXTS = [
-  { season:'FW26', title:'Recession dressing always brings the coat', body:`When economic anxiety spikes, outerwear scores rise. It happened in FW09 (shearling), FW15 (cocoon coat), and now FW26. A coat is armour. The data agrees.`, stat:'#1', statLabel:'Outerwear rank', color:'#2C2A27' },
-  { season:'FW26', title:'The prairie dress is a generational reset', body:`Every 20 years, fashion returns to the countryside. The 70s had Laura Ashley. The 90s had babydoll. FW26 has Chloé. When the world feels unstable, the silhouette romanticises escape.`, stat:'+340%', statLabel:'Search growth YoY', color:'#4A3728' },
-  { season:'FW25', title:'Quiet luxury was never about the clothes', body:`The quiet luxury cycle peaked in FW25 and is now correcting. Blazy's Chanel is the antidote — maximalism is returning, but as joy, not noise. The search data shifted before the shows did.`, stat:'−18%', statLabel:'QT search delta', color:'#1C1C1A' },
+  { season:'FW26', title:'Recession dressing always brings the coat', body:`When economic anxiety spikes, outerwear scores rise. It happened in FW09 (shearling), FW15 (cocoon coat), and now FW26. A coat is armour. The data agrees.`, stat:'#1', statLabel:'Outerwear rank', color:'#2C2A27', link: '/analysis/why-leather-is-fw26s-defining-material'},
+  { season:'FW26', title:'The prairie dress is a generational reset', body:`Every 20 years, fashion returns to the countryside. The 70s had Laura Ashley. The 90s had babydoll. FW26 has Chloé. When the world feels unstable, the silhouette romanticises escape.`, stat:'+340%', statLabel:'Search growth YoY', color:'#4A3728', link: '/analysis/prairie-is-not-a-micro-trend-the-data-proves-it' },
+  { season:'FW25', title:'Quiet luxury was never about the clothes', body:`The quiet luxury cycle peaked in FW25 and is now correcting. Blazy's Chanel is the antidote — maximalism is returning, but as joy, not noise. The search data shifted before the shows did.`, stat:'−18%', statLabel:'QT search delta', color:'#1C1C1A', link: '/analysis/quiet-luxury-is-over-fw26-is-the-proof' },
 ]
 
 // ── SVG Line Chart ─────────────────────────────────────────────────────────────
