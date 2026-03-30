@@ -17,27 +17,28 @@ const CATEGORY_LABELS: Record<string,string> = {
 }
 const CATEGORY_ORDER = ['outerwear','tailoring','dress','footwear','material','color','accessory','aesthetic']
 
-const MATERIAL_DATA = [
-  { name:'Leather',   pct:95, color:'#1a1816' },
-  { name:'Shearling', pct:88, color:'#8B7355' },
-  { name:'Tweed',     pct:72, color:'#C4B49A' },
-  { name:'Velvet',    pct:48, color:'#4A3728' },
-  { name:'Satin',     pct:40, color:'#A09A94' },
-  { name:'Lace',      pct:86, color:'#C8C0B8' },
-]
+// Derive material data from API
+const MATERIAL_DATA = all
+  .filter(t => t.category === 'material')
+  .sort((a, b) => b.trend_score - a.trend_score)
+  .slice(0, 6)
+  .map(t => ({
+    name: t.name,
+    pct: Math.round(t.trend_score),
+    color: '#1a1816',
+  }))
 
-const KEYWORD_DATA = [
-  { name:'Leather Outerwear', tag:'MATERIAL', bar:95, delta:'+22%',   up:true  },
-  { name:'Ballet Flats',      tag:'FOOTWEAR', bar:83, delta:'+16.9%', up:true  },
-  { name:'Shearling Coat',    tag:'MATERIAL', bar:88, delta:'+33%',   up:true  },
-  { name:'Prairie Dress',     tag:'SILHOUETTE',bar:79,delta:'+5yr',   up:true  },
-  { name:'Wide-Leg Trouser',  tag:'TAILORING',bar:74, delta:'+18%',   up:true  },
-  { name:'Burgundy',          tag:'COLOUR',   bar:72, delta:'+180%',  up:true  },
-  { name:'Kitten Heels',      tag:'FOOTWEAR', bar:87, delta:'+12%',   up:true  },
-  { name:'Trench Coat',       tag:'OUTERWEAR',bar:56, delta:'-2.5%',  up:false },
-  { name:'Quiet Luxury',      tag:'AESTHETIC',bar:52, delta:'-38.4%', up:false },
-  { name:'Bar Jacket',        tag:'TAILORING',bar:15, delta:'-70.4%', up:false },
-]
+// Derive keyword data from API
+const KEYWORD_DATA = [...all]
+  .sort((a, b) => b.trend_score - a.trend_score)
+  .slice(0, 10)
+  .map(t => ({
+    name: t.name,
+    tag: t.category.toUpperCase(),
+    bar: Math.round(t.trend_score),
+    delta: t.trend_delta > 0 ? `+${t.trend_delta.toFixed(1)}%` : `${t.trend_delta.toFixed(1)}%`,
+    up: t.trend_delta >= 0,
+  }))
 
 // 12 months of simulated trend velocity data
 const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
