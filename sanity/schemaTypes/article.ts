@@ -110,6 +110,19 @@ export default defineType({
       description: 'If this article is about a specific trend, enter its score',
       type: 'number',
     }),
+    defineField({
+  name: 'season',
+  title: 'Season',
+  type: 'string',
+  options: {
+    list: [
+      { title: 'FW26', value: 'fw26' },
+      { title: 'SS26', value: 'ss26' },
+      { title: 'FW25', value: 'fw25' },
+    ],
+  },
+  initialValue: 'fw26',
+}),
   ],
   preview: {
     select: { title: 'title', media: 'coverImage', subtitle: 'season' },
