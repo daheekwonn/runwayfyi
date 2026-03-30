@@ -17,28 +17,33 @@ const CATEGORY_LABELS: Record<string,string> = {
 }
 const CATEGORY_ORDER = ['outerwear','tailoring','dress','footwear','material','color','accessory','aesthetic']
 
-// Derive material data from API
-const MATERIAL_DATA = all
-  .filter(t => t.category === 'material')
-  .sort((a, b) => b.trend_score - a.trend_score)
-  .slice(0, 6)
-  .map(t => ({
-    name: t.name,
-    pct: Math.round(t.trend_score),
-    color: '#1a1816',
-  }))
+export default function TrendsClient({ leaderboard, all }: Props) {
+  
+  // Derive material data from API
+  const MATERIAL_DATA = all
+    .filter(t => t.category === 'material')
+    .sort((a, b) => b.trend_score - a.trend_score)
+    .slice(0, 6)
+    .map(t => ({
+      name: t.name,
+      pct: Math.round(t.trend_score),
+      color: '#1a1816',
+    }))
 
-// Derive keyword data from API
-const KEYWORD_DATA = [...all]
-  .sort((a, b) => b.trend_score - a.trend_score)
-  .slice(0, 10)
-  .map(t => ({
-    name: t.name,
-    tag: t.category.toUpperCase(),
-    bar: Math.round(t.trend_score),
-    delta: t.trend_delta > 0 ? `+${t.trend_delta.toFixed(1)}%` : `${t.trend_delta.toFixed(1)}%`,
-    up: t.trend_delta >= 0,
-  }))
+  // Derive keyword data from API
+  const KEYWORD_DATA = [...all]
+    .sort((a, b) => b.trend_score - a.trend_score)
+    .slice(0, 10)
+    .map(t => ({
+      name: t.name,
+      tag: t.category.toUpperCase(),
+      bar: Math.round(t.trend_score),
+      delta: t.trend_delta > 0 ? `+${t.trend_delta.toFixed(1)}%` : `${t.trend_delta.toFixed(1)}%`,
+      up: t.trend_delta >= 0,
+    }))
+
+  const [activeCategory, setActiveCategory] = useState('all')
+  // ... rest of state declarations
 
 // 12 months of simulated trend velocity data
 const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
