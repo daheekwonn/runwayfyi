@@ -18,7 +18,7 @@ async function fetchLeaderboard() {
 
 async function fetchAll() {
   try {
-    const res = await fetch(`${RAILWAY_API}/api/trends/all`, {
+    const res = await fetch(`${RAILWAY_API}/api/trends/leaderboard?limit=50`, {
       next: { revalidate: 3600 },
     })
     if (!res.ok) return []
