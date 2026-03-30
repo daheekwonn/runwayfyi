@@ -30,7 +30,7 @@ function normalise(a: SanityArticle, index: number) {
     : '—';
   return {
     id: slug,
-    kicker: `${a.category ?? 'Analysis'} · ${a.season ?? 'FW26'}`,
+    kicker: `${(a.category ?? 'Analysis').replace(/-/g, ' ')} · ${a.season ?? 'FW26'}`,
     category: (a.category ?? 'analysis').toLowerCase(),
     season: a.season ?? 'FW26',
     title: a.title,

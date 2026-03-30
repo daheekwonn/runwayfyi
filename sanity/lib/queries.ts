@@ -42,7 +42,7 @@ export const fiyArticlesQuery = `*[_type == "article" && section == "fyi"] | ord
 }`
 
 // Analysis page — only analysis section articles  
-export const articlesQuery = `*[_type == "article" && section == "analysis"] | order(publishedAt desc) [0...4] {
+export const articlesQuery = `*[_type == "article" && section == "analysis"] | order(publishedAt desc) [0...20] {
   _id, title, slug, category, season, excerpt, publishedAt,
   "coverImage": coverImage.asset->url
 }`
