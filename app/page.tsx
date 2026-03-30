@@ -9,7 +9,7 @@ export const revalidate = 60;
 
 // ── Queries ───────────────────────────────────────────────────────────────────
 
-const latestPostsQuery = `*[_type == "article"] | order(publishedAt desc) [0...4] {
+const latestPostsQuery = `*[_type == "article" && section == "analysis"] | order(publishedAt desc) [0...4] {
   _id,
   title,
   slug,
@@ -20,7 +20,7 @@ const latestPostsQuery = `*[_type == "article"] | order(publishedAt desc) [0...4
   "coverImage": coverImage.asset->url,
 }`;
 
-const fyiQuery = `*[_type == "article"] | order(publishedAt desc) [0...3] {
+const fyiQuery = `*[_type == "article" && section == "fyi"] | order(publishedAt desc) [0...3] {
   _id,
   title,
   slug,

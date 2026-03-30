@@ -45,3 +45,14 @@ export const heroImagesQuery = `*[_type == "siteSettings"][0] {
   heroCaption1,
   heroCaption2,
 }`
+// Homepage FYI strip — only fyi section articles
+export const fiyArticlesQuery = `*[_type == "article" && section == "fyi"] | order(publishedAt desc) [0...3] {
+  _id, title, slug, category, season, excerpt, publishedAt,
+  "coverImage": coverImage.asset->url
+}`
+
+// Analysis page — only analysis section articles  
+export const articlesQuery = `*[_type == "article" && section == "analysis"] | order(publishedAt desc) [0...4] {
+  _id, title, slug, category, season, excerpt, publishedAt,
+  "coverImage": coverImage.asset->url
+}`

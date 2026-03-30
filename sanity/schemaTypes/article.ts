@@ -34,20 +34,18 @@ export default defineType({
       validation: Rule => Rule.required(),
     }),
     defineField({
-      name: 'season',
-      title: 'Season',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Paris FW26',    value: 'paris-fw26'    },
-          { title: 'Milan FW26',    value: 'milan-fw26'    },
-          { title: 'London FW26',   value: 'london-fw26'   },
-          { title: 'New York FW26', value: 'newyork-fw26'  },
-          { title: 'Copenhagen FW26', value: 'copenhagen-fw26' },
-          { title: 'FW26 Season',   value: 'fw26'          },
-        ],
-      },
-    }),
+  name: 'section',
+  title: 'Section',
+  type: 'string',
+  options: {
+    list: [
+      { title: 'Analysis', value: 'analysis' },
+      { title: 'FYI', value: 'fyi' },
+    ],
+    layout: 'radio',
+  },
+  initialValue: 'analysis',
+}),
     defineField({
       name: 'coverImage',
       title: 'Cover Image',
