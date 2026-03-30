@@ -459,7 +459,7 @@ return (
             <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'12px' }}>
               Runway Looks Indexed
             </div>
-            <div style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'52px', fontWeight:700, letterSpacing:'-0.04em', lineHeight:1, marginBottom:'8px' }}>2,847</div>
+            <div style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'52px', fontWeight:700, letterSpacing:'-0.04em', lineHeight:1, marginBottom:'8px' }}>5,659</div>
             <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'10px', color:'#16873d', letterSpacing:'0.08em' }}>↑ 14% vs SS '25</div>
           </div>
           {/* Big stat 2 */}
