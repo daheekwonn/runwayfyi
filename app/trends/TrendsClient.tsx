@@ -126,12 +126,12 @@ function VelocityChart() {
 }
 
 // ── Material bar chart ─────────────────────────────────────────────────────────
-function MaterialChart() {
+function MaterialChart({ data }: { data: { name: string; pct: number; color: string }[] }) {
   return (
     <div>
       <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'6px' }}>Material Trends</div>
       <div style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'22px', fontWeight:700, letterSpacing:'-0.02em', marginBottom:'20px' }}>Top Fabrics FW26</div>
-      {MATERIAL_DATA.map(m => (
+      {data.map(m => (
         <div key={m.name} style={{ display:'grid', gridTemplateColumns:'80px 1fr 40px', gap:'12px', alignItems:'center', marginBottom:'14px' }}>
           <span style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'14px', fontWeight:500 }}>{m.name}</span>
           <div style={{ height:'8px', background:'var(--warm)', borderRadius:'1px', overflow:'hidden' }}>
@@ -145,7 +145,7 @@ function MaterialChart() {
 }
 
 // ── Keywords table ─────────────────────────────────────────────────────────────
-function KeywordsChart() {
+function KeywordsChart({ data }: { data: { name: string; tag: string; bar: number; delta: string; up: boolean }[] }) {
   return (
     <div>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:'6px' }}>
@@ -153,7 +153,7 @@ function KeywordsChart() {
         <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.12em', color:'var(--light)' }}>↑ WEEKLY</div>
       </div>
       <div style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'22px', fontWeight:700, letterSpacing:'-0.02em', marginBottom:'20px' }}>Top Tags</div>
-      {KEYWORD_DATA.map((k, i) => (
+      {data.map((k, i) => (
         <div key={k.name} style={{ display:'grid', gridTemplateColumns:'28px 1fr 70px 1fr 48px', gap:'10px', alignItems:'center', borderBottom:'1px solid var(--bd)', padding:'10px 0' }}>
           <span style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'10px', color:'var(--light)' }}>{String(i+1).padStart(2,'0')}</span>
           <span style={{ fontFamily:`'Ranade', sans-serif`, fontSize:'15px', fontWeight:500 }}>{k.name}</span>
@@ -476,10 +476,10 @@ return (
       {/* ── Material + Keywords charts ── */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:'1px solid var(--bd)' }}>
         <div style={{ padding:'40px 48px', borderRight:'1px solid var(--bd)' }}>
-          <MaterialChart />
+          <MaterialChart data={MATERIAL_DATA} />
         </div>
         <div style={{ padding:'40px 40px' }}>
-          <KeywordsChart />
+          <KeywordsChart data={KEYWORD_DATA} />
         </div>
       </div>
 
