@@ -25,7 +25,7 @@ const TICKER_ITEMS = [
   'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
 ];
 
-const CATEGORIES = ['All', 'Analysis', 'Opinion', 'Data', 'Forecast', 'Cultural Context'];
+const CATEGORIES = ['All', 'Opinion', 'Data', 'Forecast', 'Cultural Context'];
 
 export default function AnalysisClient({ articles }: { articles: Article[] }) {
   const [navVisible,     setNavVisible]     = useState(true);
@@ -44,7 +44,8 @@ export default function AnalysisClient({ articles }: { articles: Article[] }) {
   }, []);
 
   const filtered = articles.filter(a =>
-  activeCategory === 'All' || a.category === activeCategory.toLowerCase().replace(' ', '-')
+  activeCategory === 'All' || 
+  a.category.toLowerCase().replace(/\s+/g, '-') === activeCategory.toLowerCase().replace(/\s+/g, '-')
 );
 
   const hero = filtered.find(a => a.featured) || filtered[0];
