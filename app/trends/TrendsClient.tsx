@@ -630,10 +630,11 @@ export default function TrendsClient({ leaderboard, all }: Props) {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:'1px solid var(--bd)' }}>
           <div style={{ padding:'36px 40px', borderRight:'1px solid var(--bd)' }}>
             <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'16px' }}>The formula</div>
-            <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'clamp(14px,1.6vw,20px)', fontWeight:500, letterSpacing:'0.04em', color:'var(--ink)', lineHeight:1.8, background:'#fff', padding:'24px 28px', border:'1px solid var(--bd)'
-              {'score = 0.5 × runway'}<br />
-{'      + 0.3 × search'}<br />
-{'      + 0.2 × social'}
+            <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'clamp(14px,1.6vw,20px)', fontWeight:500, letterSpacing:'0.04em', color:'var(--ink)', lineHeight:1.8, background:'#fff', padding:'24px 28px', border:'1px solid var(--bd)' }}>
+  {'score = 0.5 \u00d7 runway'}<br />
+  {'      + 0.3 \u00d7 search'}<br />
+  {'      + 0.2 \u00d7 social'}
+</div>
             </div>
             <p style={{ fontFamily:`'Lora', Georgia, serif`, fontSize:'13px', fontWeight:500, lineHeight:1.7, color:'var(--mid)', marginTop:'20px' }}>
               Each component is normalised to a 0–100 scale before weighting. The composite score therefore also sits between 0 and 100. A score above 80 indicates a confirmed macro trend for the season.
