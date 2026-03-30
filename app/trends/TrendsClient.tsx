@@ -18,25 +18,25 @@ const CATEGORY_LABELS: Record<string,string> = {
 const CATEGORY_ORDER = ['outerwear','tailoring','dress','footwear','material','color','accessory','aesthetic']
 
 const MATERIAL_DATA = [
-  { name:'Leather',  pct:78, color:'#1a1816' },
-  { name:'Shearling',pct:64, color:'#8B7355' },
-  { name:'Boucle',   pct:59, color:'#C4B49A' },
-  { name:'Velvet',   pct:52, color:'#4A3728' },
-  { name:'Satin',    pct:44, color:'#A09A94' },
-  { name:'Lace',     pct:37, color:'#C8C0B8' },
+  { name:'Leather',   pct:95, color:'#1a1816' },
+  { name:'Shearling', pct:88, color:'#8B7355' },
+  { name:'Tweed',     pct:72, color:'#C4B49A' },
+  { name:'Velvet',    pct:48, color:'#4A3728' },
+  { name:'Satin',     pct:40, color:'#A09A94' },
+  { name:'Lace',      pct:86, color:'#C8C0B8' },
 ]
 
 const KEYWORD_DATA = [
-  { name:'Leather Outerwear', tag:'RUNWAY',   bar:88, delta:'+22%', up:true  },
-  { name:'Prairie Dress',     tag:'RUNWAY',   bar:72, delta:'+41%', up:true  },
-  { name:'Wide-Leg Trouser',  tag:'RUNWAY',   bar:70, delta:'+18%', up:true  },
-  { name:'Shearling Coat',    tag:'RUNWAY',   bar:68, delta:'+33%', up:true  },
-  { name:'Ballet Flats',      tag:'RUNWAY',   bar:65, delta:'+27%', up:true  },
-  { name:'Mary Janes',        tag:'RUNWAY',   bar:60, delta:'+12%', up:true  },
-  { name:'Quiet Luxury',      tag:'AESTHETIC',bar:55, delta:'-8%',  up:false },
-  { name:'Boucle Jacket',     tag:'MATERIAL', bar:50, delta:'+22%', up:true  },
-  { name:'Column Dress',      tag:'RUNWAY',   bar:48, delta:'-4%',  up:false },
-  { name:'Romantic Dressing', tag:'AESTHETIC',bar:42, delta:'+15%', up:true  },
+  { name:'Leather Outerwear', tag:'MATERIAL', bar:95, delta:'+22%',   up:true  },
+  { name:'Ballet Flats',      tag:'FOOTWEAR', bar:83, delta:'+16.9%', up:true  },
+  { name:'Shearling Coat',    tag:'MATERIAL', bar:88, delta:'+33%',   up:true  },
+  { name:'Prairie Dress',     tag:'SILHOUETTE',bar:79,delta:'+5yr',   up:true  },
+  { name:'Wide-Leg Trouser',  tag:'TAILORING',bar:74, delta:'+18%',   up:true  },
+  { name:'Burgundy',          tag:'COLOUR',   bar:72, delta:'+180%',  up:true  },
+  { name:'Kitten Heels',      tag:'FOOTWEAR', bar:87, delta:'+12%',   up:true  },
+  { name:'Trench Coat',       tag:'OUTERWEAR',bar:56, delta:'-2.5%',  up:false },
+  { name:'Quiet Luxury',      tag:'AESTHETIC',bar:52, delta:'-38.4%', up:false },
+  { name:'Bar Jacket',        tag:'TAILORING',bar:15, delta:'-70.4%', up:false },
 ]
 
 // 12 months of simulated trend velocity data
@@ -580,7 +580,7 @@ export default function TrendsClient({ leaderboard, all }: Props) {
       </section>
 
       {/* ── Methodology ── */}
-      <section id="methodology" style={{ borderBottom:'1px solid var(--bd)', background:'var(--cream)' }}>
+      <section id="methodology" style={{ borderBottom:'1px solid var(--bd)', background:'#fff' }}>
         <div style={{ padding:'48px 48px 32px', borderBottom:'1px solid var(--bd)', display:'flex', alignItems:'baseline', justifyContent:'space-between' }}>
           <div>
             <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'10px' }}>How it works</div>
@@ -595,7 +595,7 @@ export default function TrendsClient({ leaderboard, all }: Props) {
             {
               key: 'R', label: 'Runway Frequency', weight: '50%',
               desc: 'The backbone of the score. We count how many looks and how many shows featured a given garment, silhouette, or material signal across Paris, Milan, London, and New York. A trend that appeared in 40 looks across 8 shows scores far higher than one spotted in 3 looks at a single designer.',
-              stat: '2,847', statLabel: 'looks indexed FW26',
+              stat: '5,659', statLabel: 'looks indexed FW26',,
             },
             {
               key: 'S', label: 'Search Velocity', weight: '30%',
@@ -629,7 +629,7 @@ export default function TrendsClient({ leaderboard, all }: Props) {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', borderBottom:'1px solid var(--bd)' }}>
           <div style={{ padding:'36px 40px', borderRight:'1px solid var(--bd)' }}>
             <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'9px', letterSpacing:'0.16em', textTransform:'uppercase', color:'var(--light)', marginBottom:'16px' }}>The formula</div>
-            <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'clamp(14px,1.6vw,20px)', fontWeight:500, letterSpacing:'0.04em', color:'var(--ink)', lineHeight:1.8, background:'var(--warm)', padding:'24px 28px', borderLeft:'3px solid var(--ink)' }}>
+            <div style={{ fontFamily:`'Geist Mono', monospace`, fontSize:'clamp(14px,1.6vw,20px)', fontWeight:500, letterSpacing:'0.04em', color:'var(--ink)', lineHeight:1.8, background:'#fff', padding:'24px 28px', border:'1px solid var(--bd)'
               score = 0.5 × runway<br />
               {'     '}+ 0.3 × search<br />
               {'     '}+ 0.2 × social
