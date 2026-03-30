@@ -184,57 +184,23 @@ function extractMaterialFromLabels(labels: { description: string; score: number 
   return null;
 }
 
-async function fetchVisionBoxes(imageUrl: string): Promise<VisionBox[]> {
-  const key = process.env.NEXT_PUBLIC_VISION_API_KEY;
-  if (!key) return [];
-  try {
-    const resp = await fetch(
-      `https://vision.googleapis.com/v1/images:annotate?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          requests: [{
-            image: { source: { imageUri: imageUrl } },
-            features: [
-              { type: 'OBJECT_LOCALIZATION', maxResults: 6 },
-              { type: 'LABEL_DETECTION', maxResults: 20 },
-            ],
-          }],
-        }),
-      }
-    );
-    const data = await resp.json();
-    const response = data.responses?.[0] ?? {};
-    const objects = response.localizedObjectAnnotations ?? [];
-    const labels  = response.labelAnnotations ?? [];
+// Hardcoded detection boxes for the two hero images
+// Panel 0 = Gucci FW26 (leather look), Panel 1 = Valentino FW26 (shearling coat)
+const HERO_DETECTIONS: [VisionBox[], VisionBox[]] = [
+  [
+    { label: 'Leather Outerwear · #1 FW26', score: 94.1, top: 8,  left: 10, width: 75, height: 38 },
+    { label: 'Kitten Heels · Rising Signal', score: 86.5, top: 78, left: 20, width: 55, height: 16 },
+    { label: 'Shoulder Bag · Accessory FW26', score: 81.2, top: 35, left: 2,  width: 30, height: 28 },
+  ],
+  [
+    { label: 'Oversized Coat · FW26 Silhouette', score: 92.3, top: 5,  left: 8,  width: 80, height: 72 },
+    { label: 'Shearling · Gucci Bottega Loewe',  score: 88.7, top: 10, left: 12, width: 70, height: 55 },
+    { label: 'Chocolate Brown · Sleeper Signal',  score: 77.3, top: 68, left: 15, width: 60, height: 18 },
+  ],
+];
 
-    // Build object boxes with remapped fashion labels
-    const boxes: VisionBox[] = objects
-      .filter((o: { score: number }) => o.score > 0.5)
-      .slice(0, 3)
-      .map((o: { name: string; score: number; boundingPoly: { normalizedVertices: { x?: number; y?: number }[] } }) => {
-        const verts = o.boundingPoly?.normalizedVertices ?? [];
-        const xs = verts.map((v: { x?: number }) => v.x ?? 0);
-        const ys = verts.map((v: { y?: number }) => v.y ?? 0);
-        return {
-          label: remapLabel(o.name),
-          score: Math.round(o.score * 100 * 10) / 10,
-          top:    Math.min(...ys) * 100,
-          left:   Math.min(...xs) * 100,
-          width:  (Math.max(...xs) - Math.min(...xs)) * 100,
-          height: (Math.max(...ys) - Math.min(...ys)) * 100,
-        };
-      });
-
-    // Add material signal box if detected
-    const material = extractMaterialFromLabels(labels);
-    if (material) boxes.push(material);
-
-    return boxes;
-  } catch {
-    return [];
-  }
+async function fetchVisionBoxes(imageUrl: string, panelIndex: number): Promise<VisionBox[]> {
+  return HERO_DETECTIONS[panelIndex] ?? [];
 }
 
 // ─── Page component ───────────────────────────────────────────────────────────
@@ -293,10 +259,10 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
     if (sequenceStarted.current) return;
     sequenceStarted.current = true;
 
-    // Fetch real Vision boxes for both images in parallel
+    // Fetch detection boxes for both panels
     const [boxes0, boxes1] = await Promise.all([
-      fetchVisionBoxes(heroImage1),
-      fetchVisionBoxes(heroImage2),
+      fetchVisionBoxes(heroImage1, 0),
+      fetchVisionBoxes(heroImage2, 1),
     ]);
 
     setVisionBoxes([boxes0, boxes1]);
@@ -677,7 +643,7 @@ export default function HomeClient({ posts: rawPosts, fyis: rawFyis, heroImage1,
         {[0, 1].map(panelIdx => (
           <div key={panelIdx} className={`img-panel${panelsLoaded[panelIdx] ? ' loaded' : ''}`}>
             <span className="cell-cam">
-              {panelIdx === 0 ? 'CAM-01 · PARIS FW26' : 'CAM-02 · MILAN FW26'}
+              {panelIdx === 0 ? 'CAM-01 · PARIS FW26' : 'CAM-02 · ROME FW26'}
             </span>
             <img
               ref={el => { imgRefs.current[panelIdx] = el; }}
