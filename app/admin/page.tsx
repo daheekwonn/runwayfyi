@@ -83,6 +83,14 @@ const SECTIONS = [
   href: '/admin/trends',
   external: false,
 },
+ {
+  id: 'tag-looks',
+  kicker: 'Manual · Vision',
+  label: 'Tag Looks',
+  description: 'Browse looks by show and add manual tags for trend scoring. Tags take priority over Vision labels.',
+  href: '/admin/tag-looks',
+  external: false,
+},
 ]
 
 const QUICK_ACTIONS = [
