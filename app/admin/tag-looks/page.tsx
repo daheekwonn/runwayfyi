@@ -43,45 +43,15 @@ const T = {
 // ─── AI Tag Suggestion ────────────────────────────────────────────────────────
 
 async function getSuggestedTags(imageUrl: string): Promise<string[]> {
-  const prompt = `You are tagging runway looks for a fashion trend intelligence platform.
-Analyse this runway image carefully and return specific, descriptive fashion tags.
-
-Good examples of tag style: "croc effect leather", "strong shoulder", "waxed denim", "wide-leg trouser", "pumps", "long scarf", "leather gloves", "grey denim", "brown handbag", "mini skirt", "denim set"
-
-Tags should cover: silhouette details, key garments, fabric/texture/finish, colour, accessories, construction details.
-- Be specific and descriptive, not vague ("croc effect leather" not just "leather")
-- All lowercase
-- 6–10 tags total
-
-Return ONLY a comma-separated list of tags. No explanation, no preamble.`;
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch(`${API_BASE}/api/looks/suggest-tags`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 200,
-      messages: [{
-        role: "user",
-        content: [
-          { type: "image", source: { type: "url", url: imageUrl } },
-          { type: "text", text: prompt },
-        ],
-      }],
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image_url: imageUrl }),
   });
 
   if (!response.ok) throw new Error(`API ${response.status}`);
   const data = await response.json();
-  const text = data.content?.find((b: { type: string }) => b.type === "text")?.text ?? "";
-  return text
-    .split(",")
-    .map((t: string) => t.trim().toLowerCase().replace(/^["']|["']$/g, ""))
-    .filter((t: string) => t.length > 0 && t.length < 60);
+  return (data.tags ?? []) as string[];
 }
 
 // ─── Auth Gate ────────────────────────────────────────────────────────────────
