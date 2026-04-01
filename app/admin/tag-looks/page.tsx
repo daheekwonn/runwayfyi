@@ -27,6 +27,19 @@ const API_BASE = "https://fashion-backend-production-6880.up.railway.app";
 const CITIES = ["All", "Paris", "Milan", "London", "New York", "Copenhagen", "Berlin", "Tokyo"];
 const ADMIN_PW = "Runw3825!";
 
+// Design tokens matching runwayfyi.com
+const T = {
+  ink:    "#0C0B09",
+  cream:  "#F5F2ED",
+  warm:   "#EDE9E2",
+  mid:    "#5A5550",
+  light:  "#A09A94",
+  bd:     "rgba(12,11,9,0.1)",
+  white:  "#FFFFFF",
+  green:  "#2E6B45",   // accent for saved/accept states
+  red:    "#B03020",
+};
+
 // ─── AI Tag Suggestion ────────────────────────────────────────────────────────
 
 async function getSuggestedTags(imageUrl: string): Promise<string[]> {
@@ -44,7 +57,11 @@ Return ONLY a comma-separated list of tags. No explanation, no preamble.`;
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
       max_tokens: 200,
@@ -81,10 +98,10 @@ function AuthGate({ onAuth }: { onAuth: () => void }) {
   return (
     <div style={{
       minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-      background: "#0a0a0a", fontFamily: "'DM Mono', monospace",
+      background: T.cream, fontFamily: "'Geist Mono', monospace",
     }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
-        <span style={{ color: "#444", fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase" }}>
+        <span style={{ color: T.light, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase" }}>
           runway fyi · admin
         </span>
         <input
@@ -95,13 +112,13 @@ function AuthGate({ onAuth }: { onAuth: () => void }) {
           onChange={e => { setPw(e.target.value); setErr(false); }}
           onKeyDown={e => e.key === "Enter" && attempt()}
           style={{
-            background: "transparent",
-            border: `1px solid ${err ? "#c03" : "#2a2a2a"}`,
-            color: "#ccc", padding: "10px 14px", fontSize: 12,
-            outline: "none", fontFamily: "inherit", width: 220, borderRadius: 3,
+            background: T.white,
+            border: `1px solid ${err ? T.red : T.bd}`,
+            color: T.ink, padding: "10px 14px", fontSize: 12,
+            outline: "none", fontFamily: "inherit", width: 220, borderRadius: 2,
           }}
         />
-        {err && <span style={{ color: "#c03", fontSize: 10 }}>incorrect</span>}
+        {err && <span style={{ color: T.red, fontSize: 10 }}>incorrect</span>}
       </div>
     </div>
   );
@@ -113,16 +130,16 @@ function TagChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 3,
-      background: "#161616", border: "1px solid #222",
-      color: "#bbb", fontSize: 10, padding: "2px 6px 2px 8px",
-      borderRadius: 2, fontFamily: "'DM Mono', monospace", lineHeight: 1.6,
+      background: T.warm, border: `1px solid ${T.bd}`,
+      color: T.ink, fontSize: 10, padding: "2px 6px 2px 8px",
+      borderRadius: 2, fontFamily: "'Geist Mono', monospace", lineHeight: 1.6,
     }}>
       {label}
       <button
         onClick={onRemove}
         style={{
-          background: "none", border: "none", color: "#444", cursor: "pointer",
-          fontSize: 12, lineHeight: 1, padding: "0 0 1px", display: "flex",
+          background: "none", border: "none", color: T.light, cursor: "pointer",
+          fontSize: 13, lineHeight: 1, padding: "0 0 1px", display: "flex",
         }}
       >×</button>
     </span>
@@ -140,7 +157,7 @@ function LookCard({
   onTagsChange: (tags: string[]) => void;
   onSuggest: () => void;
   suggestState: SuggestState;
-  suggestedTags: string[];  // already filtered for dismissed + already-accepted
+  suggestedTags: string[];
   onAcceptSuggested: (tag: string) => void;
   onDismissSuggested: (tag: string) => void;
   isDirty: boolean;
@@ -164,12 +181,12 @@ function LookCard({
 
   return (
     <div style={{
-      background: "#0d0d0d",
-      border: `1px solid ${isDirty ? "#1e301e" : "#161616"}`,
-      borderRadius: 5, overflow: "hidden", display: "flex", flexDirection: "column",
+      background: T.white,
+      border: `1px solid ${isDirty ? "rgba(46,107,69,0.3)" : T.bd}`,
+      borderRadius: 3, overflow: "hidden", display: "flex", flexDirection: "column",
     }}>
       {/* Image */}
-      <div style={{ position: "relative", aspectRatio: "2/3", background: "#111", flexShrink: 0 }}>
+      <div style={{ position: "relative", aspectRatio: "2/3", background: T.warm, flexShrink: 0 }}>
         {look.image_url ? (
           <img
             src={look.image_url}
@@ -181,14 +198,15 @@ function LookCard({
             width: "100%", height: "100%", display: "flex",
             alignItems: "center", justifyContent: "center",
           }}>
-            <span style={{ color: "#2a2a2a", fontSize: 10 }}>no image</span>
+            <span style={{ color: T.light, fontSize: 10 }}>no image</span>
           </div>
         )}
         {/* Look number */}
         <span style={{
           position: "absolute", top: 6, left: 6,
-          background: "rgba(0,0,0,0.7)", color: "#666", fontSize: 9,
-          padding: "2px 5px", borderRadius: 2, fontFamily: "'DM Mono', monospace",
+          background: "rgba(245,242,237,0.9)", color: T.mid, fontSize: 9,
+          padding: "2px 6px", borderRadius: 2,
+          fontFamily: "'Geist Mono', monospace", letterSpacing: "0.05em",
         }}>
           {look.look_number}
         </span>
@@ -196,13 +214,13 @@ function LookCard({
         {isDirty && (
           <span style={{
             position: "absolute", top: 8, right: 8,
-            width: 5, height: 5, borderRadius: "50%", background: "#4a8",
+            width: 6, height: 6, borderRadius: "50%", background: T.green,
           }} />
         )}
       </div>
 
       {/* Tag area */}
-      <div style={{ padding: "8px 9px 9px", display: "flex", flexDirection: "column", gap: 7 }}>
+      <div style={{ padding: "8px 9px 10px", display: "flex", flexDirection: "column", gap: 7 }}>
 
         {/* Accepted tags */}
         {tags.length > 0 && (
@@ -222,9 +240,9 @@ function LookCard({
           placeholder={tags.length === 0 ? "type tag, enter to add…" : "add more…"}
           style={{
             background: "transparent", border: "none",
-            borderBottom: "1px solid #1e1e1e", color: "#888",
+            borderBottom: `1px solid ${T.bd}`, color: T.mid,
             fontSize: 10, padding: "3px 0", outline: "none",
-            fontFamily: "'DM Mono', monospace", width: "100%",
+            fontFamily: "'Geist Mono', monospace", width: "100%",
           }}
         />
 
@@ -233,9 +251,9 @@ function LookCard({
           <button
             onClick={onSuggest}
             style={{
-              background: "none", border: "1px solid #1e1e1e", borderRadius: 2,
-              color: "#444", fontSize: 9, padding: "4px 7px", cursor: "pointer",
-              fontFamily: "inherit", letterSpacing: "0.06em", textAlign: "left",
+              background: "none", border: `1px solid ${T.bd}`, borderRadius: 2,
+              color: T.light, fontSize: 9, padding: "4px 7px", cursor: "pointer",
+              fontFamily: "'Geist Mono', monospace", letterSpacing: "0.06em", textAlign: "left",
             }}
           >
             ✦ suggest from image
@@ -243,21 +261,28 @@ function LookCard({
         )}
 
         {suggestState === "loading" && (
-          <span style={{ color: "#333", fontSize: 9, fontFamily: "'DM Mono', monospace" }}>
-            analysing image…
+          <span style={{ color: T.light, fontSize: 9, fontFamily: "'Geist Mono', monospace" }}>
+            analysing…
           </span>
         )}
 
         {suggestState === "error" && (
-          <span style={{ color: "#522", fontSize: 9, fontFamily: "'DM Mono', monospace" }}>
+          <button
+            onClick={onSuggest}
+            style={{
+              background: "none", border: `1px solid rgba(176,48,32,0.2)`, borderRadius: 2,
+              color: T.red, fontSize: 9, padding: "4px 7px", cursor: "pointer",
+              fontFamily: "'Geist Mono', monospace", letterSpacing: "0.06em", textAlign: "left",
+            }}
+          >
             couldn't load — try again
-          </span>
+          </button>
         )}
 
         {/* Pending suggestions */}
         {suggestState === "done" && suggestedTags.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-            <span style={{ fontSize: 8, color: "#333", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            <span style={{ fontSize: 8, color: T.light, letterSpacing: "0.12em", textTransform: "uppercase" }}>
               suggestions
             </span>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
@@ -266,9 +291,11 @@ function LookCard({
                   <button
                     onClick={() => onAcceptSuggested(tag)}
                     style={{
-                      background: "none", border: "1px dashed #1e3a1e",
-                      color: "#3a7", fontSize: 9, padding: "2px 6px",
-                      borderRadius: 2, cursor: "pointer", fontFamily: "inherit",
+                      background: "none",
+                      border: `1px dashed rgba(46,107,69,0.35)`,
+                      color: T.green, fontSize: 9, padding: "2px 6px",
+                      borderRadius: 2, cursor: "pointer",
+                      fontFamily: "'Geist Mono', monospace",
                     }}
                   >
                     + {tag}
@@ -276,8 +303,8 @@ function LookCard({
                   <button
                     onClick={() => onDismissSuggested(tag)}
                     style={{
-                      background: "none", border: "none", color: "#2a2a2a",
-                      fontSize: 11, cursor: "pointer", lineHeight: 1, padding: 0,
+                      background: "none", border: "none", color: T.light,
+                      fontSize: 12, cursor: "pointer", lineHeight: 1, padding: 0,
                     }}
                   >×</button>
                 </span>
@@ -286,9 +313,9 @@ function LookCard({
             <button
               onClick={() => suggestedTags.forEach(t => onAcceptSuggested(t))}
               style={{
-                background: "none", border: "none", color: "#3a7",
+                background: "none", border: "none", color: T.green,
                 fontSize: 9, cursor: "pointer", textAlign: "left",
-                fontFamily: "inherit", padding: 0, letterSpacing: "0.04em",
+                fontFamily: "'Geist Mono', monospace", padding: 0, letterSpacing: "0.04em",
               }}
             >
               accept all →
@@ -297,7 +324,9 @@ function LookCard({
         )}
 
         {suggestState === "done" && suggestedTags.length === 0 && (
-          <span style={{ color: "#2a2a2a", fontSize: 9 }}>all suggestions accepted</span>
+          <span style={{ color: T.light, fontSize: 9, fontFamily: "'Geist Mono', monospace" }}>
+            all suggestions accepted
+          </span>
         )}
       </div>
     </div>
@@ -307,8 +336,6 @@ function LookCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function TagLooksPage() {
-  const [authed, setAuthed] = useState(false);
-
   const [shows, setShows] = useState<Show[]>([]);
   const [cityFilter, setCityFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -317,7 +344,6 @@ export default function TagLooksPage() {
   const [looks, setLooks] = useState<Look[]>([]);
   const [loadingLooks, setLoadingLooks] = useState(false);
 
-  // per-look tag state
   const [tagMap, setTagMap] = useState<Record<number, string[]>>({});
   const [dirtySet, setDirtySet] = useState<Set<number>>(new Set());
   const [suggestStateMap, setSuggestStateMap] = useState<Record<number, SuggestState>>({});
@@ -330,12 +356,11 @@ export default function TagLooksPage() {
   // ── Load shows ─────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!authed) return;
     fetch(`${API_BASE}/api/trends/shows`)
       .then(r => r.json())
       .then(data => setShows(Array.isArray(data) ? data : data.shows ?? []))
       .catch(console.error);
-  }, [authed]);
+  }, []);
 
   // ── Load looks on show select ──────────────────────────────────────────────
 
@@ -373,7 +398,7 @@ export default function TagLooksPage() {
     setDirtySet(prev => new Set([...prev, lookId]));
   }
 
-  // ── AI suggest single look ─────────────────────────────────────────────────
+  // ── AI suggest ────────────────────────────────────────────────────────────
 
   async function handleSuggest(look: Look) {
     if (!look.image_url) return;
@@ -387,8 +412,6 @@ export default function TagLooksPage() {
     }
   }
 
-  // ── Suggest all untagged ───────────────────────────────────────────────────
-
   async function suggestAll() {
     const toSuggest = looks.filter(l => {
       const hasTags = (tagMap[l.id]?.length ?? 0) > 0;
@@ -397,11 +420,9 @@ export default function TagLooksPage() {
     });
     for (const look of toSuggest) {
       await handleSuggest(look);
-      await new Promise(r => setTimeout(r, 350)); // gentle rate limiting
+      await new Promise(r => setTimeout(r, 350));
     }
   }
-
-  // ── Accept / dismiss suggestions ──────────────────────────────────────────
 
   function handleAcceptSuggested(lookId: number, tag: string) {
     setLookTags(lookId, [...(tagMap[lookId] ?? []), tag]);
@@ -460,54 +481,60 @@ export default function TagLooksPage() {
   const taggedCount = looks.filter(l => (tagMap[l.id]?.length ?? 0) > 0).length;
   const progress = looks.length > 0 ? Math.round((taggedCount / looks.length) * 100) : 0;
 
-  // ── Render ─────────────────────────────────────────────────────────────────
-
-  if (!authed) return <AuthGate onAuth={() => setAuthed(true)} />;
-
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { background: #0a0a0a; height: 100%; }
+        html, body { background: #F5F2ED; height: 100%; }
         ::-webkit-scrollbar { width: 3px; height: 3px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: rgba(12,11,9,0.15); border-radius: 2px; }
+        input::placeholder { color: #A09A94; }
       `}</style>
 
       <div style={{
         display: "flex", height: "100vh", overflow: "hidden",
-        fontFamily: "'DM Mono', monospace", background: "#0a0a0a", color: "#ccc",
+        fontFamily: "'Geist Mono', monospace", background: T.cream, color: T.ink,
       }}>
 
         {/* ── Sidebar ── */}
         <aside style={{
-          width: 230, borderRight: "1px solid #141414", display: "flex",
-          flexDirection: "column", flexShrink: 0, height: "100vh",
+          width: 236, borderRight: `1px solid ${T.bd}`, display: "flex",
+          flexDirection: "column", flexShrink: 0, height: "100vh", background: T.white,
         }}>
-          <div style={{ padding: "14px 14px 10px", borderBottom: "1px solid #141414" }}>
-            <div style={{ fontSize: 9, color: "#333", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 10 }}>
-              runway fyi · tag looks
+          <div style={{ padding: "16px 16px 12px", borderBottom: `1px solid ${T.bd}` }}>
+            <div style={{
+              fontSize: 9, color: T.light, letterSpacing: "0.16em",
+              textTransform: "uppercase", marginBottom: 10,
+            }}>
+              Season · FW26
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: T.ink, marginBottom: 12, letterSpacing: "-0.02em" }}>
+              Tag Looks
             </div>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="search…"
+              placeholder="search shows…"
               style={{
-                width: "100%", background: "#0f0f0f", border: "1px solid #1a1a1a",
-                color: "#888", padding: "5px 9px", fontSize: 10, borderRadius: 2,
+                width: "100%", background: T.cream, border: `1px solid ${T.bd}`,
+                color: T.ink, padding: "6px 10px", fontSize: 10, borderRadius: 2,
                 outline: "none", fontFamily: "inherit",
               }}
             />
           </div>
 
           {/* City chips */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 3, padding: "8px 12px", borderBottom: "1px solid #141414" }}>
+          <div style={{
+            display: "flex", flexWrap: "wrap", gap: 3,
+            padding: "8px 12px", borderBottom: `1px solid ${T.bd}`,
+          }}>
             {CITIES.map(c => (
               <button key={c} onClick={() => setCityFilter(c)} style={{
-                background: cityFilter === c ? "#161616" : "none",
-                border: `1px solid ${cityFilter === c ? "#252525" : "#141414"}`,
-                color: cityFilter === c ? "#888" : "#333",
+                background: cityFilter === c ? T.warm : "none",
+                border: `1px solid ${cityFilter === c ? T.bd : "transparent"}`,
+                color: cityFilter === c ? T.ink : T.light,
                 fontSize: 8, padding: "2px 6px", borderRadius: 2,
                 cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.06em",
               }}>
@@ -521,21 +548,21 @@ export default function TagLooksPage() {
             {filteredShows.map(show => (
               <button key={show.id} onClick={() => setSelectedShow(show)} style={{
                 width: "100%", textAlign: "left",
-                background: selectedShow?.id === show.id ? "#111" : "none",
-                border: "none", borderBottom: "1px solid #0f0f0f",
-                borderLeft: `2px solid ${selectedShow?.id === show.id ? "#3a7" : "transparent"}`,
-                padding: "8px 12px", cursor: "pointer",
+                background: selectedShow?.id === show.id ? T.cream : "none",
+                border: "none", borderBottom: `1px solid ${T.bd}`,
+                borderLeft: `2px solid ${selectedShow?.id === show.id ? T.ink : "transparent"}`,
+                padding: "9px 14px", cursor: "pointer",
               }}>
-                <div style={{ fontSize: 10, color: selectedShow?.id === show.id ? "#ccc" : "#666" }}>
+                <div style={{ fontSize: 11, color: T.ink }}>
                   {show.brand}
                 </div>
-                <div style={{ fontSize: 8, color: "#2a2a2a", marginTop: 2 }}>
+                <div style={{ fontSize: 9, color: T.light, marginTop: 2 }}>
                   {show.city?.toLowerCase()} · {show.total_looks ?? "?"} looks
                 </div>
               </button>
             ))}
             {filteredShows.length === 0 && (
-              <div style={{ padding: 16, color: "#2a2a2a", fontSize: 10 }}>no results</div>
+              <div style={{ padding: 16, color: T.light, fontSize: 10 }}>no results</div>
             )}
           </div>
         </aside>
@@ -546,35 +573,37 @@ export default function TagLooksPage() {
           {!selectedShow ? (
             <div style={{
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#222", fontSize: 11,
+              color: T.light, fontSize: 11,
             }}>
-              select a show to begin
+              select a show to begin tagging
             </div>
           ) : (
             <>
               {/* Toolbar */}
               <div style={{
-                padding: "10px 18px", borderBottom: "1px solid #141414",
+                padding: "12px 20px", borderBottom: `1px solid ${T.bd}`,
                 display: "flex", alignItems: "center", justifyContent: "space-between",
-                gap: 12, flexShrink: 0,
+                gap: 12, flexShrink: 0, background: T.white,
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   <div>
-                    <span style={{ fontSize: 12, color: "#ddd" }}>{selectedShow.brand}</span>
-                    <span style={{ fontSize: 9, color: "#333", marginLeft: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: T.ink }}>
+                      {selectedShow.brand}
+                    </span>
+                    <span style={{ fontSize: 9, color: T.light, marginLeft: 8 }}>
                       {selectedShow.city?.toLowerCase()}
                     </span>
                   </div>
                   {looks.length > 0 && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                      <div style={{ width: 72, height: 2, background: "#161616", borderRadius: 1 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 80, height: 2, background: T.warm, borderRadius: 1 }}>
                         <div style={{
-                          width: `${progress}%`, height: "100%", background: "#3a7",
-                          borderRadius: 1, transition: "width 0.3s",
+                          width: `${progress}%`, height: "100%",
+                          background: T.ink, borderRadius: 1, transition: "width 0.3s",
                         }} />
                       </div>
-                      <span style={{ fontSize: 9, color: "#333" }}>
-                        {taggedCount}/{looks.length}
+                      <span style={{ fontSize: 9, color: T.light }}>
+                        {taggedCount}/{looks.length} tagged
                       </span>
                     </div>
                   )}
@@ -582,29 +611,29 @@ export default function TagLooksPage() {
 
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <button onClick={suggestAll} style={{
-                    background: "none", border: "1px solid #1a1a1a", borderRadius: 2,
-                    color: "#444", fontSize: 9, padding: "5px 10px", cursor: "pointer",
+                    background: "none", border: `1px solid ${T.bd}`, borderRadius: 2,
+                    color: T.mid, fontSize: 9, padding: "6px 12px", cursor: "pointer",
                     fontFamily: "inherit", letterSpacing: "0.06em",
                   }}>
                     ✦ suggest all untagged
                   </button>
 
                   {saveStatus === "saved" && (
-                    <span style={{ fontSize: 9, color: "#3a7" }}>saved ✓</span>
+                    <span style={{ fontSize: 9, color: T.green }}>saved ✓</span>
                   )}
                   {saveStatus === "error" && (
-                    <span style={{ fontSize: 9, color: "#a33" }}>error saving</span>
+                    <span style={{ fontSize: 9, color: T.red }}>error saving</span>
                   )}
 
                   <button
                     onClick={saveAll}
                     disabled={saving || dirtySet.size === 0}
                     style={{
-                      background: dirtySet.size > 0 ? "#111a11" : "#0d0d0d",
-                      border: `1px solid ${dirtySet.size > 0 ? "#1e3a1e" : "#161616"}`,
+                      background: dirtySet.size > 0 ? T.ink : T.warm,
+                      border: `1px solid ${dirtySet.size > 0 ? T.ink : T.bd}`,
                       borderRadius: 2,
-                      color: dirtySet.size > 0 ? "#3a7" : "#2a2a2a",
-                      fontSize: 9, padding: "5px 12px",
+                      color: dirtySet.size > 0 ? T.white : T.light,
+                      fontSize: 9, padding: "6px 14px",
                       cursor: dirtySet.size > 0 ? "pointer" : "default",
                       fontFamily: "inherit", letterSpacing: "0.06em",
                     }}
@@ -615,10 +644,10 @@ export default function TagLooksPage() {
               </div>
 
               {/* Look grid */}
-              <div style={{ flex: 1, overflowY: "auto", padding: "14px 18px" }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
                 {loadingLooks ? (
-                  <div style={{ color: "#2a2a2a", fontSize: 10, padding: "40px 0", textAlign: "center" }}>
-                    loading…
+                  <div style={{ color: T.light, fontSize: 10, padding: "40px 0", textAlign: "center" }}>
+                    loading looks…
                   </div>
                 ) : (
                   <div style={{
