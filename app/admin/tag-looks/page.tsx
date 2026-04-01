@@ -1,353 +1,652 @@
-'use client'
-// app/admin/tag-looks/page.tsx
-// Fixes: brand vs designer field, plain array response, looks array response
-// Add this as a tab in app/admin/page.tsx (see bottom of this file)
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from "react";
 
-const API = 'https://fashion-backend-production-6880.up.railway.app'
-const PASSWORD = 'Runw3825!'
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Show {
-  id: number
-  brand: string
-  city: string
-  season: string
-  total_looks: number
+  id: number;
+  brand: string;
+  city: string;
+  slug: string;
+  total_looks?: number;
 }
 
 interface Look {
-  id: number
-  look_number: number
-  image_url: string
-  materials: string[]
-  color_names: string[]
-  silhouettes: string[]
-  manual_tags: string | null
+  id: number;
+  look_number: number;
+  image_url: string;
+  manual_tags?: string;
 }
 
-export default function TagLooksPage() {
-  const [authed, setAuthed] = useState(false)
-  const [pw, setPw] = useState('')
+type SuggestState = "idle" | "loading" | "done" | "error";
 
-  useEffect(() => {
-    if (sessionStorage.getItem('admin_auth') === 'true') setAuthed(true)
-  }, [])
+// ─── Constants ────────────────────────────────────────────────────────────────
 
-  const handleLogin = () => {
-    if (pw === PASSWORD) {
-      sessionStorage.setItem('admin_auth', 'true')
-      setAuthed(true)
-    } else {
-      alert('Wrong password')
-    }
-  }
+const API_BASE = "https://fashion-backend-production-6880.up.railway.app";
+const CITIES = ["All", "Paris", "Milan", "London", "New York", "Copenhagen", "Berlin", "Tokyo"];
+const ADMIN_PW = "Runw3825!";
 
-  if (!authed) {
-    return (
-      <div style={{ background: '#0C0B09', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#fff', fontFamily: 'Geist Mono, monospace', letterSpacing: '0.1em', fontSize: 11, marginBottom: 24 }}>runway fyi · ADMIN — LOOK TAGGER</div>
-          <input
-            type="password"
-            value={pw}
-            onChange={e => setPw(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            placeholder="Password"
-            style={{ background: '#1a1a1a', border: '1px solid #333', color: '#fff', padding: '12px 20px', width: 260, fontFamily: 'Geist Mono, monospace', fontSize: 13, outline: 'none', marginBottom: 12, display: 'block' }}
-          />
-          <button onClick={handleLogin} style={{ background: '#fff', color: '#0C0B09', border: 'none', padding: '12px 32px', fontFamily: 'Geist Mono, monospace', fontSize: 11, letterSpacing: '0.1em', cursor: 'pointer', width: '100%' }}>
-            ENTER
-          </button>
-        </div>
-      </div>
-    )
-  }
+// ─── AI Tag Suggestion ────────────────────────────────────────────────────────
 
-  return <TagLooksClient />
+async function getSuggestedTags(imageUrl: string): Promise<string[]> {
+  const prompt = `You are tagging runway looks for a fashion trend intelligence platform.
+Analyse this runway image carefully and return specific, descriptive fashion tags.
+
+Good examples of tag style: "croc effect leather", "strong shoulder", "waxed denim", "wide-leg trouser", "pumps", "long scarf", "leather gloves", "grey denim", "brown handbag", "mini skirt", "denim set"
+
+Tags should cover: silhouette details, key garments, fabric/texture/finish, colour, accessories, construction details.
+- Be specific and descriptive, not vague ("croc effect leather" not just "leather")
+- All lowercase
+- 6–10 tags total
+
+Return ONLY a comma-separated list of tags. No explanation, no preamble.`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 200,
+      messages: [{
+        role: "user",
+        content: [
+          { type: "image", source: { type: "url", url: imageUrl } },
+          { type: "text", text: prompt },
+        ],
+      }],
+    }),
+  });
+
+  if (!response.ok) throw new Error(`API ${response.status}`);
+  const data = await response.json();
+  const text = data.content?.find((b: { type: string }) => b.type === "text")?.text ?? "";
+  return text
+    .split(",")
+    .map((t: string) => t.trim().toLowerCase().replace(/^["']|["']$/g, ""))
+    .filter((t: string) => t.length > 0 && t.length < 60);
 }
 
-function TagLooksClient() {
-  const [shows, setShows] = useState<Show[]>([])
-  const [selectedShow, setSelectedShow] = useState<Show | null>(null)
-  const [looks, setLooks] = useState<Look[]>([])
-  const [loadingShows, setLoadingShows] = useState(true)
-  const [loadingLooks, setLoadingLooks] = useState(false)
-  const [saving, setSaving] = useState<number | null>(null)
-  const [saved, setSaved] = useState<Record<number, boolean>>({})
-  const [tags, setTags] = useState<Record<number, string>>({})
-  const [search, setSearch] = useState('')
-  const [cityFilter, setCityFilter] = useState('All')
-  const [scoringStatus, setScoringStatus] = useState<'idle' | 'running' | 'done' | 'error'>('idle')
-  const [progress, setProgress] = useState({ tagged: 0, total: 0 })
+// ─── Auth Gate ────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    fetch(`${API}/api/trends/shows`)
-      .then(r => r.json())
-      .then(data => {
-        // API returns a plain array
-        const arr: Show[] = Array.isArray(data) ? data : (data.shows || [])
-        const sorted = arr.sort((a, b) => a.brand.localeCompare(b.brand))
-        setShows(sorted)
-        setLoadingShows(false)
-      })
-      .catch(() => setLoadingShows(false))
-  }, [])
+function AuthGate({ onAuth }: { onAuth: () => void }) {
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState(false);
 
-  useEffect(() => {
-    if (!selectedShow) return
-    setLoadingLooks(true)
-    setLooks([])
-    setTags({})
-    setSaved({})
-    fetch(`${API}/api/trends/shows/${selectedShow.id}/looks`)
-      .then(r => r.json())
-      .then(data => {
-        // API returns a plain array
-        const arr: Look[] = Array.isArray(data) ? data : (data.looks || [])
-        setLooks(arr)
-        const existing: Record<number, string> = {}
-        arr.forEach(l => {
-          if (l.manual_tags) existing[l.id] = l.manual_tags
-        })
-        setTags(existing)
-        setLoadingLooks(false)
-        const tagged = arr.filter(l => l.manual_tags).length
-        setProgress({ tagged, total: arr.length })
-      })
-      .catch(() => setLoadingLooks(false))
-  }, [selectedShow])
-
-  const saveTag = async (look: Look) => {
-    const tagValue = tags[look.id] || ''
-    setSaving(look.id)
-    try {
-      const res = await fetch(
-        `${API}/api/trends/shows/${selectedShow!.id}/looks/${look.id}/manual-tags`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ manual_tags: tagValue })
-        }
-      )
-      if (res.ok) {
-        setSaved(prev => ({ ...prev, [look.id]: true }))
-        const wasTagged = !!look.manual_tags
-        const isNowTagged = tagValue.trim().length > 0
-        setProgress(prev => {
-          if (!wasTagged && isNowTagged) return { ...prev, tagged: prev.tagged + 1 }
-          if (wasTagged && !isNowTagged) return { ...prev, tagged: prev.tagged - 1 }
-          return prev
-        })
-        setLooks(prev => prev.map(l => l.id === look.id ? { ...l, manual_tags: tagValue } : l))
-        setTimeout(() => setSaved(prev => ({ ...prev, [look.id]: false })), 2000)
-      }
-    } catch (e) { console.error(e) }
-    setSaving(null)
+  function attempt() {
+    if (pw === ADMIN_PW) onAuth();
+    else setErr(true);
   }
-
-  const saveAll = async () => {
-    for (const look of looks) {
-      if (tags[look.id] !== undefined) await saveTag(look)
-    }
-  }
-
-  const runScoring = async () => {
-    setScoringStatus('running')
-    try {
-      const res = await fetch(`${API}/api/trends/run-scoring`, { method: 'POST' })
-      setScoringStatus(res.ok ? 'done' : 'error')
-      setTimeout(() => setScoringStatus('idle'), 5000)
-    } catch {
-      setScoringStatus('error')
-      setTimeout(() => setScoringStatus('idle'), 5000)
-    }
-  }
-
-  const cities = ['All', ...Array.from(new Set(shows.map(s => s.city))).sort()]
-  const filteredShows = shows.filter(s => {
-    const matchesCity = cityFilter === 'All' || s.city === cityFilter
-    const matchesSearch = s.brand.toLowerCase().includes(search.toLowerCase())
-    return matchesCity && matchesSearch
-  })
-
-  const mono: React.CSSProperties = { fontFamily: 'Geist Mono, monospace' }
-  const serif: React.CSSProperties = { fontFamily: 'Lora, Georgia, serif' }
 
   return (
-    <div style={{ background: '#F5F2ED', minHeight: '100vh', ...mono }}>
-      {/* Header */}
-      <div style={{ borderBottom: '1px solid rgba(12,11,9,0.12)', padding: '20px 40px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: 10, letterSpacing: '0.16em', color: '#A09A94', marginBottom: 4 }}>ADMIN · LOOK TAGGER</div>
-          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', ...serif }}>Manual Tag Looks</div>
-        </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          {selectedShow && looks.length > 0 && (
-            <>
-              <div style={{ fontSize: 11, color: '#5A5550' }}>{progress.tagged}/{progress.total} tagged</div>
-              <div style={{ width: 120, height: 4, background: '#EDE9E2', borderRadius: 2 }}>
-                <div style={{ width: `${progress.total > 0 ? (progress.tagged / progress.total) * 100 : 0}%`, height: '100%', background: '#0C0B09', borderRadius: 2, transition: 'width 0.3s' }} />
-              </div>
-              <button onClick={saveAll} style={{ background: '#0C0B09', color: '#fff', border: 'none', padding: '8px 16px', fontSize: 10, letterSpacing: '0.12em', cursor: 'pointer', ...mono }}>
-                SAVE ALL
-              </button>
-            </>
-          )}
-          <button
-            onClick={runScoring}
-            disabled={scoringStatus === 'running'}
-            style={{
-              background: scoringStatus === 'done' ? '#22c55e' : scoringStatus === 'error' ? '#ef4444' : '#0C0B09',
-              color: '#fff', border: 'none', padding: '8px 16px', fontSize: 10, letterSpacing: '0.12em', cursor: 'pointer', ...mono
-            }}
-          >
-            {scoringStatus === 'idle' ? 'RUN SCORING' : scoringStatus === 'running' ? 'RUNNING...' : scoringStatus === 'done' ? 'DONE' : 'ERROR'}
-          </button>
-        </div>
+    <div style={{
+      minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+      background: "#0a0a0a", fontFamily: "'DM Mono', monospace",
+    }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+        <span style={{ color: "#444", fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase" }}>
+          runway fyi · admin
+        </span>
+        <input
+          type="password"
+          placeholder="password"
+          autoFocus
+          value={pw}
+          onChange={e => { setPw(e.target.value); setErr(false); }}
+          onKeyDown={e => e.key === "Enter" && attempt()}
+          style={{
+            background: "transparent",
+            border: `1px solid ${err ? "#c03" : "#2a2a2a"}`,
+            color: "#ccc", padding: "10px 14px", fontSize: 12,
+            outline: "none", fontFamily: "inherit", width: 220, borderRadius: 3,
+          }}
+        />
+        {err && <span style={{ color: "#c03", fontSize: 10 }}>incorrect</span>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Tag Chip ─────────────────────────────────────────────────────────────────
+
+function TagChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 3,
+      background: "#161616", border: "1px solid #222",
+      color: "#bbb", fontSize: 10, padding: "2px 6px 2px 8px",
+      borderRadius: 2, fontFamily: "'DM Mono', monospace", lineHeight: 1.6,
+    }}>
+      {label}
+      <button
+        onClick={onRemove}
+        style={{
+          background: "none", border: "none", color: "#444", cursor: "pointer",
+          fontSize: 12, lineHeight: 1, padding: "0 0 1px", display: "flex",
+        }}
+      >×</button>
+    </span>
+  );
+}
+
+// ─── Look Card ────────────────────────────────────────────────────────────────
+
+function LookCard({
+  look, tags, onTagsChange, onSuggest, suggestState,
+  suggestedTags, onAcceptSuggested, onDismissSuggested, isDirty,
+}: {
+  look: Look;
+  tags: string[];
+  onTagsChange: (tags: string[]) => void;
+  onSuggest: () => void;
+  suggestState: SuggestState;
+  suggestedTags: string[];  // already filtered for dismissed + already-accepted
+  onAcceptSuggested: (tag: string) => void;
+  onDismissSuggested: (tag: string) => void;
+  isDirty: boolean;
+}) {
+  const [input, setInput] = useState("");
+
+  function addTag(raw: string) {
+    const tag = raw.trim().toLowerCase();
+    if (tag && !tags.includes(tag)) onTagsChange([...tags, tag]);
+    setInput("");
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      if (input.trim()) addTag(input);
+    } else if (e.key === "Backspace" && input === "" && tags.length > 0) {
+      onTagsChange(tags.slice(0, -1));
+    }
+  }
+
+  return (
+    <div style={{
+      background: "#0d0d0d",
+      border: `1px solid ${isDirty ? "#1e301e" : "#161616"}`,
+      borderRadius: 5, overflow: "hidden", display: "flex", flexDirection: "column",
+    }}>
+      {/* Image */}
+      <div style={{ position: "relative", aspectRatio: "2/3", background: "#111", flexShrink: 0 }}>
+        {look.image_url ? (
+          <img
+            src={look.image_url}
+            alt={`Look ${look.look_number}`}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        ) : (
+          <div style={{
+            width: "100%", height: "100%", display: "flex",
+            alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ color: "#2a2a2a", fontSize: 10 }}>no image</span>
+          </div>
+        )}
+        {/* Look number */}
+        <span style={{
+          position: "absolute", top: 6, left: 6,
+          background: "rgba(0,0,0,0.7)", color: "#666", fontSize: 9,
+          padding: "2px 5px", borderRadius: 2, fontFamily: "'DM Mono', monospace",
+        }}>
+          {look.look_number}
+        </span>
+        {/* Unsaved dot */}
+        {isDirty && (
+          <span style={{
+            position: "absolute", top: 8, right: 8,
+            width: 5, height: 5, borderRadius: "50%", background: "#4a8",
+          }} />
+        )}
       </div>
 
-      <div style={{ display: 'flex', height: 'calc(100vh - 73px)' }}>
-        {/* Left panel */}
-        <div style={{ width: 280, borderRight: '1px solid rgba(12,11,9,0.1)', background: '#fff', overflow: 'auto', flexShrink: 0 }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(12,11,9,0.08)' }}>
+      {/* Tag area */}
+      <div style={{ padding: "8px 9px 9px", display: "flex", flexDirection: "column", gap: 7 }}>
+
+        {/* Accepted tags */}
+        {tags.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+            {tags.map(tag => (
+              <TagChip key={tag} label={tag} onRemove={() => onTagsChange(tags.filter(t => t !== tag))} />
+            ))}
+          </div>
+        )}
+
+        {/* Free-type input */}
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={() => { if (input.trim()) addTag(input); }}
+          placeholder={tags.length === 0 ? "type tag, enter to add…" : "add more…"}
+          style={{
+            background: "transparent", border: "none",
+            borderBottom: "1px solid #1e1e1e", color: "#888",
+            fontSize: 10, padding: "3px 0", outline: "none",
+            fontFamily: "'DM Mono', monospace", width: "100%",
+          }}
+        />
+
+        {/* AI suggest button */}
+        {suggestState === "idle" && (
+          <button
+            onClick={onSuggest}
+            style={{
+              background: "none", border: "1px solid #1e1e1e", borderRadius: 2,
+              color: "#444", fontSize: 9, padding: "4px 7px", cursor: "pointer",
+              fontFamily: "inherit", letterSpacing: "0.06em", textAlign: "left",
+            }}
+          >
+            ✦ suggest from image
+          </button>
+        )}
+
+        {suggestState === "loading" && (
+          <span style={{ color: "#333", fontSize: 9, fontFamily: "'DM Mono', monospace" }}>
+            analysing image…
+          </span>
+        )}
+
+        {suggestState === "error" && (
+          <span style={{ color: "#522", fontSize: 9, fontFamily: "'DM Mono', monospace" }}>
+            couldn't load — try again
+          </span>
+        )}
+
+        {/* Pending suggestions */}
+        {suggestState === "done" && suggestedTags.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <span style={{ fontSize: 8, color: "#333", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              suggestions
+            </span>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+              {suggestedTags.map(tag => (
+                <span key={tag} style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+                  <button
+                    onClick={() => onAcceptSuggested(tag)}
+                    style={{
+                      background: "none", border: "1px dashed #1e3a1e",
+                      color: "#3a7", fontSize: 9, padding: "2px 6px",
+                      borderRadius: 2, cursor: "pointer", fontFamily: "inherit",
+                    }}
+                  >
+                    + {tag}
+                  </button>
+                  <button
+                    onClick={() => onDismissSuggested(tag)}
+                    style={{
+                      background: "none", border: "none", color: "#2a2a2a",
+                      fontSize: 11, cursor: "pointer", lineHeight: 1, padding: 0,
+                    }}
+                  >×</button>
+                </span>
+              ))}
+            </div>
+            <button
+              onClick={() => suggestedTags.forEach(t => onAcceptSuggested(t))}
+              style={{
+                background: "none", border: "none", color: "#3a7",
+                fontSize: 9, cursor: "pointer", textAlign: "left",
+                fontFamily: "inherit", padding: 0, letterSpacing: "0.04em",
+              }}
+            >
+              accept all →
+            </button>
+          </div>
+        )}
+
+        {suggestState === "done" && suggestedTags.length === 0 && (
+          <span style={{ color: "#2a2a2a", fontSize: 9 }}>all suggestions accepted</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+export default function TagLooksPage() {
+  const [authed, setAuthed] = useState(false);
+
+  const [shows, setShows] = useState<Show[]>([]);
+  const [cityFilter, setCityFilter] = useState("All");
+  const [search, setSearch] = useState("");
+  const [selectedShow, setSelectedShow] = useState<Show | null>(null);
+
+  const [looks, setLooks] = useState<Look[]>([]);
+  const [loadingLooks, setLoadingLooks] = useState(false);
+
+  // per-look tag state
+  const [tagMap, setTagMap] = useState<Record<number, string[]>>({});
+  const [dirtySet, setDirtySet] = useState<Set<number>>(new Set());
+  const [suggestStateMap, setSuggestStateMap] = useState<Record<number, SuggestState>>({});
+  const [suggestedTagsMap, setSuggestedTagsMap] = useState<Record<number, string[]>>({});
+  const [dismissedMap, setDismissedMap] = useState<Record<number, Set<string>>>({});
+
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"" | "saved" | "error">("");
+
+  // ── Load shows ─────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!authed) return;
+    fetch(`${API_BASE}/api/trends/shows`)
+      .then(r => r.json())
+      .then(data => setShows(Array.isArray(data) ? data : data.shows ?? []))
+      .catch(console.error);
+  }, [authed]);
+
+  // ── Load looks on show select ──────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!selectedShow) return;
+    setLoadingLooks(true);
+    setLooks([]);
+    setTagMap({});
+    setDirtySet(new Set());
+    setSuggestStateMap({});
+    setSuggestedTagsMap({});
+    setDismissedMap({});
+
+    fetch(`${API_BASE}/api/trends/shows/${selectedShow.id}/looks`)
+      .then(r => r.json())
+      .then(data => {
+        const arr: Look[] = Array.isArray(data) ? data : data.looks ?? [];
+        setLooks(arr);
+        const init: Record<number, string[]> = {};
+        arr.forEach(l => {
+          init[l.id] = l.manual_tags
+            ? l.manual_tags.split(",").map(t => t.trim()).filter(Boolean)
+            : [];
+        });
+        setTagMap(init);
+      })
+      .catch(console.error)
+      .finally(() => setLoadingLooks(false));
+  }, [selectedShow]);
+
+  // ── Tag helpers ────────────────────────────────────────────────────────────
+
+  function setLookTags(lookId: number, tags: string[]) {
+    setTagMap(prev => ({ ...prev, [lookId]: tags }));
+    setDirtySet(prev => new Set([...prev, lookId]));
+  }
+
+  // ── AI suggest single look ─────────────────────────────────────────────────
+
+  async function handleSuggest(look: Look) {
+    if (!look.image_url) return;
+    setSuggestStateMap(prev => ({ ...prev, [look.id]: "loading" }));
+    try {
+      const tags = await getSuggestedTags(look.image_url);
+      setSuggestedTagsMap(prev => ({ ...prev, [look.id]: tags }));
+      setSuggestStateMap(prev => ({ ...prev, [look.id]: "done" }));
+    } catch {
+      setSuggestStateMap(prev => ({ ...prev, [look.id]: "error" }));
+    }
+  }
+
+  // ── Suggest all untagged ───────────────────────────────────────────────────
+
+  async function suggestAll() {
+    const toSuggest = looks.filter(l => {
+      const hasTags = (tagMap[l.id]?.length ?? 0) > 0;
+      const state = suggestStateMap[l.id];
+      return !hasTags && state !== "loading" && state !== "done" && l.image_url;
+    });
+    for (const look of toSuggest) {
+      await handleSuggest(look);
+      await new Promise(r => setTimeout(r, 350)); // gentle rate limiting
+    }
+  }
+
+  // ── Accept / dismiss suggestions ──────────────────────────────────────────
+
+  function handleAcceptSuggested(lookId: number, tag: string) {
+    setLookTags(lookId, [...(tagMap[lookId] ?? []), tag]);
+  }
+
+  function handleDismissSuggested(lookId: number, tag: string) {
+    setDismissedMap(prev => {
+      const s = new Set(prev[lookId] ?? []);
+      s.add(tag);
+      return { ...prev, [lookId]: s };
+    });
+  }
+
+  function getVisibleSuggestions(lookId: number): string[] {
+    const all = suggestedTagsMap[lookId] ?? [];
+    const dismissed = dismissedMap[lookId] ?? new Set<string>();
+    const accepted = new Set(tagMap[lookId] ?? []);
+    return all.filter(t => !dismissed.has(t) && !accepted.has(t));
+  }
+
+  // ── Save all dirty ─────────────────────────────────────────────────────────
+
+  async function saveAll() {
+    if (!selectedShow || dirtySet.size === 0) return;
+    setSaving(true);
+    setSaveStatus("");
+    const dirtyLooks = looks.filter(l => dirtySet.has(l.id));
+    try {
+      await Promise.all(
+        dirtyLooks.map(l =>
+          fetch(`${API_BASE}/api/trends/shows/${selectedShow.id}/looks/${l.id}/manual-tags`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ manual_tags: (tagMap[l.id] ?? []).join(", ") }),
+          })
+        )
+      );
+      setDirtySet(new Set());
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus(""), 3000);
+    } catch {
+      setSaveStatus("error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // ── Filtered shows ─────────────────────────────────────────────────────────
+
+  const filteredShows = shows.filter(s => {
+    const matchCity = cityFilter === "All" || s.city === cityFilter;
+    const matchSearch = s.brand.toLowerCase().includes(search.toLowerCase());
+    return matchCity && matchSearch;
+  });
+
+  const taggedCount = looks.filter(l => (tagMap[l.id]?.length ?? 0) > 0).length;
+  const progress = looks.length > 0 ? Math.round((taggedCount / looks.length) * 100) : 0;
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
+  if (!authed) return <AuthGate onAuth={() => setAuthed(true)} />;
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { background: #0a0a0a; height: 100%; }
+        ::-webkit-scrollbar { width: 3px; height: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 2px; }
+      `}</style>
+
+      <div style={{
+        display: "flex", height: "100vh", overflow: "hidden",
+        fontFamily: "'DM Mono', monospace", background: "#0a0a0a", color: "#ccc",
+      }}>
+
+        {/* ── Sidebar ── */}
+        <aside style={{
+          width: 230, borderRight: "1px solid #141414", display: "flex",
+          flexDirection: "column", flexShrink: 0, height: "100vh",
+        }}>
+          <div style={{ padding: "14px 14px 10px", borderBottom: "1px solid #141414" }}>
+            <div style={{ fontSize: 9, color: "#333", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 10 }}>
+              runway fyi · tag looks
+            </div>
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search designer..."
-              style={{ width: '100%', border: '1px solid #EDE9E2', padding: '8px 12px', fontSize: 12, ...mono, outline: 'none', background: '#F5F2ED', boxSizing: 'border-box' as const }}
+              placeholder="search…"
+              style={{
+                width: "100%", background: "#0f0f0f", border: "1px solid #1a1a1a",
+                color: "#888", padding: "5px 9px", fontSize: 10, borderRadius: 2,
+                outline: "none", fontFamily: "inherit",
+              }}
             />
-            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6, marginTop: 10 }}>
-              {cities.map(c => (
-                <button key={c} onClick={() => setCityFilter(c)} style={{
-                  fontSize: 10, padding: '3px 8px', border: '1px solid rgba(12,11,9,0.15)',
-                  background: cityFilter === c ? '#0C0B09' : 'transparent',
-                  color: cityFilter === c ? '#fff' : '#5A5550',
-                  cursor: 'pointer', letterSpacing: '0.08em', ...mono
-                }}>{c}</button>
-              ))}
-            </div>
           </div>
-          {loadingShows ? (
-            <div style={{ padding: 20, fontSize: 11, color: '#A09A94' }}>Loading shows...</div>
-          ) : filteredShows.length === 0 ? (
-            <div style={{ padding: 20, fontSize: 11, color: '#A09A94' }}>No shows found</div>
-          ) : (
-            filteredShows.map(show => (
-              <div
-                key={show.id}
-                onClick={() => setSelectedShow(show)}
-                style={{
-                  padding: '12px 20px', cursor: 'pointer', borderBottom: '1px solid rgba(12,11,9,0.06)',
-                  background: selectedShow?.id === show.id ? '#F5F2ED' : '#fff',
-                  borderLeft: selectedShow?.id === show.id ? '2px solid #0C0B09' : '2px solid transparent'
-                }}
-              >
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#0C0B09', marginBottom: 2 }}>{show.brand}</div>
-                <div style={{ fontSize: 10, color: '#A09A94', letterSpacing: '0.08em' }}>{show.city} · {show.total_looks || 0} looks</div>
-              </div>
-            ))
-          )}
-        </div>
 
-        {/* Right panel */}
-        <div style={{ flex: 1, overflow: 'auto', padding: 32 }}>
+          {/* City chips */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 3, padding: "8px 12px", borderBottom: "1px solid #141414" }}>
+            {CITIES.map(c => (
+              <button key={c} onClick={() => setCityFilter(c)} style={{
+                background: cityFilter === c ? "#161616" : "none",
+                border: `1px solid ${cityFilter === c ? "#252525" : "#141414"}`,
+                color: cityFilter === c ? "#888" : "#333",
+                fontSize: 8, padding: "2px 6px", borderRadius: 2,
+                cursor: "pointer", fontFamily: "inherit", letterSpacing: "0.06em",
+              }}>
+                {c.toLowerCase()}
+              </button>
+            ))}
+          </div>
+
+          {/* Shows list */}
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            {filteredShows.map(show => (
+              <button key={show.id} onClick={() => setSelectedShow(show)} style={{
+                width: "100%", textAlign: "left",
+                background: selectedShow?.id === show.id ? "#111" : "none",
+                border: "none", borderBottom: "1px solid #0f0f0f",
+                borderLeft: `2px solid ${selectedShow?.id === show.id ? "#3a7" : "transparent"}`,
+                padding: "8px 12px", cursor: "pointer",
+              }}>
+                <div style={{ fontSize: 10, color: selectedShow?.id === show.id ? "#ccc" : "#666" }}>
+                  {show.brand}
+                </div>
+                <div style={{ fontSize: 8, color: "#2a2a2a", marginTop: 2 }}>
+                  {show.city?.toLowerCase()} · {show.total_looks ?? "?"} looks
+                </div>
+              </button>
+            ))}
+            {filteredShows.length === 0 && (
+              <div style={{ padding: 16, color: "#2a2a2a", fontSize: 10 }}>no results</div>
+            )}
+          </div>
+        </aside>
+
+        {/* ── Main ── */}
+        <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+
           {!selectedShow ? (
-            <div style={{ textAlign: 'center' as const, paddingTop: 80, color: '#A09A94', fontSize: 13 }}>
-              Select a show to start tagging
-            </div>
-          ) : loadingLooks ? (
-            <div style={{ textAlign: 'center' as const, paddingTop: 80, color: '#A09A94', fontSize: 13 }}>
-              Loading looks...
-            </div>
-          ) : looks.length === 0 ? (
-            <div style={{ textAlign: 'center' as const, paddingTop: 80, color: '#A09A94', fontSize: 13 }}>
-              No looks found for {selectedShow.brand}
+            <div style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#222", fontSize: 11,
+            }}>
+              select a show to begin
             </div>
           ) : (
             <>
-              <div style={{ marginBottom: 24, display: 'flex', alignItems: 'baseline', gap: 12 }}>
-                <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em', ...serif }}>{selectedShow.brand}</div>
-                <div style={{ fontSize: 11, color: '#A09A94', letterSpacing: '0.1em' }}>{selectedShow.city} FW26 · {looks.length} looks</div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-                {looks.map(look => {
-                  const hasVisionTags = (look.materials?.length > 0 || look.color_names?.length > 0)
-                  const hasManualTags = !!(look.manual_tags || (tags[look.id] && tags[look.id].trim().length > 0))
-                  const isSaving = saving === look.id
-                  const justSaved = saved[look.id]
-                  return (
-                    <div key={look.id} style={{ background: '#fff', border: `1px solid ${justSaved ? '#22c55e' : hasManualTags ? 'rgba(12,11,9,0.15)' : '#EDE9E2'}`, transition: 'border-color 0.3s' }}>
-                      <div style={{ aspectRatio: '2/3', overflow: 'hidden', position: 'relative', background: '#F5F2ED' }}>
-                        {look.image_url ? (
-                          <img src={look.image_url} alt={`Look ${look.look_number}`} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }} />
-                        ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#A09A94', fontSize: 11 }}>No image</div>
-                        )}
-                        <div style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(12,11,9,0.7)', color: '#fff', fontSize: 10, padding: '2px 6px' }}>
-                          #{look.look_number}
-                        </div>
-                        {hasManualTags && (
-                          <div style={{ position: 'absolute', top: 8, right: 8, background: '#0C0B09', color: '#fff', fontSize: 9, padding: '2px 6px' }}>TAGGED</div>
-                        )}
+              {/* Toolbar */}
+              <div style={{
+                padding: "10px 18px", borderBottom: "1px solid #141414",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                gap: 12, flexShrink: 0,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div>
+                    <span style={{ fontSize: 12, color: "#ddd" }}>{selectedShow.brand}</span>
+                    <span style={{ fontSize: 9, color: "#333", marginLeft: 8 }}>
+                      {selectedShow.city?.toLowerCase()}
+                    </span>
+                  </div>
+                  {looks.length > 0 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                      <div style={{ width: 72, height: 2, background: "#161616", borderRadius: 1 }}>
+                        <div style={{
+                          width: `${progress}%`, height: "100%", background: "#3a7",
+                          borderRadius: 1, transition: "width 0.3s",
+                        }} />
                       </div>
-                      {hasVisionTags && (
-                        <div style={{ padding: '6px 10px', borderTop: '1px solid #F5F2ED', background: '#FAFAF9' }}>
-                          <div style={{ fontSize: 9, color: '#A09A94', letterSpacing: '0.08em', marginBottom: 3 }}>VISION</div>
-                          <div style={{ fontSize: 10, color: '#5A5550', lineHeight: 1.4 }}>
-                            {[...(look.materials || []), ...(look.color_names || [])].slice(0, 4).join(', ')}
-                          </div>
-                        </div>
-                      )}
-                      <div style={{ padding: 10 }}>
-                        <div style={{ fontSize: 9, color: '#A09A94', letterSpacing: '0.08em', marginBottom: 4 }}>MANUAL TAGS</div>
-                        <textarea
-                          value={tags[look.id] || ''}
-                          onChange={e => setTags(prev => ({ ...prev, [look.id]: e.target.value }))}
-                          onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) saveTag(look) }}
-                          placeholder="leather, black, oversized jacket..."
-                          rows={2}
-                          style={{
-                            width: '100%', border: '1px solid #EDE9E2', padding: '6px 8px',
-                            fontSize: 11, ...mono, outline: 'none', resize: 'none',
-                            background: '#F5F2ED', color: '#0C0B09', boxSizing: 'border-box' as const, lineHeight: 1.5
-                          }}
-                        />
-                        <button
-                          onClick={() => saveTag(look)}
-                          disabled={isSaving}
-                          style={{
-                            width: '100%', marginTop: 6, padding: '6px 0',
-                            background: justSaved ? '#22c55e' : '#0C0B09',
-                            color: '#fff', border: 'none', fontSize: 10,
-                            letterSpacing: '0.1em', cursor: 'pointer', transition: 'background 0.3s', ...mono
-                          }}
-                        >
-                          {isSaving ? 'SAVING...' : justSaved ? 'SAVED' : 'SAVE'}
-                        </button>
-                      </div>
+                      <span style={{ fontSize: 9, color: "#333" }}>
+                        {taggedCount}/{looks.length}
+                      </span>
                     </div>
-                  )
-                })}
+                  )}
+                </div>
+
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <button onClick={suggestAll} style={{
+                    background: "none", border: "1px solid #1a1a1a", borderRadius: 2,
+                    color: "#444", fontSize: 9, padding: "5px 10px", cursor: "pointer",
+                    fontFamily: "inherit", letterSpacing: "0.06em",
+                  }}>
+                    ✦ suggest all untagged
+                  </button>
+
+                  {saveStatus === "saved" && (
+                    <span style={{ fontSize: 9, color: "#3a7" }}>saved ✓</span>
+                  )}
+                  {saveStatus === "error" && (
+                    <span style={{ fontSize: 9, color: "#a33" }}>error saving</span>
+                  )}
+
+                  <button
+                    onClick={saveAll}
+                    disabled={saving || dirtySet.size === 0}
+                    style={{
+                      background: dirtySet.size > 0 ? "#111a11" : "#0d0d0d",
+                      border: `1px solid ${dirtySet.size > 0 ? "#1e3a1e" : "#161616"}`,
+                      borderRadius: 2,
+                      color: dirtySet.size > 0 ? "#3a7" : "#2a2a2a",
+                      fontSize: 9, padding: "5px 12px",
+                      cursor: dirtySet.size > 0 ? "pointer" : "default",
+                      fontFamily: "inherit", letterSpacing: "0.06em",
+                    }}
+                  >
+                    {saving ? "saving…" : `save all${dirtySet.size > 0 ? ` (${dirtySet.size})` : ""}`}
+                  </button>
+                </div>
+              </div>
+
+              {/* Look grid */}
+              <div style={{ flex: 1, overflowY: "auto", padding: "14px 18px" }}>
+                {loadingLooks ? (
+                  <div style={{ color: "#2a2a2a", fontSize: 10, padding: "40px 0", textAlign: "center" }}>
+                    loading…
+                  </div>
+                ) : (
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))",
+                    gap: 10,
+                  }}>
+                    {looks.map(look => (
+                      <LookCard
+                        key={look.id}
+                        look={look}
+                        tags={tagMap[look.id] ?? []}
+                        onTagsChange={tags => setLookTags(look.id, tags)}
+                        onSuggest={() => handleSuggest(look)}
+                        suggestState={suggestStateMap[look.id] ?? "idle"}
+                        suggestedTags={getVisibleSuggestions(look.id)}
+                        onAcceptSuggested={tag => handleAcceptSuggested(look.id, tag)}
+                        onDismissSuggested={tag => handleDismissSuggested(look.id, tag)}
+                        isDirty={dirtySet.has(look.id)}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </>
           )}
-        </div>
+        </main>
       </div>
-    </div>
-  )
+    </>
+  );
 }
-
-/*
-─── TO ADD AS A TAB IN app/admin/page.tsx ────────────────────────────────────
-
-In your admin hub page, find where you define the pages/cards grid and add:
-
-{ title: "Tag Looks", href: "/admin/tag-looks", description: "Manually tag looks for trend scoring" }
-
-OR if your admin hub uses tab-style navigation within the page itself,
-add a tab that renders <TagLooksClient /> inline — but the simplest approach
-is just adding it as a card in the hub grid linking to /admin/tag-looks.
-The page handles its own password gate via sessionStorage so it stays unlocked
-once you've logged into any admin page.
-*/
