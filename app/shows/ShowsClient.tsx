@@ -21,19 +21,31 @@ function brandToSlug(brand: string): string {
     .replace(/^-|-$/g, '')
 }
 
-const CITIES = ['All', 'Paris', 'Milan', 'London', 'New York', 'Copenhagen']
-
 const TICKER_ITEMS = [
   'Shearling Coat  94.1', 'Chanel FW26  91.2', 'Leather Bomber  88.7',
   'Dior FW26  87.4', 'Prairie Silhouette  78.6', 'Wide-Leg Trouser  74.3',
   'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
 ]
 
+// Preferred city order — any city not listed here gets appended alphabetically
+const CITY_ORDER = ['Paris', 'Milan', 'London', 'New York', 'Copenhagen', 'Berlin', 'Tokyo', 'Rome', 'Shanghai', 'Spain']
+
 export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) {
   const [activeCity, setActiveCity] = useState('All')
   const [shows, setShows] = useState<Show[]>(initialShows)
+  const [cities, setCities] = useState<string[]>(['All'])
   const [menuOpen, setMenuOpen] = useState(false)
   const [navVisible, setNavVisible] = useState(true)
+
+  // Build dynamic city list from actual show data
+  useEffect(() => {
+    if (shows.length === 0) return
+    const citySet = new Set(shows.map(s => s.city).filter(Boolean))
+    const ordered = CITY_ORDER.filter(c => citySet.has(c))
+    // Append any cities not in CITY_ORDER (future-proof)
+    const extras = [...citySet].filter(c => !CITY_ORDER.includes(c)).sort()
+    setCities(['All', ...ordered, ...extras])
+  }, [shows])
 
   useEffect(() => {
     let ticking = false
@@ -50,24 +62,24 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
   }, [])
 
   useEffect(() => {
-  if (initialShows.length === 0) return
-  const fetchCovers = async () => {
-    try {
-      const res = await fetch(`${RAILWAY_API}/api/trends/shows/covers`)
-      if (!res.ok) return
-      const covers: { show_id: number; brand: string; cover_image: string }[] = await res.json()
-      setShows((prev) =>
-        prev.map((s) => {
-          const cover = covers.find((c) => c.show_id === s.id)
-          return cover ? { ...s, coverImage: cover.cover_image } : s
-        })
-      )
-    } catch {
-      // silently fail
+    if (initialShows.length === 0) return
+    const fetchCovers = async () => {
+      try {
+        const res = await fetch(`${RAILWAY_API}/api/trends/shows/covers`)
+        if (!res.ok) return
+        const covers: { show_id: number; brand: string; cover_image: string }[] = await res.json()
+        setShows((prev) =>
+          prev.map((s) => {
+            const cover = covers.find((c) => c.show_id === s.id)
+            return cover ? { ...s, coverImage: cover.cover_image } : s
+          })
+        )
+      } catch {
+        // silently fail
+      }
     }
-  }
-  fetchCovers()
-}, [initialShows.length]) // eslint-disable-line react-hooks/exhaustive-deps
+    fetchCovers()
+  }, [initialShows.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered =
     activeCity === 'All' ? shows : shows.filter((s) => s.city === activeCity)
@@ -113,6 +125,11 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
         .nav-drawer-close { position: absolute; top: 22px; right: 22px; background: none; border: none; cursor: pointer; font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--light); }
         .nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.18); z-index: 1900; opacity: 0; pointer-events: none; transition: opacity .3s; }
         .nav-overlay.open { opacity: 1; pointer-events: all; }
+        .city-filter-bar { display: flex; gap: 0; border-top: 1px solid var(--bd); overflow-x: auto; scrollbar-width: none; }
+        .city-filter-bar::-webkit-scrollbar { display: none; }
+        .city-btn { flex-shrink: 0; padding: 12px 20px; background: none; border: none; border-bottom: 2px solid transparent; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--light); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+        .city-btn.active { border-bottom-color: var(--ink); color: var(--ink); }
+        .city-btn:hover:not(.active) { color: var(--mid); }
       `}</style>
 
       {/* ── Drawer ── */}
@@ -183,25 +200,13 @@ export default function ShowsClient({ shows: initialShows }: { shows: Show[] }) 
             Shows
           </h1>
 
-          {/* City filter */}
-          <div style={{ display: 'flex', gap: 0, borderTop: '1px solid var(--bd)' }}>
-            {CITIES.map((city) => (
+          {/* Dynamic city filter — built from live show data */}
+          <div className="city-filter-bar">
+            {cities.map((city) => (
               <button
                 key={city}
+                className={`city-btn${activeCity === city ? ' active' : ''}`}
                 onClick={() => setActiveCity(city)}
-                style={{
-                  padding: '12px 20px',
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: activeCity === city ? '2px solid var(--ink)' : '2px solid transparent',
-                  fontFamily: 'var(--f-mono)',
-                  fontSize: 11,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: activeCity === city ? 'var(--ink)' : 'var(--light)',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
               >
                 {city}
               </button>

@@ -20,6 +20,14 @@ interface LookItem {
   materials?: string[]
 }
 
+const CITIES = ['Paris', 'Milan', 'London', 'New York', 'Copenhagen', 'Berlin', 'Tokyo', 'Rome', 'Shanghai', 'Spain']
+
+const TICKER_ITEMS = [
+  'Shearling Coat  94.1', 'Chanel FW26  91.2', 'Leather Bomber  88.7',
+  'Dior FW26  87.4', 'Prairie Silhouette  78.6', 'Wide-Leg Trouser  74.3',
+  'Burgundy  +180%', 'Paris FW26', 'Milan FW26', 'London FW26', 'New York FW26',
+]
+
 export default function RunwayFYIAdminLooks() {
   const [authed, setAuthed] = useState(false)
   const [pwInput, setPwInput] = useState('')
@@ -47,9 +55,19 @@ export default function RunwayFYIAdminLooks() {
   const dragItem = useRef<number | null>(null)
   const dragOverItem = useRef<number | null>(null)
 
+  // ── Add Show state ──────────────────────────────────────────────────────────
+  const [showAddShow, setShowAddShow] = useState(false)
+  const [newShowBrand, setNewShowBrand] = useState('')
+  const [newShowCity, setNewShowCity] = useState('Paris')
+  const [newShowSeason, setNewShowSeason] = useState('FW26')
+  const [newShowUrls, setNewShowUrls] = useState('')
+  const [creatingShow, setCreatingShow] = useState(false)
+  const [addShowStep, setAddShowStep] = useState<'details' | 'looks'>('details')
+  const [newlyCreatedShow, setNewlyCreatedShow] = useState<ShowItem | null>(null)
+
   const showMsg = (text: string, type: 'ok' | 'err' = 'ok') => {
     setMessage({ text, type })
-    setTimeout(() => setMessage(null), 3000)
+    setTimeout(() => setMessage(null), 3500)
   }
 
   useEffect(() => {
@@ -83,6 +101,7 @@ export default function RunwayFYIAdminLooks() {
     setAddingNew(false)
     setBulkMode(false)
     setOrderChanged(false)
+    setShowAddShow(false)
     try {
       const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}/looks`)
       const data = await res.json()
@@ -121,7 +140,6 @@ export default function RunwayFYIAdminLooks() {
       })
       if (res.ok) {
         setOrderChanged(false)
-        // Update the show's look count in sidebar
         setShows(prev => prev.map(s => s.id === selectedShow.id ? { ...s, total_looks: looks.length } : s))
         showMsg('Order saved!')
       } else {
@@ -250,66 +268,352 @@ export default function RunwayFYIAdminLooks() {
     showMsg(`Added ${added} looks!`)
   }
 
+  // ── Create Show ─────────────────────────────────────────────────────────────
+
+  const handleCreateShow = async () => {
+    if (!newShowBrand.trim()) return
+    setCreatingShow(true)
+    try {
+      const slug = newShowBrand.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + newShowSeason.toLowerCase()
+      const res = await fetch(`${RAILWAY_API}/api/trends/shows`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brand: newShowBrand.trim(),
+          city: newShowCity,
+          season: newShowSeason,
+          slug,
+        }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const newShow: ShowItem = {
+          id: data.id,
+          brand: newShowBrand.trim(),
+          city: newShowCity,
+          season: newShowSeason,
+          total_looks: 0,
+        }
+        setShows(prev => [...prev, newShow].sort((a, b) => a.brand.localeCompare(b.brand)))
+        setNewlyCreatedShow(newShow)
+
+        // If URLs were pasted, go to look seeding step
+        if (newShowUrls.trim()) {
+          setAddShowStep('looks')
+        } else {
+          // No URLs — just select the show and close
+          loadLooks(newShow)
+          resetAddShow()
+          showMsg(`${newShow.brand} created! Add looks below.`)
+        }
+      } else {
+        showMsg('Failed to create show', 'err')
+      }
+    } finally {
+      setCreatingShow(false)
+    }
+  }
+
+  const handleSeedLooks = async () => {
+    if (!newlyCreatedShow || !newShowUrls.trim()) return
+    setBulkSaving(true)
+    const urls = newShowUrls.split('\n').map(u => u.trim()).filter(Boolean)
+    let added = 0
+    for (const url of urls) {
+      const res = await fetch(`${RAILWAY_API}/api/trends/shows/${newlyCreatedShow.id}/looks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_url: url }),
+      })
+      if (res.ok) added++
+      await new Promise(r => setTimeout(r, 80))
+    }
+    setShows(prev => prev.map(s => s.id === newlyCreatedShow.id ? { ...s, total_looks: added } : s))
+    showMsg(`${newlyCreatedShow.brand} created with ${added} looks — live on /shows now!`)
+    loadLooks({ ...newlyCreatedShow, total_looks: added })
+    resetAddShow()
+    setBulkSaving(false)
+  }
+
+  const resetAddShow = () => {
+    setShowAddShow(false)
+    setNewShowBrand('')
+    setNewShowCity('Paris')
+    setNewShowSeason('FW26')
+    setNewShowUrls('')
+    setAddShowStep('details')
+    setNewlyCreatedShow(null)
+  }
+
   const filteredShows = shows.filter(s =>
     s.brand.toLowerCase().includes(search.toLowerCase()) ||
     s.city.toLowerCase().includes(search.toLowerCase())
   )
 
-  // Password gate
+  // ── Password gate ───────────────────────────────────────────────────────────
   if (!authed) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0C0B09', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-        <style>{`@import url('https://api.fontshare.com/v2/css?f[]=ranade@700,400&display=swap'); @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap');`}</style>
-        <p style={{ fontFamily: "'Ranade', sans-serif", fontSize: 28, fontWeight: 700, color: '#fff', letterSpacing: '-0.02em', marginBottom: 8 }}>runway.fyi</p>
-        <p style={{ fontFamily: "'Geist Mono', monospace", fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Admin — Looks Editor</p>
+      <div style={{ minHeight: '100vh', background: '#F5F2ED', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
+        <style>{`
+          @import url('https://api.fontshare.com/v2/css?f[]=ranade@300,400,500,600,700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Geist+Mono:wght@300;400;500&display=swap');
+          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+          :root { --ink: #0C0B09; --cream: #F5F2ED; --warm: #EDE9E2; --mid: #5A5550; --light: #A09A94; --bd: rgba(12,11,9,0.1); --f-mono: 'Geist Mono', monospace; --f-display: 'Ranade', sans-serif; }
+          body { background: var(--cream); -webkit-font-smoothing: antialiased; }
+        `}</style>
+        <a href="/" style={{ fontFamily: "'Ranade', sans-serif", fontSize: 26, fontWeight: 700, color: '#0C0B09', letterSpacing: '0.06em', textTransform: 'lowercase', textDecoration: 'none', marginBottom: 4 }}>runway fyi</a>
+        <p style={{ fontFamily: "'Geist Mono', monospace", fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#A09A94', marginBottom: 20 }}>admin · looks editor</p>
         <input
           type="password"
           value={pwInput}
           onChange={e => setPwInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleLogin()}
-          placeholder="Password"
+          placeholder="password"
           autoFocus
-          style={{ fontFamily: "'Geist Mono', monospace", fontSize: 12, padding: '12px 18px', background: pwError ? 'rgba(192,57,43,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${pwError ? '#c0392b' : 'rgba(255,255,255,0.12)'}`, color: '#fff', outline: 'none', width: 260, letterSpacing: '0.04em', transition: 'border-color 0.2s' }}
+          style={{ fontFamily: "'Geist Mono', monospace", fontSize: 12, padding: '12px 18px', background: '#fff', border: `1px solid ${pwError ? '#c0392b' : 'rgba(12,11,9,0.15)'}`, color: '#0C0B09', outline: 'none', width: 260, letterSpacing: '0.04em', transition: 'border-color 0.2s' }}
         />
-        <button onClick={handleLogin} style={{ fontFamily: "'Geist Mono', monospace", fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '10px 24px', background: '#fff', color: '#0C0B09', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
-          Enter
+        <button onClick={handleLogin} style={{ fontFamily: "'Geist Mono', monospace", fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '10px 24px', background: '#0C0B09', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
+          enter
         </button>
-        {pwError && <p style={{ fontFamily: "'Geist Mono', monospace", fontSize: 9, color: '#c0392b', letterSpacing: '0.08em' }}>Incorrect password</p>}
+        {pwError && <p style={{ fontFamily: "'Geist Mono', monospace", fontSize: 9, color: '#c0392b', letterSpacing: '0.08em' }}>incorrect</p>}
       </div>
     )
   }
 
+  // ── Main UI ─────────────────────────────────────────────────────────────────
   return (
     <>
       <style>{`
-        @import url('https://api.fontshare.com/v2/css?f[]=ranade@700,400&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap');
+        @import url('https://api.fontshare.com/v2/css?f[]=ranade@300,400,500,600,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Geist+Mono:wght@300;400;500&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --ink: #0C0B09; --cream: #F5F2ED; --warm: #EDE9E2; --mid: #5A5550; --light: #A09A94; --bd: rgba(12,11,9,0.1); --f-mono: 'Geist Mono', monospace; --f-display: 'Ranade', sans-serif; }
+        :root { --ink: #0C0B09; --cream: #F5F2ED; --warm: #EDE9E2; --mid: #5A5550; --light: #A09A94; --bd: rgba(12,11,9,0.1); --f-mono: 'Geist Mono', monospace; --f-display: 'Ranade', sans-serif; --f-body: 'Lora', Georgia, serif; }
         body { background: var(--cream); color: var(--ink); -webkit-font-smoothing: antialiased; }
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: var(--bd); }
         .look-card { cursor: grab; transition: opacity 0.15s, transform 0.15s; }
         .look-card:active { cursor: grabbing; }
+        .add-show-overlay { position: fixed; inset: 0; background: rgba(12,11,9,0.6); z-index: 100; display: flex; align-items: flex-end; justify-content: flex-start; }
+        .add-show-panel { width: 400px; height: 100vh; background: #fff; display: flex; flex-direction: column; overflow: hidden; animation: slideIn 0.22s ease; }
+        @keyframes slideIn { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .city-btn { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border: 1px solid var(--bd); cursor: pointer; transition: all 0.15s; background: none; color: var(--mid); }
+        .city-btn:hover { border-color: var(--ink); color: var(--ink); }
+        .field-label { font-family: var(--f-mono); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--light); margin-bottom: 5px; }
+        .field-input { width: 100%; font-family: var(--f-mono); font-size: 11px; padding: 9px 12px; border: 1px solid var(--bd); background: var(--cream); outline: none; color: var(--ink); transition: border-color 0.15s; }
+        .field-input:focus { border-color: var(--ink); }
+        .ticker { background: var(--ink); overflow: hidden; white-space: nowrap; padding: 7px 0; }
+        .ticker-inner { display: inline-flex; animation: tick 48s linear infinite; }
+        .ticker-inner span { font-family: var(--f-mono); font-size: 9.5px; letter-spacing: 0.13em; color: rgba(255,255,255,0.9); padding: 0 42px; }
+        @keyframes tick { from { transform: translateX(0) } to { transform: translateX(-50%) } }
       `}</style>
 
+      {/* Ticker — matches homepage exactly */}
+      <div className="ticker" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200 }}>
+        <div className="ticker-inner">
+          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            <span key={i}>{item}</span>
+          ))}
+        </div>
+      </div>
+      <div style={{ height: 31 }} />
+
+      {/* Toast */}
       {message && (
         <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999, background: message.type === 'ok' ? '#1a7a4a' : '#c0392b', color: '#fff', fontFamily: 'var(--f-mono)', fontSize: 11, letterSpacing: '0.08em', padding: '10px 18px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
           {message.type === 'ok' ? '✓ ' : '✗ '}{message.text}
         </div>
       )}
 
+      {/* Add Show overlay */}
+      {showAddShow && (
+        <div className="add-show-overlay" onClick={e => { if (e.target === e.currentTarget) resetAddShow() }}>
+          <div className="add-show-panel">
+
+            {/* Panel header */}
+            <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--bd)', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <p style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--light)' }}>
+                  {addShowStep === 'details' ? 'Step 1 of 2 · Show Details' : 'Step 2 of 2 · Add Looks'}
+                </p>
+                <button onClick={resetAddShow} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--light)', fontSize: 18, lineHeight: 1 }}>×</button>
+              </div>
+              <h2 style={{ fontFamily: 'var(--f-display)', fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>
+                {addShowStep === 'details' ? 'Add New Show' : newlyCreatedShow?.brand ?? 'Add Looks'}
+              </h2>
+              {addShowStep === 'looks' && (
+                <p style={{ fontFamily: 'var(--f-mono)', fontSize: 9, color: 'var(--light)', marginTop: 4 }}>
+                  Show created ✓ — now paste image URLs below
+                </p>
+              )}
+            </div>
+
+            {/* Step 1 — Details */}
+            {addShowStep === 'details' && (
+              <div style={{ flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+                {/* Brand */}
+                <div>
+                  <p className="field-label">Brand / Designer</p>
+                  <input
+                    className="field-input"
+                    value={newShowBrand}
+                    onChange={e => setNewShowBrand(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleCreateShow()}
+                    placeholder="e.g. Rodarte"
+                    autoFocus
+                  />
+                </div>
+
+                {/* City */}
+                <div>
+                  <p className="field-label">City</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {CITIES.map(c => (
+                      <button
+                        key={c}
+                        className="city-btn"
+                        onClick={() => setNewShowCity(c)}
+                        style={{
+                          background: newShowCity === c ? 'var(--ink)' : 'none',
+                          color: newShowCity === c ? '#fff' : 'var(--mid)',
+                          borderColor: newShowCity === c ? 'var(--ink)' : 'var(--bd)',
+                        }}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Season */}
+                <div>
+                  <p className="field-label">Season</p>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {['FW26', 'SS26', 'FW25', 'SS25'].map(s => (
+                      <button
+                        key={s}
+                        className="city-btn"
+                        onClick={() => setNewShowSeason(s)}
+                        style={{
+                          background: newShowSeason === s ? 'var(--ink)' : 'none',
+                          color: newShowSeason === s ? '#fff' : 'var(--mid)',
+                          borderColor: newShowSeason === s ? 'var(--ink)' : 'var(--bd)',
+                        }}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Image URLs (optional) */}
+                <div>
+                  <p className="field-label">Image URLs <span style={{ opacity: 0.5 }}>(optional — one per line)</span></p>
+                  <textarea
+                    className="field-input"
+                    value={newShowUrls}
+                    onChange={e => setNewShowUrls(e.target.value)}
+                    placeholder={'https://assets.vogue.com/...\nhttps://assets.vogue.com/...'}
+                    rows={6}
+                    style={{ resize: 'vertical', fontFamily: 'var(--f-mono)', fontSize: 9 }}
+                  />
+                  {newShowUrls.trim() && (
+                    <p style={{ fontFamily: 'var(--f-mono)', fontSize: 8, color: 'var(--light)', marginTop: 4 }}>
+                      {newShowUrls.split('\n').filter(u => u.trim()).length} URLs ready to seed
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Step 2 — Seed looks */}
+            {addShowStep === 'looks' && (
+              <div style={{ flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div>
+                  <p className="field-label">Image URLs — one per line</p>
+                  <textarea
+                    className="field-input"
+                    value={newShowUrls}
+                    onChange={e => setNewShowUrls(e.target.value)}
+                    placeholder={'https://assets.vogue.com/...\nhttps://assets.vogue.com/...'}
+                    rows={12}
+                    autoFocus
+                    style={{ resize: 'vertical', fontFamily: 'var(--f-mono)', fontSize: 9 }}
+                  />
+                  {newShowUrls.trim() && (
+                    <p style={{ fontFamily: 'var(--f-mono)', fontSize: 8, color: 'var(--light)', marginTop: 4 }}>
+                      {newShowUrls.split('\n').filter(u => u.trim()).length} looks to add
+                    </p>
+                  )}
+                </div>
+                <p style={{ fontFamily: 'var(--f-mono)', fontSize: 9, color: 'var(--light)', lineHeight: 1.6 }}>
+                  You can also skip this and add looks later via the Bulk Add button after selecting the show.
+                </p>
+              </div>
+            )}
+
+            {/* Panel footer */}
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--bd)', display: 'flex', gap: 8, flexShrink: 0 }}>
+              {addShowStep === 'details' ? (
+                <>
+                  <button
+                    onClick={handleCreateShow}
+                    disabled={creatingShow || !newShowBrand.trim()}
+                    style={{
+                      flex: 1, fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.12em',
+                      textTransform: 'uppercase', padding: '11px', background: newShowBrand.trim() ? 'var(--ink)' : 'var(--warm)',
+                      color: newShowBrand.trim() ? '#fff' : 'var(--light)', border: 'none',
+                      cursor: newShowBrand.trim() ? 'pointer' : 'not-allowed',
+                    }}
+                  >
+                    {creatingShow ? 'Creating...' : newShowUrls.trim() ? 'Create Show + Seed Looks →' : 'Create Show →'}
+                  </button>
+                  <button onClick={resetAddShow} style={{ fontFamily: 'var(--f-mono)', fontSize: 9, padding: '11px 16px', background: 'none', border: '1px solid var(--bd)', cursor: 'pointer', color: 'var(--light)' }}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSeedLooks}
+                    disabled={bulkSaving || !newShowUrls.trim()}
+                    style={{
+                      flex: 1, fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.12em',
+                      textTransform: 'uppercase', padding: '11px', background: newShowUrls.trim() ? '#1a7a4a' : 'var(--warm)',
+                      color: newShowUrls.trim() ? '#fff' : 'var(--light)', border: 'none',
+                      cursor: newShowUrls.trim() ? 'pointer' : 'not-allowed',
+                    }}
+                  >
+                    {bulkSaving ? 'Seeding looks...' : `Add ${newShowUrls.split('\n').filter(u => u.trim()).length} Looks`}
+                  </button>
+                  <button
+                    onClick={() => { loadLooks(newlyCreatedShow!); resetAddShow() }}
+                    style={{ fontFamily: 'var(--f-mono)', fontSize: 9, padding: '11px 16px', background: 'none', border: '1px solid var(--bd)', cursor: 'pointer', color: 'var(--light)' }}
+                  >
+                    Skip
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+
         {/* Sidebar */}
         <div style={{ width: 280, flexShrink: 0, background: 'var(--ink)', color: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div style={{ padding: '20px 20px 12px' }}>
             <p style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', opacity: 0.4, marginBottom: 4 }}>runwayfyi.com · admin</p>
-            <h1 style={{ fontFamily: 'var(--f-display)', fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 14 }}>Looks Editor</h1>
+            <a href="/" style={{ display: 'block', fontFamily: 'var(--f-display)', fontSize: 20, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'lowercase', color: '#fff', textDecoration: 'none', marginBottom: 4 }}>runway fyi</a>
+            <h1 style={{ fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.5, marginBottom: 14 }}>Looks Editor</h1>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search shows..." style={{ width: '100%', fontFamily: 'var(--f-mono)', fontSize: 10, padding: '7px 10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', outline: 'none', letterSpacing: '0.04em' }} />
           </div>
           <div style={{ padding: '0 20px 12px', display: 'flex', gap: 12 }}>
             <a href="/admin/shows" style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>← Covers</a>
             <a href="/shows" style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>← Shows</a>
           </div>
+
+          {/* Shows list */}
           <div style={{ flex: 1, overflowY: 'auto' }}>
             {loadingShows ? (
               <div style={{ padding: '20px', fontFamily: 'var(--f-mono)', fontSize: 9, opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Loading...</div>
@@ -320,6 +624,23 @@ export default function RunwayFYIAdminLooks() {
               </button>
             ))}
           </div>
+
+          {/* Add Show button — pinned to bottom of sidebar */}
+          <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+            <button
+              onClick={() => { setShowAddShow(true); setAddShowStep('details') }}
+              style={{
+                width: '100%', fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.12em',
+                textTransform: 'uppercase', padding: '10px', background: 'rgba(255,255,255,0.08)',
+                color: '#fff', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+            >
+              + Add Show
+            </button>
+          </div>
         </div>
 
         {/* Main */}
@@ -327,7 +648,7 @@ export default function RunwayFYIAdminLooks() {
           {!selectedShow ? (
             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
               <p style={{ fontFamily: 'var(--f-display)', fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--light)' }}>Select a show</p>
-              <p style={{ fontFamily: 'var(--f-mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--light)', opacity: 0.6 }}>Choose from the list on the left</p>
+              <p style={{ fontFamily: 'var(--f-mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--light)', opacity: 0.6 }}>Choose from the list on the left or add a new show</p>
             </div>
           ) : (
             <>
@@ -382,7 +703,7 @@ export default function RunwayFYIAdminLooks() {
                 </div>
               )}
 
-              {/* Grid */}
+              {/* Look grid */}
               <div style={{ flex: 1, overflowY: 'auto', padding: 1, background: 'var(--bd)' }}>
                 {loadingLooks ? (
                   <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'var(--f-mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--light)', background: 'var(--cream)' }}>Loading looks...</div>
