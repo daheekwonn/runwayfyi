@@ -416,29 +416,33 @@ export default function TagLooksPage() {
   // ── Save all dirty ─────────────────────────────────────────────────────────
 
   async function saveAll() {
-    if (!selectedShow || dirtySet.size === 0) return;
-    setSaving(true);
-    setSaveStatus("");
-    const dirtyLooks = looks.filter(l => dirtySet.has(l.id));
-    try {
-      await Promise.all(
-        dirtyLooks.map(l =>
-          fetch(`${API_BASE}/api/trends/shows/${selectedShow.id}/looks/${l.id}/manual-tags`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ manual_tags: (tagMap[l.id] ?? []).join(", ") }),
-          })
-        )
-      );
-      setDirtySet(new Set());
-      setSaveStatus("saved");
-      setTimeout(() => setSaveStatus(""), 3000);
-    } catch {
-      setSaveStatus("error");
-    } finally {
-      setSaving(false);
-    }
+  if (!selectedShow || dirtySet.size === 0) return;
+  setSaving(true);
+  setSaveStatus("");
+  const dirtyLooks = looks.filter(l => dirtySet.has(l.id));
+  try {
+    const results = await Promise.all(
+      dirtyLooks.map(l =>
+        fetch(`${API_BASE}/api/trends/shows/${selectedShow.id}/looks/${l.id}/manual-tags`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ manual_tags: (tagMap[l.id] ?? []).join(", ") }),
+        }).then(r => {
+          if (!r.ok) throw new Error(`Look ${l.id} failed: ${r.status}`);
+          return r;
+        })
+      )
+    );
+    setDirtySet(new Set());
+    setSaveStatus("saved");
+    setTimeout(() => setSaveStatus(""), 3000);
+  } catch (e) {
+    console.error("Save failed:", e);
+    setSaveStatus("error");
+  } finally {
+    setSaving(false);
   }
+}
 
   // ── Filtered shows ─────────────────────────────────────────────────────────
 
