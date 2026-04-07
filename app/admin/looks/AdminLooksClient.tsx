@@ -44,6 +44,8 @@ export default function RunwayFYIAdminLooks() {
   const [saving, setSaving] = useState<number | null>(null)
   const [deleting, setDeleting] = useState<number | null>(null)
   const [deletingAll, setDeletingAll] = useState(false)
+  const [deletingShow, setDeletingShow] = useState<number | null>(null)
+  const [confirmDeleteShow, setConfirmDeleteShow] = useState<ShowItem | null>(null)
   const [addingNew, setAddingNew] = useState(false)
   const [newUrl, setNewUrl] = useState('')
   const [bulkMode, setBulkMode] = useState(false)
@@ -208,6 +210,26 @@ export default function RunwayFYIAdminLooks() {
       }
     } finally {
       setDeletingAll(false)
+    }
+  }
+
+  const handleDeleteShow = async (show: ShowItem) => {
+    setDeletingShow(show.id)
+    try {
+      const res = await fetch(`${RAILWAY_API}/api/trends/shows/${show.id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setShows(prev => prev.filter(s => s.id !== show.id))
+        if (selectedShow?.id === show.id) {
+          setSelectedShow(null)
+          setLooks([])
+        }
+        showMsg(`${show.brand} deleted`)
+      } else {
+        showMsg('Delete failed', 'err')
+      }
+    } finally {
+      setDeletingShow(null)
+      setConfirmDeleteShow(null)
     }
   }
 
@@ -423,6 +445,34 @@ export default function RunwayFYIAdminLooks() {
         </div>
       )}
 
+      {/* Confirm delete show dialog */}
+      {confirmDeleteShow && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(12,11,9,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', padding: 32, maxWidth: 380, width: '90%', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <p style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--light)' }}>Confirm Delete</p>
+            <h3 style={{ fontFamily: 'var(--f-display)', fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--ink)' }}>{confirmDeleteShow.brand}</h3>
+            <p style={{ fontFamily: 'var(--f-mono)', fontSize: 10, color: 'var(--mid)', lineHeight: 1.6 }}>
+              This will permanently delete the show and all {confirmDeleteShow.total_looks} looks. This cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => handleDeleteShow(confirmDeleteShow)}
+                disabled={deletingShow === confirmDeleteShow.id}
+                style={{ flex: 1, fontFamily: 'var(--f-mono)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '10px', background: '#c0392b', color: '#fff', border: 'none', cursor: 'pointer' }}
+              >
+                {deletingShow === confirmDeleteShow.id ? 'Deleting...' : 'Delete Show'}
+              </button>
+              <button
+                onClick={() => setConfirmDeleteShow(null)}
+                style={{ fontFamily: 'var(--f-mono)', fontSize: 9, padding: '10px 16px', background: 'none', border: '1px solid var(--bd)', cursor: 'pointer', color: 'var(--light)' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Show overlay */}
       {showAddShow && (
         <div className="add-show-overlay" onClick={e => { if (e.target === e.currentTarget) resetAddShow() }}>
@@ -618,10 +668,23 @@ export default function RunwayFYIAdminLooks() {
             {loadingShows ? (
               <div style={{ padding: '20px', fontFamily: 'var(--f-mono)', fontSize: 9, opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Loading...</div>
             ) : filteredShows.map(show => (
-              <button key={show.id} onClick={() => loadLooks(show)} style={{ width: '100%', textAlign: 'left', padding: '10px 20px', background: selectedShow?.id === show.id ? 'rgba(255,255,255,0.12)' : 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', color: '#fff' }}>
-                <div style={{ fontFamily: 'var(--f-display)', fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em' }}>{show.brand}</div>
-                <div style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.4, marginTop: 2 }}>{show.city} · {show.total_looks} looks</div>
-              </button>
+              <div key={show.id} style={{ position: 'relative', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'stretch' }}
+                onMouseEnter={e => { const btn = e.currentTarget.querySelector('.show-delete-btn') as HTMLElement; if (btn) btn.style.opacity = '1' }}
+                onMouseLeave={e => { const btn = e.currentTarget.querySelector('.show-delete-btn') as HTMLElement; if (btn) btn.style.opacity = '0' }}
+              >
+                <button onClick={() => loadLooks(show)} style={{ flex: 1, textAlign: 'left', padding: '10px 16px 10px 20px', background: selectedShow?.id === show.id ? 'rgba(255,255,255,0.12)' : 'none', border: 'none', cursor: 'pointer', color: '#fff' }}>
+                  <div style={{ fontFamily: 'var(--f-display)', fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em' }}>{show.brand}</div>
+                  <div style={{ fontFamily: 'var(--f-mono)', fontSize: 8, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.4, marginTop: 2 }}>{show.city} · {show.total_looks} looks</div>
+                </button>
+                <button
+                  className="show-delete-btn"
+                  onClick={e => { e.stopPropagation(); setConfirmDeleteShow(show) }}
+                  title="Delete show"
+                  style={{ opacity: 0, transition: 'opacity 0.15s', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(192,57,43,0.8)', padding: '0 14px', fontSize: 14, flexShrink: 0 }}
+                >
+                  ✕
+                </button>
+              </div>
             ))}
           </div>
 
